@@ -422,7 +422,7 @@ snlSurface& snlSurface::operator= ( const snlSurface& surfaceToCopy )
     if ( this != &surfaceToCopy )
     {
         // If surface already contains data then will have to delete it.
-        
+
         if ( ctrlPtNet ) delete ctrlPtNet;
         if ( knotVectU ) delete knotVectU;
         if ( knotVectV ) delete knotVectV;
