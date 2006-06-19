@@ -49,10 +49,10 @@ typedef struct
     snlPoint    pt;  // Point corresponding to parameters.
     basis       dist;  // Distance from point being inverted / projected to point found.
     double      cos;  // Cos of angle to normal.
-    
+
     int         origPtIndex;  // For inversion and projection, the index of the original point handed to the
                               // relevant function.
-                              
+
 } snlSurfLocn;
 
 typedef struct
