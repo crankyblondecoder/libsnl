@@ -222,13 +222,18 @@ class snlSurface : public snlSurfaceBase
 
         void velocities ( knot paramU, knot paramV, snlPoint& evalPoint, snlVector& velocityU, snlVector& velocityV,
                           basis* basisU = 0, basis* basisV = 0 );
+
+        // Knot manipulation.
         
         void insertKnot ( knot iParam, int dir, bool reallocate = true );
         void insertKnot ( knot iParam, int dir, int numToInsert, bool reallocate = true );
         double removeKnots ( int numKnots, unsigned removalIndex, int direction, double tolerance, bool reallocate = true );
         double removeKnot ( unsigned removalIndex, int direction, double tolerance, bool reallocate = true );
-        
-        snlVertex* project_depr ( snlPoint* toProject, int numPoints, double convergTol, double normTol, int maxPass );
+
+        // Projection.
+
+        snlVertex* project_desspr ( snlPoint* toProject, int numPoints, double convergTol, double
+                                    normTol, int maxPass );
 
         snlSurfLocn* invert ( snlPoint* toInvert, int numPoints, int* retArraySize,
                               double convergTol, double normTol, int maxPass );
@@ -245,6 +250,8 @@ class snlSurface : public snlSurfaceBase
         // Try to predict edges that may have ambiguities during projection.
         int hasAmbigEdges ( sEdge* results, double tolerance = 1.0e-6 );
         int hasAmbigEdges_depr ( sEdge* results );
+
+        // Surface decomposition.
         
         unsigned createBezierSegments ( int dir, int** numKnotsAdded = 0);
         void createBezierSegments ( int* numU = 0, int* numV = 0 );

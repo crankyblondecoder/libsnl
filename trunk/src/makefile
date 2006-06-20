@@ -7,7 +7,8 @@ objFiles := snlCircularOffsetCurve.o \
             snlMatrix_4x4.o snlMeshable.o \
             snlNurbsCommon.o \
             snlPoint.o \
-            snlSquareLinear.o snlSurface.o snlSurface_pointLoop.o snlSurfaceOfRevolution.o \
+            snlSquareLinear.o snlSurface.o snlSurface_pointLoop.o \
+            snlSurface_projection.o snlSurfaceOfRevolution.o \
             snlTransform.o snlTriangleMesh.o \
             snlUtil.o \
             snlVector.o snlVertex.o snlVertexNet.o
