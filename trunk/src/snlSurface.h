@@ -232,8 +232,8 @@ class snlSurface : public snlSurfaceBase
 
         // Projection.
 
-        snlVertex* project_desspr ( snlPoint* toProject, int numPoints, double convergTol, double
-                                    normTol, int maxPass );
+        snlVertex* project_depr ( snlPoint* toProject, int numPoints, double convergTol, double
+                                  normTol, int maxPass );
 
         snlSurfLocn* invert ( snlPoint* toInvert, int numPoints, int* retArraySize,
                               double convergTol, double normTol, int maxPass );
