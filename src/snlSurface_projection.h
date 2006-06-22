@@ -13,3 +13,6 @@
 
 #include "snlSurface.h"
 
+#include "snlUtil.h"
+
+#include "snlNurbsCommon.h"
