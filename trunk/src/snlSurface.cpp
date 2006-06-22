@@ -35,8 +35,8 @@ snlSurface::snlSurface()
 
 void snlSurface::init()
 {
-    // Standard Initialisation.
-    // ------------------------
+    //! Standard Initialisation.
+    //  ------------------------
 
     ctrlPtNet = 0;
 
@@ -48,8 +48,8 @@ void snlSurface::init()
 
 snlSurface::snlSurface ( const snlSurface& surfaceToCopy )
 {
-    // Copy constructor.
-    // -----------------
+    //! Copy constructor.
+    //  -----------------
 
     init();
 
@@ -59,15 +59,15 @@ snlSurface::snlSurface ( const snlSurface& surfaceToCopy )
 snlSurface::snlSurface ( int degreeU, int degreeV, unsigned sizeU, unsigned sizeV, 
                          snlPoint& origin, snlPoint& cornerMaxU, snlPoint& cornerMaxV )
 {
-    // Construct a new NURBS surface.
-    // ------------------------------
-    // degreeU:     Degree of surface in U direction.
-    // degreeV:     Degree of surface in V direction.
-    // sizeU:       Number of control points in the U dimension.
-    // sizeV:       Number of control points in the V dimension.
-    // origin:      Point at (u,v) = (0,0).
-    // cornerMaxU:  Point at (u,v) = (MaxU,0).
-    // cornerMaxV:  Point at (u,v) = (0,MaxV).
+    //! Construct a new NURBS surface.
+    //  ------------------------------
+    //! @param degreeU Degree of surface in U direction.
+    //! @param degreeV Degree of surface in V direction.
+    //! @param sizeU Number of control points in the U dimension.
+    //! @param sizeV Number of control points in the V dimension.
+    //! @param origin Point at (u,v) = (0,0).
+    //! @param cornerMaxU Point at (u,v) = (MaxU,0).
+    //! @param cornerMaxV Point at (u,v) = (0,MaxV).
 
     init();
     
@@ -83,18 +83,19 @@ snlSurface::snlSurface ( int degreeU, int degreeV, unsigned sizeU, unsigned size
 snlSurface::snlSurface ( int degreeU, int degreeV, unsigned sizeU, unsigned sizeV, snlCtrlPoint* points,
                          knot* knotsU, knot* knotsV )
 {
-    // Create surface from existing data.
-    // ----------------------------------
-    // degreeU:     Degree in U direction.
-    // degreeV:     Degree in V direction.
-    // sizeU:       Size of U dimension.
-    // sizeV:       Size of V dimension.
-    // points:      Control points to use.
-    // knotsU:      Array of knots for U direction.
-    // knotsV:      Array of knots for V direction.
-    //
-    // Notes:       Assumes a clamped (open) knot vector.
-    //              Does NOT COPY point and knot data. So don't delete them elsewhere.
+    //! Create surface from existing data.
+    //  ----------------------------------
+    //! @param degreeU Degree in U direction.
+    //! @param degreeV Degree in V direction.
+    //! @param sizeU Size of U dimension.
+    //! @param sizeV Size of V dimension.
+    //! @param points Control points to use.
+    //! @param knotsU Array of knots for U direction.
+    //! @param knotsV Array of knots for V direction.
+    //!
+    //! @par   Notes:
+    //!        Assumes a clamped (open) knot vector.
+    //! <BR>   Does NOT COPY point and knot data. So don't delete them elsewhere.
 
     init();
     
@@ -116,13 +117,11 @@ snlSurface::snlSurface ( int degreeU, int degreeV, unsigned sizeU, unsigned size
 
 snlSurface::snlSurface ( snlCurve& curve1, snlCurve& curve2, int direction )
 {
-    // Generate ruled surface.
-    // -----------------------
-    // curve1:      First side of surface.
-    // curve2:      Second side of surface.
-    // direction:   Parmetric direction defining curves lay in.
-    //
-    // Notes:       
+    //! Generate ruled surface.
+    //  -----------------------
+    //! @param curve1 First side of surface.
+    //! @param curve2 Second side of surface.
+    //! @param direction Parmetric direction defining curves lay in.
 
     init();
 
@@ -197,16 +196,16 @@ snlSurface::snlSurface ( snlCurve& curve1, snlCurve& curve2, int direction )
 
 snlSurface::snlSurface ( snlCurve& generator, snlPoint& axisStart, snlPoint& axisEnd, double angle )
 {
-    // Construct surface of revolution.
-    // --------------------------------
-    // generator:       Generating curve.
-    // axisStart:       Starting point of axis generator is revolved about.
-    // axisEnd:         Ending point of axis.
-    // angle:           Angle in degrees to revolve generator about axis.
-    //                  Angle is in degrees so that different precisions of PI do not affect surface closure.
-    //
-    // Notes:           Rotation is counter clockwise about axis vector. Right hand rule.
-    //                  Curve defines V direction.
+    //! Construct surface of revolution.
+    //  --------------------------------
+    //! @param generator Generating curve.
+    //! @param axisStart Starting point of axis generator is revolved about.
+    //! @param axisEnd Ending point of axis.
+    //! @param angle Angle in degrees to revolve generator about axis. Angle is in degrees so that
+    //!              different precisions of PI do not affect surface closure.
+    //!
+    //! @note Rotation is counter clockwise about axis vector ie Right hand rule. Curve defines V
+    //!       direction.
 
     init();
 
