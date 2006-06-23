@@ -192,6 +192,7 @@ snlSurfLocn* snlSurface::processGuesses ( snlPoint* points, int numPoints, int* 
     //! @param maxPass Maximum number of refinement passes allowed. Stops infinite loops if
     //!                projections don't converge.
     //! @param retNonConverged Return non converged points. Used for projection.
+    //! @param noCull Do not cull guesses that converge to the same point.
     //! @param numVelocity Number of velocity iterations to perform per pass.
     //! @param numNewton Number of newton iterations to perform per pass.
     
@@ -357,6 +358,7 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
 {
     //! Converge guesses to given points using velocity technique.
     //  ----------------------------------------------------------
+    //! @param convergToPts Array of points that are to be converged to. ie Points to be found.
     //! @param guesses List of current guesses to be converged.
     //! @param numIterations Maximum number of convergence iterations to perform.
     //! @param convergTol Maximum distance between point and guess allowed for convergence to be
@@ -581,6 +583,7 @@ bool snlSurface::convergeNewton ( snlPoint* convergToPts, ptrList <snlSurfLocnGu
 {
     //! Converge guesses to given points using Newton iteration
     //  -------------------------------------------------------
+    //! @param convergToPts Array of points that are to be converged to. ie Points to be found.
     //! @param guesses List of current guesses to be converged.
     //! @param numIterations Maximum number of convergence iterations to perform.
     //! @param convergTol Maximum distance between point and guess allowed for convergence to be

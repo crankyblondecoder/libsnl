@@ -4,7 +4,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = libSNL.kdevelop
-PROJECT_NUMBER         = $VERSION$
+PROJECT_NUMBER         = "Version 0.2"
 OUTPUT_DIRECTORY       = ./doc
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English

@@ -146,3 +146,10 @@ bool isInteriorToTriangle ( snlPoint& testPt, snlPoint& verticeA, snlVector& bou
     return isInterior;
 }
 
+void snlVersion ( int* major, int* minor, int* release )
+{
+    *major = SNL_VERSION_MAJOR;
+    *minor = SNL_VERSION_MINOR;
+    *release = SNL_VERSION_RELEASE;
+}
+
