@@ -66,6 +66,8 @@ snlVector projectToLine ( snlPoint lineStart, snlPoint lineEnd, snlPoint compare
 bool isInteriorToTriangle ( snlPoint& testPt, snlPoint& verticeA, snlVector& boundA1, snlVector& boundA2,
                             snlPoint& verticeB, snlVector& boundB1, snlVector& boundB2 );
 
+void snlVersion ( int* major, int* minor, int* release );
+
 #endif
 
 
