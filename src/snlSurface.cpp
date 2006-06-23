@@ -222,8 +222,8 @@ snlSurface::snlSurface ( snlCurve** curves, int numCurves, int dir )
     //! @param dir Parametric direction to skin over.
     //!
     //! @par Notes:
-    //!      The skinned direction is degree 2.
-    //! <BR> It is assumed the curves are exactly the same size with the same knot vector.
+    //!      The skinned direction is degree 2. \n
+    //!      It is assumed the curves are exactly the same size with the same knot vector.
 
     init();
     
