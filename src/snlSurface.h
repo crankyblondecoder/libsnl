@@ -349,6 +349,9 @@ class snlSurface : public snlSurfaceBase
         ptrList <snlSurfLocnGuess>* guessFastProjLocation ( snlPoint* points, int numPoints, int maxGuessPerPt,
                                                             int granU, int granV );
 
+        ptrList <snlSurfLocnGuess>* guessProjLocation_triMethod ( snlPoint* points, int numPoints,
+                                                                  bool* pointMask );
+
         void genSurfRevolution ( snlCurve& generator, snlPoint& axisStart, snlPoint& axisEnd, double angle );
                                                             
         // Data Section
