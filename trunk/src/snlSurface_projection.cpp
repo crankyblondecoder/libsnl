@@ -1146,10 +1146,10 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
     //! @param pointMask Array specifying which points to process. Corresponding index to points
     //!                  array. Must be true to process.
     //!
-    //! @returns Array of surface location guess structs. Caller owns this array.
+    //! @returns List of surface location guess structs. Caller owns this list.
     //!
-    //! Notes: Function expects all spans to be convex Bezier segments. It will _not_ work
-    //!        if this is not so.
+    //! @par Notes: Function expects all spans to be convex Bezier segments. It will _not_ work
+    //!      if this is not so.
 
     int     index;
 
@@ -1566,8 +1566,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
     return retList;
 }
 
-ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points, int numPoints, int
-numGuessesPerPt,
+ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points, int numPoints, int numGuessesPerPt,
                                                                 int granU, int granV )
 {
     //! Guess parametric location of given points.
@@ -1578,12 +1577,9 @@ numGuessesPerPt,
     //! @param granU Number of guesses per span.
     //! @param granV Number of guesses per span.
     //!
-    //! @returns Array of surface location guess structs. Caller owns this array.
-    //!
-    //! Notes: Function expects all spans to be convex Bezier segments. It will _not_ work
-    //!        if this is not so.
+    //! @returns List of surface location guess structs. Caller owns this lists.
 
-    int     index;
+    int index;
 
     int numSpansU = knotVectU -> getNumSpans();
     int numSpansV = knotVectV -> getNumSpans();
@@ -1828,8 +1824,7 @@ numGuessesPerPt,
 
     // Assemble return list.
 
-    ptrList <snlSurfLocnGuess>* retList = new ptrList <snlSurfLocnGuess>;  // List of guesses to
-                                                                           // return.
+    ptrList <snlSurfLocnGuess>* retList = new ptrList <snlSurfLocnGuess>;  // List of guesses to return.
 
     for ( int guessIndex = 0; guessIndex < totalNumGuesses; guessIndex ++ )
     {
@@ -1859,6 +1854,20 @@ numGuessesPerPt,
     delete[] basisV;
 
     return retList;    
+}
+
+ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation_triMethod ( snlPoint* points, int numPoints, bool* pointMask )
+{
+    //! Guess parametric location of given points using triangular decomposition.
+    //  -------------------------------------------------------------------------
+    //! @param points Array of points to find matches with.
+    //! @param numPoints Number of points in array.
+    //! @param pointMask Array specifying which points to process. Corresponding index to points
+    //!                  array. Must be true to process.
+    //!
+    //! @returns List of surface location guess structs. Caller owns this list.
+
+    
 }
 
 int snlSurface::hasAmbigEdges ( sEdge* results, double tolerance )
