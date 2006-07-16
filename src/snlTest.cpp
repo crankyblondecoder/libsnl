@@ -211,16 +211,6 @@ snlSurface* generateSurface2()
     return retSurface;
 }
 
-snlSurface* generate_cgx_surface()
-{
-    // Used for testing cgx related surfaces.
-    // --------------------------------------
-
-    #include "cgxTestSurface4.h"
-    
-    return retSurface;
-}
-
 snlSurface* generateSawToothSurface()
 {
     // Generate surface for use elsewhere in the test program.
@@ -543,179 +533,6 @@ bool test_ambig()
         cout << "Passed\n";
     
     return passed;
-}
-
-bool test_cgx()
-{
-    // Test cgx related functions
-    // --------------------------
-    
-    //cout << "\n\n";
-    
-    bool passed = true;
-    
-    snlSurface* testSurf = generate_cgx_surface();
-    
-    //int numSteps = 10;
-    
-    int maxPass = 10;
-    
-    // Step through surface and evaluate.
-    
-/*
-    double minParamU = ( testSurf -> knotVectorU() ).min();
-    double minParamV = ( testSurf -> knotVectorV() ).min();
-    double maxParamU = ( testSurf -> knotVectorU() ).max();
-    double maxParamV = ( testSurf -> knotVectorV() ).max();
-    
-    double paramStepU = ( maxParamU - minParamU ) / ( numSteps - 1 );
-    double paramStepV = ( maxParamV - minParamV ) / ( numSteps - 1 );
-    
-    double paramU = 0.0;
-    double paramV = 0.0;
-*/    
-    double maxError = 0;
-    
-    double iterTol = 1.0e-10;
-    double normTol = 1.0e-8;
-
-//    int numEval = numSteps * numSteps;
-
-    int numEval = 23;
-    //int numEval = 1;
-
-    // Fill array with evaluated points.
-
-    snlPoint* evalPts = new snlPoint [ numEval ];
-
-    //evalPts [ 0 ].components ( 0.0, 0.0, 0.0 );
-
-    //evalPts [ 0 ].components ( 0.076873, -0.111364, -0.162326 );
-
-  
-    evalPts [ 0 ].components ( 0.073184, -0.302541, -0.167307 );
-    evalPts [ 1 ].components ( 0.058620, -0.206606, -0.169105 );
-    evalPts [ 2 ].components ( 0.076873, -0.111364, -0.162326 );
-    evalPts [ 3 ].components ( 0.119059, -0.028593, -0.134268 );
-    evalPts [ 4 ].components ( 0.177067, 0.033592, -0.086871 );
-    evalPts [ 5 ].components ( 0.246760, 0.075340, -0.032956 );
-    evalPts [ 6 ].components ( 0.325631, 0.097064, 0.019753 );
-    evalPts [ 7 ].components ( 0.304595, 0.154435, 0.084254 );
-    evalPts [ 8 ].components ( 0.289219, 0.227518, 0.132393 );
-    evalPts [ 9 ].components ( 0.280606, 0.311274, 0.160780 );
-    evalPts [ 10 ].components ( 0.279307, 0.399856, 0.167554 );
-    evalPts [ 11 ].components ( 0.094945, 0.377070, 0.111060 );
-    evalPts [ 12 ].components ( -0.075838, 0.295156, 0.069101 );
-    evalPts [ 13 ].components ( -0.210752, 0.158021, 0.044476 );
-    evalPts [ 14 ].components ( -0.294491, -0.016763, 0.035944 );
-    evalPts [ 15 ].components ( -0.323088, -0.208738, 0.040243 );
-    evalPts [ 16 ].components ( -0.294497, -0.400000, 0.055801 );
-    evalPts [ 17 ].components ( -0.219096, -0.373969, 0.060507 );
-    evalPts [ 18 ].components ( -0.144088, -0.350306, 0.046402 );
-    evalPts [ 19 ].components ( -0.073652, -0.330371, 0.014364 );
-    evalPts [ 20 ].components ( -0.011768, -0.315250, -0.033873 );
-    evalPts [ 21 ].components ( 0.038096, -0.305773, -0.095589 );
-    evalPts [ 22 ].components ( 0.073184, -0.302541, -0.167307 );
-
-
-    //int index = 0;
-/*    
-    for ( int indexU = 0; indexU < numSteps; indexU ++ )
-    {
-        paramV = minParamV;
-        
-        for ( int indexV = 0; indexV < numSteps; indexV ++ )
-        {
-            evalPts [ index ] = testSurf -> eval ( paramU, paramV );
-
-            //cout << "(" << indexU << ", " << indexV << ") ";
-            //cout << "EvalParamU: " << paramU << "  EvalParamV: " << paramV << "\n";
-            
-            paramV += paramStepV;
-            
-            if ( paramV > maxParamV ) paramV = maxParamV;
-
-            index ++;
-        }
-
-        paramU += paramStepU;
-        
-        if ( paramU > maxParamU ) paramU = maxParamU;
-    }
-*/  
-    int numReturned;
-
-    //snlSurfLocn* inverted = testSurf -> invert ( evalPts, numEval, &numReturned, iterTol, normTol, maxPass );
-    //snlSurfLocn* inverted = testSurf -> project ( evalPts, numEval, &numReturned, iterTol, normTol, maxPass );
-    snlSurfLocn* inverted = testSurf -> fastProject ( evalPts, numEval, &numReturned, iterTol, normTol, maxPass, 1, 1 );
-
-    cout << "Num Sent: " << numEval << " Num Returned: " << numReturned << "\n";
-
-    for ( int index = 0; index < numReturned; index ++ )
-    {
-        snlVector delta ( evalPts [ inverted [ index ].origPtIndex ], inverted [ index ].pt );
-        
-        if ( maxError < delta.length() )
-            maxError = delta.length();
-
-
-        if ( inverted [ index ].dist > iterTol && inverted [ index ].cos > normTol )
-        {
-            cout << "Point Index: " << inverted [ index ].origPtIndex << "  Dist: " << inverted [ index ].dist
-                 << "  Cos: " << inverted [ index ].cos << "\n";
-            cout << "ParamU: " << inverted [ index ].paramU << "  ParamV: " << inverted [ index ].paramV << "\n";
-
-            snlVertex* vertex = testSurf -> project_depr ( evalPts + inverted [ index ].origPtIndex, numEval,
-                                                           iterTol, normTol, 10 );
-
-            double crossCheckDist = sqrt ( evalPts [ inverted [ index ].origPtIndex ].distSqrd ( *vertex ) );
-
-            cout << "Cross Check - ParamU: " << vertex -> evalParamU() << "  ParamV: " << vertex -> evalParamV()
-                 << "  Dist: " << crossCheckDist << "\n";
-
-            delete[] vertex;
-        }
-
-        if ( index )
-        {
-            if ( inverted [ index ].origPtIndex - inverted [ index - 1 ].origPtIndex > 1 )
-                cout << "Hole Found ( not including ) - start: " <<  inverted [ index - 1 ].origPtIndex << "  end: "
-                     << inverted [ index ].origPtIndex << "\n";
-        }
-        else
-        {
-            if ( inverted [ index ].origPtIndex != 0 )
-                cout << "Starts at: " << inverted [ index ].origPtIndex << "\n";
-        }
-
-    }
-
-    delete[] inverted;
-    delete[] evalPts;
-    
-    if ( maxError > iterTol ) passed = false;    
-    
-    // Clean up, report and return.    
-    
-    cout << "Tolerance = " << iterTol << ", Max Error = " << maxError << " - ";
-
-    if ( numEval > numReturned )
-    {
-        cout << "Number Sent: " << numEval << " Number Returned: " << numReturned << " - ";
-        passed = false;
-    }
-    
-    delete testSurf;
-    
-    if ( ! passed )
-    {    
-        cout << "Failed\n";
-        return false;
-    }
-    else
-        cout << "Passed\n";
-    
-    return passed;    
 }
 
 bool testSurfaceOfRevolution()
@@ -1326,7 +1143,6 @@ bool testSurfaceProjection()
     
     //snlSurface* testSurf = generateSurface();
     snlSurface* testSurf = generateSurface2();
-    //snlSurface* testSurf = generate_cgx_surface();
     
     int numSteps = 10;
     
@@ -1810,9 +1626,6 @@ bool testCurveAppend()
 int main ( int argc, char* argv[] )
 {
     bool allTestsPassed = true;
-
-    //cout << "\nTesting cgx compatibility ... " << flush;
-    //if ( ! test_cgx() ) allTestsPassed = false;
 
     cout << "\nTesting surface point interpolation ... " << flush;
     if ( ! test_surfaceInterp() ) allTestsPassed = false;
