@@ -522,8 +522,8 @@ knot* snlSurface::globalInterpGenParams ( int type, snlPoint* points, int sizeU,
     //! @param sizeV Array size in V direction.
     //! @param dir Point array direction to generate parameters for. See enum parametricDirections.
     //!
-    //! @Returns 1D Array of knots that holds parametric positions in chosen direction. All
-    //!          lines in dir have exactly the same parametric sequence. Hence this array is 1D.
+    //! @return 1D Array of knots that holds parametric positions in chosen direction. All
+    //!         lines in dir have exactly the same parametric sequence. Hence this array is 1D.
 
     int     size, oSize;
 
@@ -846,7 +846,7 @@ snlPoint snlSurface::evalHmg ( knot paramU, knot paramV, basis* basisU, basis* b
     //! @param basisU Supplied basis function values. Must be 0 if not supplied.
     //! @param basisV Supplied basis function values. Must be 0 if not supplied.
     //!
-    //! @returns Homogeneous point on surface.
+    //! @return Homogeneous point on surface.
 
 
     snlPoint      rPoint;  // Return point.
@@ -911,7 +911,7 @@ snlPoint snlSurface::eval ( knot paramU, knot paramV, basis* basisU, basis* basi
     //! @param basisU Supplied basis function values. Must be 0 if not supplied.
     //! @param basisV Supplied basis function values. Must be 0 if not supplied.
     //!
-    //! @returns Non-homogeneous point on surface.
+    //! @return Non-homogeneous point on surface.
 
     knot minU = knotVectU -> min();
     knot maxU = knotVectU -> max();
@@ -961,7 +961,7 @@ snlPoint snlSurface::eval ( knot paramU, knot paramV ) const
     //! @param paramU Parameter in U direction to evaluate.
     //! @param paramV Parameter in V direction to evaluate.
     //!
-    //! @returns Non-homogeneous point on surface.
+    //! @return Non-homogeneous point on surface.
     //!
     //! @par Notes:
     //!      Function duplication necessary to satisfy parent abstract class.
@@ -1019,8 +1019,8 @@ snlPoint* snlSurface::evalDerivsHmg ( knot paramU, knot paramV, unsigned derivU,
     //! @param basisU Pre-computed basis functions values.
     //! @param basisV Pre-computed basis functions values.
     //!
-    //! @returns Array of snlPoint [ derivU + 1 ] [ derivV + 1 ]. Calling function
-    //!          must delete[] this array.
+    //! @return Array of snlPoint [ derivU + 1 ] [ derivV + 1 ]. Calling function
+    //!         must delete[] this array.
 
     const snlPoint* cPnt;
     snlPoint*       vPnts = new snlPoint [ derivV + 1 ];
@@ -1118,8 +1118,8 @@ snlPoint* snlSurface::evalDerivs ( knot paramU, knot paramV, unsigned derivU, un
     //! @param derivU Derivative order to evaluate in U direction.
     //! @param derivV Derivative order to evaluate in V direction.
     //!
-    //! @returns Array of snlPoint [ derivU + 1 ] [ derivV + 1 ]. Calling function must
-    //!          delete[] array.
+    //! @return Array of snlPoint [ derivU + 1 ] [ derivV + 1 ]. Calling function must
+    //!         delete[] array.
     //!
     //! @par Notes:
     //!      Follows theory, "The NURBS Book 2nd ed", page 136 equation 4.20.
@@ -1635,7 +1635,7 @@ double snlSurface::removeKnots ( int numKnots, unsigned removalIndex, int direct
     //! @param reallocate Reallocate memory for control points. If false then de-allocation of
     //!                   memory is left up to caller.
     //!
-    //! @returns Maximum error encountered.
+    //! @return Maximum error encountered.
 
     if ( numKnots < 1 ) return 0.0;
     
@@ -1679,7 +1679,7 @@ double snlSurface::removeKnot ( unsigned rIndex, int dir, double tolerance, bool
     //! @param tolerance Maximum allowable error. A value of 0.0 means ignore.
     //! @param reallocate Reallocate memory for control points.
     //!
-    //! @returns Maximum error encountered.
+    //! @return Maximum error encountered.
 
     unsigned        count, index, lineIndex, offset;
     unsigned        cDeg, oDeg;   // Degree to be processed.
@@ -1860,7 +1860,7 @@ unsigned snlSurface::createBezierSegments ( int dir, int** numKnotsAdded )
     //! @param numKnotsAdded Pointer to pointer that should hold the number of knots added to
     //!                      each span.
     //!
-    //! @returns Number of Bezier segments present.
+    //! @return Number of Bezier segments present.
 
     unsigned        cDeg;   // Degree to be processed. Current degree, other degree.
     unsigned        cSize, oSize; // Number of control points in current and other direction.
@@ -2227,7 +2227,7 @@ double snlSurface::reduceDegree ( int dir, unsigned numDeg, double tolerance )
     //! @param numDeg Number of degrees to reduce by.
     //! @param tolerance Maximum error. A value of 0.0 means no tolerance specified.
     //!
-    //! @returns Maximum error encountered.
+    //! @return Maximum error encountered.
     //!
     //! @par Notes:
     //!      This function has not been optimised.
@@ -2621,7 +2621,7 @@ bool snlSurface::refineHull_U ( double tolerance, bool singlePass )
     //! @param tolerance Convex Hull of surface in U direction must be within tolerance of surface.
     //! @param singlePass Only do a single refinement pass.
     //!
-    //! @returns If tolerance is was okay. Should be true unless single pass is specified.
+    //! @return If tolerance is was okay. Should be true unless single pass is specified.
     
     if ( degU < 2 ) return true;
     
@@ -2901,7 +2901,7 @@ double snlSurface::maxCurvatureU()
 {
     //! Return maximum curvature of surface in U direction.
     //  ---------------------------------------------------
-    //! @returns Value between 0 and PI.
+    //! @return Value between 0 and PI.
     
     return ctrlPtNet -> maxCurvatureU();
 }
@@ -2910,7 +2910,7 @@ double snlSurface::maxCurvatureV()
 {
     //! Return maximum curvature of surface in V direction.
     //  ---------------------------------------------------
-    //! @returns Value between 0 and PI.
+    //! @return Value between 0 and PI.
     
     return ctrlPtNet -> maxCurvatureV();
 }
@@ -2923,7 +2923,7 @@ snlVector snlSurface::calcNormal ( knot paramU, knot paramV, snlPoint* evalPt )
     //! @param paramV V parameter of location to generate normal from.
     //! @param evalPt Pointer to point that holds point evaluted at paramter. Optional.
     //!
-    //! @returns Pointer to normal to surface. Caller owns pointer.
+    //! @return Pointer to normal to surface. Caller owns pointer.
 
     snlVector       velocityU;
     snlVector       velocityV;
@@ -2948,7 +2948,7 @@ snlSCtrlPtLocn* snlSurface::findClosestCtrlPt ( snlPoint* points, int numPoints 
     //! @param points Array of points to process.
     //! @param numPoints Number of points in array to process.
     //!
-    //! @returns Array of found control points that best match given points.
+    //! @return Array of found control points that best match given points.
     //!          Returned array indexes correspond to given array indexes.
     //!          Caller owns array and should delete it once no longer needed.
 
