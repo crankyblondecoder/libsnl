@@ -770,7 +770,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
     //! @param granU Granularity of each span in U direction.
     //! @param granV Granularity of each span in V direction.
     //!
-    //! @returns Array of surface location guess structs. Caller owns this array.
+    //! @return Array of surface location guess structs. Caller owns this array.
     //!
     //! Notes:       This function will return one guess per parametric span.
 
@@ -1146,7 +1146,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
     //! @param pointMask Array specifying which points to process. Corresponding index to points
     //!                  array. Must be true to process.
     //!
-    //! @returns List of surface location guess structs. Caller owns this list.
+    //! @return List of surface location guess structs. Caller owns this list.
     //!
     //! @par Notes: Function expects all spans to be convex Bezier segments. It will _not_ work
     //!      if this is not so.
@@ -1577,7 +1577,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points
     //! @param granU Number of guesses per span.
     //! @param granV Number of guesses per span.
     //!
-    //! @returns List of surface location guess structs. Caller owns this lists.
+    //! @return List of surface location guess structs. Caller owns this lists.
 
     int index;
 
@@ -1865,7 +1865,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation_triMethod ( snlPoint* 
     //! @param pointMask Array specifying which points to process. Corresponding index to points
     //!                  array. Must be true to process.
     //!
-    //! @returns List of surface location guess structs. Caller owns this list.
+    //! @return List of surface location guess structs. Caller owns this list.
 
     
 }
@@ -1877,7 +1877,7 @@ int snlSurface::hasAmbigEdges ( sEdge* results, double tolerance )
     //! @param results Array of sEdge. Should be size 4.
     //! @param tolerance Tolerance of edge detection.
     //!
-    //! @returns Number of ambiguous edges.
+    //! @return Number of ambiguous edges.
 
     snlPoint    evalPt [ 4 ];  // Current evaled non-homogeneous point.
 
@@ -2161,7 +2161,7 @@ int snlSurface::hasAmbigEdges_depr ( sEdge* results )
     //! --------------------------------------    
     //! @param results Array of sEdge. Should be size 4.
     //!
-    //! @returns Number of ambiguous edges.
+    //! @return Number of ambiguous edges.
     //!
     //! Notes: Function is now deprecated.
 
