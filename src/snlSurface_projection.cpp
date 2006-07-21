@@ -1868,6 +1868,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation_triMethod ( snlPoint* 
     //! @return List of surface location guess structs. Caller owns this list.
 
     
+    
 }
 
 int snlSurface::hasAmbigEdges ( sEdge* results, double tolerance )
