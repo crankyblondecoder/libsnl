@@ -489,10 +489,14 @@ int snlKnotVector::findMultiplicity ( unsigned index ) const
 
     int multi = 1;
 
-    while ( knots [ cIndex ] == knots [ cIndex - 1 ] && cIndex > 0)
+    while ( knots [ cIndex ] == knots [ cIndex - 1 ] )
     {
         multi ++;
-        cIndex --;
+
+        if ( cIndex == 1 )
+            break;
+        else
+            cIndex --;
     }
 
     return multi;

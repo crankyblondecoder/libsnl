@@ -1099,23 +1099,28 @@ void snlCurve::localInterpCubic ( snlPoint* points, unsigned size )
 
 void snlCurve::synchronise ( snlCurve& curve )
 {
-    // Synchronise this curves knot vector to given curve.
-    // ---------------------------------------------------
-    // curve:    Curve to snync to.
-    //
-    // Notes:    Knots are only ever added NOT removed.
-    //           So if curve has less multiplicity at a particular span index
-    //           then true synchronisation will not occur and the caller
-    //           should call the synchronise function on curve with this object
-    //           as it's argument.
+    //! Synchronise this curves knot vector to given curve.
+    //  ---------------------------------------------------
+    //! @param curve Curve to snync to.
+    //!
+    //! @par Notes: Knots are only ever added NOT removed.
+    //!             So if curve has less multiplicity at a particular span index
+    //!             then true synchronisation will not occur and the caller
+    //!             should call the synchronise function on curve with this object
+    //!             as it's argument.
     
     if ( curve.deg != deg ) return;  // Curve to sync to must have same degree.
     
     unsigned numSpans = curve.knotVect -> getNumSpans();
+
+    if ( numSpans < 2 ) return;
         
+    // If the degree is the same then the first span will always have the same multiplicity for both curves.
+    
     unsigned spanIndex = curve.knotVect -> getFirstSpan();
+    spanIndex = curve.knotVect -> getNextSpan ( spanIndex );
         
-    for ( unsigned index = 0; index < numSpans; index ++ )
+    for ( unsigned index = 1; index < numSpans; index ++ )
     {
         knot param = curve.knotVect -> val ( spanIndex );
         
@@ -1123,7 +1128,7 @@ void snlCurve::synchronise ( snlCurve& curve )
         
         unsigned insertSpan = knotVect -> findSpan ( param );  // Where param would be inserted in this object.
         
-        // If knot already exists in this curve then reduce multi.
+        // If knot already exists in this curve then reduce the number of knots inserted.
         
         if ( knotVect -> val ( insertSpan ) == param ) multi -= knotVect -> findMultiplicity ( insertSpan );
         
