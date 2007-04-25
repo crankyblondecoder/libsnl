@@ -312,17 +312,17 @@ void snlTransform::scale ( double x, double y, double z, bool pre )
 
 void snlTransform::align ( snlVector& vector1, snlVector& vector2, bool pre )
 {
-    // Generate transform that will align vector1 to vector2
-    // -----------------------------------------------------
-    // vector1:     Vector to align.
-    // vector2:     vector to align vector 1 to.
-    // pre:         Pre multiply result to existing matrix.
-    //
-    // Notes:       Can be used for transforming coordinate systems.
-    //              Rotates vector1 about normal to plane described by vector1 and vector2.
+    //! @param vector1 Vector to align.
+    //! @param vector2 Vector to align vector 1 to.
+    //! @param pre Pre multiply result to existing matrix.
+    //!
+    //! @par Notes   Can be used for transforming coordinate systems.
+    //!              Rotates vector1 about normal to plane described by vector1 and vector2.
     
     // Get angle to rotate through.
     double rotAngle = vector1.angle ( vector2 );
+
+    if ( rotAngle == 0.0 ) return;
     
     // Generate normal to both vectors.
     snlVector normal;    

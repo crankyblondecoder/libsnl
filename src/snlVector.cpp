@@ -290,8 +290,15 @@ double snlVector::angle ( snlVector& vect )
     // --------------------------------------------
     //
     // Returns:     Value between 0 and PI in radians.
+
+    double cos_angle = dot ( vect ) / ( length() * vect.length() );
+
+    if ( cos_angle > 1.0 )
+        cos_angle = 1.0;
+    else if ( cos_angle < -1.0 )
+        cos_angle = -1.0;
     
-    return acos ( dot ( vect ) / ( length() * vect.length() ) ); 
+    return acos ( cos_angle );
 }
 
 void snlVector::unitise()
