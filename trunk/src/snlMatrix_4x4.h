@@ -63,6 +63,8 @@ class snlMatrix_4X4
         
         double* elements();
 
+        void print();  //!< Print matrice to standard out.
+
     protected:
 
         double*     element;  // OpenGL style array. NOT c/c++.

@@ -44,6 +44,7 @@ class snlTransform : public snlMatrix_4X4
         void scale ( double x, double y, double z, snlPoint& relTo, bool pre = false );
         void scale ( double x, double y, double z, bool pre = false );
         
+        //! Generate transform that will align vector1 to vector2
         void align ( snlVector& vector1, snlVector& vector2, bool pre = false );
 
         void transform ( snlPoint* pt );

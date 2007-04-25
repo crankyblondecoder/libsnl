@@ -195,6 +195,16 @@ double* snlMatrix_4X4::elements()
     return element;
 }
 
+void snlMatrix_4X4::print()
+{
+    for ( int row = 0; row < 4; row ++ )
+    {
+        for ( int col = 0; col < 4; col ++ )
+        {
+            cout << element [ row + ( col * 4 ) ] << "  ";
+        }
 
-
+        cout << "\n";
+    }
+}
 
