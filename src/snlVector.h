@@ -91,42 +91,74 @@ class snlVector
 		 */
 		snlVector project(snlVector& ontoVector);
 
-// HERE
-		void projectXZ();  // Project onto the X-Z plane.
-		void projectXY();  // Project onto the X-Y plane.
-		void projectYZ();  // Project onto the Y-Z plane.
+		/**
+		 * Project onto the X-Z plane.
+		 */
+		void projectXZ();
 
-		snlVector operator * (double);  // Return vector multiplied by a scalar.
+		/**
+		 * Project onto the X-Y plane.
+		 */
+		void projectXY();
+
+		/**
+		 * Project onto the Y-Z plane.
+		 */
+		void projectYZ();
+
+		/** Return new vector that is this vector multiplied by a scalar. */
+		snlVector operator * (double);
+		/** Return new vector that is this vector plus another vector. */
 		snlVector operator + (snlVector& vect);
+		/** Return new vector that is this vector minus another vector. */
 		snlVector operator - (snlVector& vect);
 
+		/** Add a vector to this vector. */
 		void operator += (snlVector& vect);
+		/** Subract a vector from this vector. */
 		void operator -= (snlVector& vect);
-		void operator *= (double);  // Multiply this vector by a scalar.
+		/** Multiply this vector by a scalar. */
+		void operator *= (double);
 
 		bool operator == (snlVector& compare);
 
+		/** Get the x coordinate. */
 		double x();
+		/** Get the y coordinate. */
 		double y();
+		/** Get the z coordinate. */
 		double z();
+		/** Get the w coordinate. */
 		double w();
 
+		/** Set the x coordinate. */
 		void x(double val);
+		/** Set the y coordinate. */
 		void y(double val);
+		/** Set the z coordinate. */
 		void z(double val);
+		/** Set the w coordinate. */
 		void w(double val);
 
+		/** Set the vectors x, y, z and w components. */
 		void components(double x, double y, double z, double w);
+		/** Set the vectors x, y and z components. */
 		void components(double x, double y, double z);
 
+		/** Get the vectors x, y, z and w components by copying to given pointers. */
 		void components(double* x, double* y, double* z, double* w);
+		/** Get the vectors x, y and z components by copying to given pointers. */
 		void components(double* x, double* y, double* z);
 
-		void zero();  // Zero the vector.
+		/** Set this vector to the zero vector, ie [0,0,0,0] */
+		void zero();
 
+		/** Get whether this vector is the zero vector. */
 		bool isZero();
 
 		void print();
+
+	protected:
 
 		double elements[4];
 };
@@ -164,6 +196,171 @@ inline double snlVector::lengthSqrd()
 		   elements[1] * elements[1] +
 		   elements[2] * elements[2] +
 		   elements[3] * elements[3];
+}
+
+inline void snlVector::projectXZ()
+{
+	elements[1] = 0.0;  // y = 0.
+}
+
+inline void snlVector::projectXY()
+{
+	elements[2] = 0.0;  // z = 0.
+}
+
+inline void snlVector::projectYZ()
+{
+	elements[0] = 0.0;
+}
+
+inline double snlVector::x()
+{
+	return elements[0];
+}
+
+inline double snlVector::y()
+{
+	return elements[1];
+}
+
+inline double snlVector::z()
+{
+	return elements[2];
+}
+
+inline double snlVector::w()
+{
+	return elements[3];
+}
+
+inline void snlVector::x(double val)
+{
+	elements[0] = val;
+}
+
+inline void snlVector::y(double val)
+{
+	elements[1] = val;
+}
+
+inline void snlVector::z(double val)
+{
+	elements[2] = val;
+}
+
+inline void snlVector::w(double val)
+{
+	elements[3] = val;
+}
+
+inline void snlVector::components(double x, double y, double z, double w)
+{
+	elements[0] = x;
+	elements[1] = y;
+	elements[2] = z;
+	elements[3] = w;
+}
+
+inline void snlVector::components(double x, double y, double z)
+{
+	elements[0] = x;
+	elements[1] = y;
+	elements[2] = z;
+	elements[3] = 0.0;
+}
+
+inline void snlVector::components(double* x, double* y, double* z, double* w)
+{
+	*x = elements[0];
+	*y = elements[1];
+	*z = elements[2];
+	*w = elements[3];
+}
+
+inline void snlVector::components(double* x, double* y, double* z)
+{
+	*x = elements[0];
+	*y = elements[1];
+	*z = elements[2];
+}
+
+inline void snlVector::zero()
+{
+	elements[0] = 0.0;
+	elements[1] = 0.0;
+	elements[2] = 0.0;
+	elements[3] = 0.0;
+}
+
+inline bool snlVector::isZero()
+{
+
+	return !(
+		elements[0] ||
+		elements[1] ||
+		elements[2] ||
+		elements[3]
+	);
+}
+
+inline snlVector snlVector::operator * (double scalar)
+{
+	return snlVector(
+		elements[0] * scalar,
+		elements[1] * scalar,
+		elements[2] * scalar,
+		elements[3] * scalar);
+}
+
+inline snlVector snlVector::operator + (snlVector& vect)
+{
+	return	snlVector(
+		elements[0] + vect.elements[0],
+		elements[1] + vect.elements[1],
+		elements[2] + vect.elements[2],
+		elements[3] + vect.elements[3]);
+}
+
+inline snlVector snlVector::operator - (snlVector& vect)
+{
+	return	snlVector(
+		elements[0] - vect.elements[0],
+		elements[1] - vect.elements[1],
+		elements[2] - vect.elements[2],
+		elements[3] - vect.elements[3]);
+}
+
+inline void snlVector::operator += (snlVector& vect)
+{
+	elements[0] += vect.elements[0];
+	elements[1] += vect.elements[1];
+	elements[2] += vect.elements[2];
+	elements[3] += vect.elements[3];
+}
+
+inline void snlVector::operator -= (snlVector& vect)
+{
+	elements[0] -= vect.elements[0];
+	elements[1] -= vect.elements[1];
+	elements[2] -= vect.elements[2];
+	elements[3] -= vect.elements[3];
+}
+
+inline void snlVector::operator *= (double scalar)
+{
+	elements[0] *= scalar;
+	elements[1] *= scalar;
+	elements[2] *= scalar;
+	elements[3] *= scalar;
+}
+
+inline bool snlVector::operator == (snlVector& compare)
+{
+	return
+		elements[0] == compare.elements[0] &&
+		elements[1] == compare.elements[1] &&
+		elements[2] == compare.elements[2] &&
+		elements[3] == compare.elements[3];
 }
 
 #endif
