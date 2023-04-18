@@ -36,22 +36,22 @@ snlVertex* snlSurface::project_depr ( snlPoint* toProject, int numPoints, double
 
     ptrList < sLocn >* ambig = projPtSurf ( *this, toProject, numPoints, projections,
                                             convergTol, normTol, maxPass );
-                                            
+
     // Create vertexes to return and populate with converted sLocn's.
     // -------------------------------------------------------------
-    
+
     snlVertex* retVertexes = new snlVertex [ numPoints ];
-    
+
     for ( int index = 0; index < numPoints; index ++ )
     {
         retVertexes [ index ] = projections [ index ].pt;
-        
+
         retVertexes [ index ].evalParamU ( projections [ index ].paramT );
         retVertexes [ index ].evalParamV ( projections [ index ].paramU );
-        
+
         retVertexes [ index ].flag = projections [ index ].flag;
     }
-                                    
+
     delete ambig;
     delete[] projections;
 
@@ -87,7 +87,7 @@ snlSurfLocn* snlSurface::invert ( snlPoint* toInvert, int numPoints, int* retArr
                                                              degU, degV );
 
     delete[] pointMask;
-    
+
     return processGuesses ( toInvert, numPoints, retArraySize, guesses, convergTol,
                             normTol, maxPass );
 }
@@ -130,7 +130,7 @@ snlSurfLocn* snlSurface::project ( snlPoint* toProject, int numPoints, int* retA
                                              convergTol, normTol, maxPass, true );
 
     // Clean up and return.
-    
+
     delete[] pointMask;
 
     delete tmpSurf;
@@ -195,7 +195,7 @@ snlSurfLocn* snlSurface::processGuesses ( snlPoint* points, int numPoints, int* 
     //! @param noCull Do not cull guesses that converge to the same point.
     //! @param numVelocity Number of velocity iterations to perform per pass.
     //! @param numNewton Number of newton iterations to perform per pass.
-    
+
     // Converge to points using multiple passes if necessary.
 
     for ( int pass = 0; pass < maxPass; pass ++ )
@@ -219,9 +219,9 @@ snlSurfLocn* snlSurface::processGuesses ( snlPoint* points, int numPoints, int* 
             {
                 while ( guess )
                 {
-    
+
                     if ( guess -> origPtIndex != index ) break;
-    
+
                     if ( ! guess -> culled )
                         allCulled = false;
                     else if ( guess -> dist < bestGuess -> dist )
@@ -229,11 +229,11 @@ snlSurfLocn* snlSurface::processGuesses ( snlPoint* points, int numPoints, int* 
 
                     guess = guesses -> next();
                 }
-    
+
                 if ( allCulled )
                 {
                     // Force another pass to be performed.
-    
+
                     bestGuess -> ignoreParamBounds = true;
                     bestGuess -> culled = false;
                     converged = false;
@@ -257,7 +257,7 @@ snlSurfLocn* snlSurface::processGuesses ( snlPoint* points, int numPoints, int* 
             if ( guess -> origPtIndex != pointIndex )
             {
                 // Move onto next point indexes guesses.
-                
+
                 pointIndex = guess -> origPtIndex;
 
                 pointGuesses.clear();
@@ -293,14 +293,14 @@ snlSurfLocn* snlSurface::processGuesses ( snlPoint* points, int numPoints, int* 
                             }
                         }
                     }
-                
+
                     ptGuess = pointGuesses.next();
                 }
 
                 pointGuesses.append ( guess, false );
             }
         }
-    
+
         guess = guesses -> next();
     }
 
@@ -344,7 +344,7 @@ snlSurfLocn* snlSurface::processGuesses ( snlPoint* points, int numPoints, int* 
     }
 
     // Clean up and return.
-    
+
     delete guesses;
 
     if ( retArraySize )
@@ -368,15 +368,15 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
     //!                successful.
 
     cout.precision ( 16 );
-    
+
     double convTolSqrd = convergTol * convergTol;
-    
+
     knot minU = knotVectU -> min();
     knot maxU = knotVectU -> max();
 
     knot minV = knotVectV -> min();
     knot maxV = knotVectV -> max();
-    
+
     snlSurfLocnGuess* guess = guesses -> first();
 
     snlVector velocityU, velocityV;
@@ -401,11 +401,11 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
                     if ( ! iteration )
                         velocities ( newGuess.paramU, newGuess.paramV, evalPoint, velocityU,
                                      velocityV );
-    
+
                     // Calculate new parameters based on velocities.
-    
+
                     snlVector guessToPt ( newGuess.pt, convergToPts [ newGuess.origPtIndex ] );
-    
+
                     double lengthU = velocityU.length();
 
                     if ( lengthU == 0.0 ) break;
@@ -416,7 +416,7 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
                     double lengthV = velocityV.length();
 
                     if ( lengthV == 0.0 ) break;
-                    
+
                     double distV = guessToPt.dot ( velocityV ) / lengthV;
                     knot deltaV =  distV / lengthV;
 
@@ -425,7 +425,7 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
 
                     if ( newU < minU ) newU = minU;
                     if ( newU > maxU ) newU = maxU;
-    
+
                     if ( newV < minV ) newV = minV;
                     if ( newV > maxV ) newV = maxV;
 
@@ -435,14 +435,14 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
                     evalPoint = eval ( newU, newV );
 
                     double newDist = evalPoint.distSqrd ( convergToPts [ newGuess.origPtIndex ] );
-                    
+
 
                     int loopCount = -1;
 
                     while ( newDist > newGuess.dist * 1.1 )
                     {
                         // Calculate new parameters based on actual distance travelled.
-                        
+
                         loopCount ++;
 
                         snlVector newGuessToPt ( newGuess.pt, evalPoint );
@@ -463,7 +463,7 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
                                          * ( newU - newGuess.paramU ) );
                         else
                             newAdjustU = newU;
-                        
+
                         if ( newDistV != 0.0 )
                             newAdjustV = newGuess.paramV + ( ( distV * loopAdj / newDistV )
                                          * ( newV - newGuess.paramV ) );
@@ -474,7 +474,7 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
 
                         if ( newAdjustU < minU ) newAdjustU = minU;
                         if ( newAdjustU > maxU ) newAdjustU = maxU;
-        
+
                         if ( newAdjustV < minV ) newAdjustV = minV;
                         if ( newAdjustV > maxV ) newAdjustV = maxV;
 
@@ -487,21 +487,21 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
                         newV = newAdjustV;
 
                         // Re-evaluate parameters.
-                        
+
                         evalPoint = eval ( newU, newV );
 
                         newDist = evalPoint.distSqrd ( convergToPts [ newGuess.origPtIndex ] );
                     }
-    
+
                     // Store point and velocities that match new params.
-    
+
                     velocities ( newU, newV, evalPoint, velocityU, velocityV );
 
                     newGuess.paramU = newU;
                     newGuess.paramV = newV;
 
                     newGuess.pt = evalPoint;
-    
+
                     newGuess.dist = evalPoint.distSqrd ( convergToPts [ newGuess.origPtIndex ] );
 
                     // Test for guess going out of parametric bounds.
@@ -513,16 +513,16 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
                             guess -> culled = true;
                             break;
                         }
-        
+
                         if ( newGuess.paramV < newGuess.minV || newGuess.paramV > newGuess.maxV )
                         {
                             guess -> culled = true;
                             break;
                         }
                     }
-    
+
                     // Test for convergence.
-    
+
                     if ( newGuess.dist < convTolSqrd )
                     {
                         newGuess.converged = true;
@@ -530,9 +530,9 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
                     }
 
                     snlVector projToSurf ( convergToPts [ newGuess.origPtIndex ], evalPoint );
-                    
+
                     basis cosU = projToSurf.calcAbsCos ( velocityU );
-                    
+
                     basis cosV = projToSurf.calcAbsCos ( velocityV );
 
                     newGuess.cos = cosU > cosV ? cosU : cosV;
@@ -543,16 +543,16 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
                         break;
                     }
                 }
-    
+
                 // If new guess is better than old and hasn't been culled then replace old guess.
-                
+
                 if ( ! guess -> culled )
                 {
                     // If parameters haven't changed over all iterations then set as converged.
-                    
+
                     if ( guess -> paramU == newGuess.paramU && guess -> paramV == newGuess.paramV )
                         newGuess.converged = true;
-                   
+
                     *guess = newGuess;
                 }
             }
@@ -564,7 +564,7 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
             {
                 if ( guess -> paramU < guess -> minU || guess -> paramU > guess -> maxU )
                     guess -> culled = true;
-    
+
                 if ( guess -> paramV < guess -> minV || guess -> paramV > guess -> maxV )
                     guess -> culled = true;
             }
@@ -574,7 +574,7 @@ bool snlSurface::convergeVelocity ( snlPoint* convergToPts, ptrList <snlSurfLocn
 
         guess = guesses -> next();
     }
-    
+
     return converged;
 }
 
@@ -592,7 +592,7 @@ bool snlSurface::convergeNewton ( snlPoint* convergToPts, ptrList <snlSurfLocnGu
     //!                guess to given point. If cosine is below this angle then iterations stop.
 
     double convTolSqrd = convergTol * convergTol;
-    
+
     knot minU = knotVectU -> min();
     knot maxU = knotVectU -> max();
 
@@ -625,7 +625,7 @@ bool snlSurface::convergeNewton ( snlPoint* convergToPts, ptrList <snlSurfLocnGu
                     // Generate next Newton approximation.
 
                     knot deltaU, deltaV;
-                    
+
                     if ( degU > 1 && degV > 1 )
                     {
                         if ( ! newtonIterStepSurf ( derivs, convergToPts + newGuess.origPtIndex,
@@ -677,7 +677,7 @@ bool snlSurface::convergeNewton ( snlPoint* convergToPts, ptrList <snlSurfLocnGu
 
                     if ( newU < minU ) newU = minU;
                     if ( newU > maxU ) newU = maxU;
-    
+
                     if ( newV < minV ) newV = minV;
                     if ( newV > maxV ) newV = maxV;
 
@@ -688,7 +688,7 @@ bool snlSurface::convergeNewton ( snlPoint* convergToPts, ptrList <snlSurfLocnGu
                         newGuess.converged = true;
                         break;
                     }
-                    
+
                     newGuess.paramU = newU;
                     newGuess.paramV = newV;
 
@@ -698,7 +698,7 @@ bool snlSurface::convergeNewton ( snlPoint* convergToPts, ptrList <snlSurfLocnGu
                     derivs = evalDerivs ( newGuess.paramU, newGuess.paramV, 2, 2 );
 
                     newGuess.pt = derivs [ 0 ];
-    
+
                     newGuess.dist = derivs [ 0 ].distSqrd ( convergToPts [ newGuess.origPtIndex ] );
 
                     // Check for distance and cosine tolerances.
@@ -711,11 +711,11 @@ bool snlSurface::convergeNewton ( snlPoint* convergToPts, ptrList <snlSurfLocnGu
 
                     snlVector velocityU ( derivs [ 3 ] );
                     snlVector velocityV ( derivs [ 1 ] );
-                    
+
                     snlVector projToSurf ( convergToPts [ newGuess.origPtIndex ], newGuess.pt );
-                    
+
                     basis cosU = projToSurf.calcAbsCos ( velocityU );
-                    
+
                     basis cosV = projToSurf.calcAbsCos ( velocityV );
 
                     newGuess.cos = cosU > cosV ? cosU : cosV;
@@ -735,12 +735,12 @@ bool snlSurface::convergeNewton ( snlPoint* convergToPts, ptrList <snlSurfLocnGu
         }
 
         // Test for guess going out of parametric bounds.
-        
+
         if ( ! guess -> ignoreParamBounds && ! guess -> culled )
         {
             if ( guess -> paramU < guess -> minU || guess -> paramU > guess -> maxU )
                 guess -> culled = true;
-    
+
             if ( guess -> paramV < guess -> minV || guess -> paramV > guess -> maxV )
                 guess -> culled = true;
         }
@@ -804,7 +804,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
         paramEnd = knotVectU -> val ( cSpan );
     else
         paramEnd = knotVectU -> max();
-     
+
 
     int numSteps;
 
@@ -827,17 +827,17 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
         {
             numSteps = granU + 1;
         }
-    
+
         // Generate params for span.
-        
+
         for ( index = 0; index < numSteps; index ++ )
         {
             paramU [ paramIndex ] = param;
 
             spanU [ paramIndex ++ ] = span;
-    
+
             param += paramStep;
-    
+
             if ( param > paramEnd ) param = paramEnd;  // Round off error trap.
         }
 
@@ -852,7 +852,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
     }
 
     // V direction.
-    
+
     cSpan = knotVectV -> getFirstSpan();
 
     paramStart = knotVectV -> val ( cSpan );
@@ -881,15 +881,15 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
         {
             numSteps = granV + 1;
         }
-    
+
         for ( index = 0; index < numSteps; index ++ )
         {
             paramV [ paramIndex ] = param;
 
             spanV [ paramIndex ++ ] = span;
-    
+
             param += paramStep;
-    
+
             if ( param > paramEnd ) param = paramEnd;  // Round off error trap.
         }
 
@@ -928,7 +928,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
         {
             evalPts [ index ] = eval ( paramU [ indexU ], paramV [ indexV ], basisU [ indexU ],
                                        basisV [ indexV ] );
-                          
+
             index ++;
         }
     }
@@ -945,7 +945,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
         {
             double maxDist = 0;
             double dist;
-            
+
             if ( indexU > 0 )
             {
                 // U before current index.
@@ -993,7 +993,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
     int numSpanPoints = numPoints * numSpans;
 
     // Two dimensional arrays [ given point index ] [ span index ].
-    
+
     int* uIndexes = new int [ numSpanPoints ];  // NOT control point indexes.
     int* vIndexes = new int [ numSpanPoints ];
     double* distances = new double [ numSpanPoints ];
@@ -1019,7 +1019,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
                 if ( pointMask [ ptIndex ] )
                 {
                     int ptIndexOffset = ptIndex * numSpans;
-                    
+
                     distSqrd = evalPts [ index ].distSqrd ( points [ ptIndex ] );
 
                     // Only process span point if distance is within probable bounds.
@@ -1034,7 +1034,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
                                 numToReturn ++;
                                 populated [ ptIndexOffset + spanIndex ] = true;
                             }
-                            
+
                             distances [ ptIndexOffset + spanIndex ] = distSqrd;
                             uIndexes [ ptIndexOffset + spanIndex ] = indexU;
                             vIndexes [ ptIndexOffset + spanIndex ] = indexV;
@@ -1062,13 +1062,13 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
             if ( populated [ index ] )
             {
                 snlSurfLocnGuess* guessLocn = new snlSurfLocnGuess;
-                
+
                 indexU = uIndexes [ index ];
                 indexV = vIndexes [ index ];
-    
+
                 guessLocn -> paramU = paramU [ indexU ];
                 guessLocn -> paramV = paramV [ indexV ];
-    
+
                 guessLocn -> pt = evalPts [ indexU * numEvalV + indexV ];
 
                 guessLocn -> dist = distances [ index ];
@@ -1091,7 +1091,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation ( snlPoint* points, int
                     guessLocn -> minV = paramV [ indexV - 1 ];
                 else
                     guessLocn -> minV = paramV [ indexV ];
-                    
+
                 if ( indexV < numEvalV -1 )
                     guessLocn -> maxV = paramV [ indexV + 1 ];
                 else
@@ -1195,7 +1195,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
     // Because the surface is segmented into Bezier segements the segment
     // corners are the control points and the velocities are calculated
     // directly from the control points without the need for basis functions.
-    
+
     int numEvalPts = numEvalU * numEvalV;
 
     snlPoint* evalPts = new snlPoint [ numEvalPts ];
@@ -1210,7 +1210,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
         hasGuess [ ptIndex ] = false;
 
     index = 0;
-    
+
     int ctrlPtIndex;
 
     const snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPts();
@@ -1220,11 +1220,11 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
     for ( int indexU = 0; indexU < numEvalU; indexU ++ )
     {
         ctrlPtIndex = degU * indexU * vSize;
-        
+
         for ( int indexV = 0; indexV < numEvalV; indexV ++ )
         {
             evalPts [ index ] = ctrlPts [ ctrlPtIndex ];
-            
+
             index ++;
 
             ctrlPtIndex += degV;
@@ -1245,7 +1245,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
             // Calculate eight edge normals per segment. 4 per parametric direction.
             //
             // Edge normal orientation per segment:
-            // 
+            //
             // 1 ---- 2 --- V
             // |      |
             // 3 ---- 4
@@ -1261,12 +1261,12 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
 
             // Calculate and orient first set of edge normals
 
-            velocityU.calc ( ctrlPts [ baseIndex ], ctrlPts [ baseIndex + vSize ] );
-            velocityV.calc ( ctrlPts [ baseIndex ], ctrlPts [ baseIndex + 1 ] );
-            
+            velocityU.diff ( ctrlPts [ baseIndex ], ctrlPts [ baseIndex + vSize ] );
+            velocityV.diff ( ctrlPts [ baseIndex ], ctrlPts [ baseIndex + 1 ] );
+
             normal.crossProduct ( velocityU, velocityV );
 
-            edge.calc ( evalPts [ spanEvalIndex ], evalPts [ spanEvalIndex + 1 ] );
+            edge.diff ( evalPts [ spanEvalIndex ], evalPts [ spanEvalIndex + 1 ] );
             edgeNormalU [ 0 ].crossProduct ( normal, edge );
 
             snlVector orient ( evalPts [ spanEvalIndex ], evalPts [ spanEvalIndex + numEvalV ] );
@@ -1276,15 +1276,15 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
             {
                 // If velocity vectors are outside of edge then use them for edge normal calculation
                 // instead.
-                
+
                 edgeNormalU [ 0 ].crossProduct ( normal, velocityV );
                 if ( edgeNormalU [ 0 ].dot ( orient ) < 0.0 ) edgeNormalU [ 0 ] *= - 1.0;
             }
 
-            edge.calc ( evalPts [ spanEvalIndex ], evalPts [ spanEvalIndex + numEvalV ] );
+            edge.diff ( evalPts [ spanEvalIndex ], evalPts [ spanEvalIndex + numEvalV ] );
             edgeNormalV [ 0 ].crossProduct ( normal, edge );
 
-            orient.calc ( evalPts [ spanEvalIndex ], evalPts [ spanEvalIndex + 1 ] );
+            orient.diff ( evalPts [ spanEvalIndex ], evalPts [ spanEvalIndex + 1 ] );
             if ( edgeNormalV [ 0 ].dot ( orient ) < 0.0 ) edgeNormalV [ 0 ] *= - 1.0;
 
             if ( edgeNormalV [ 0 ].dot ( velocityU ) < 0.0 )
@@ -1295,15 +1295,15 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
 
             // Calculate and orient second set of edge normals
 
-            velocityU.calc ( ctrlPts [ baseIndex + degV ], ctrlPts [ baseIndex + degV + vSize ] );
-            velocityV.calc ( ctrlPts [ baseIndex + degV ], ctrlPts [ baseIndex + degV - 1 ] );
+            velocityU.diff ( ctrlPts [ baseIndex + degV ], ctrlPts [ baseIndex + degV + vSize ] );
+            velocityV.diff ( ctrlPts [ baseIndex + degV ], ctrlPts [ baseIndex + degV - 1 ] );
 
             normal.crossProduct ( velocityU, velocityV );
 
-            edge.calc ( evalPts [ spanEvalIndex + 1 ], evalPts [ spanEvalIndex ] );
+            edge.diff ( evalPts [ spanEvalIndex + 1 ], evalPts [ spanEvalIndex ] );
             edgeNormalU [ 1 ].crossProduct ( normal, edge );
 
-            orient.calc ( evalPts [ spanEvalIndex + 1 ], evalPts [ spanEvalIndex + numEvalV + 1 ] );
+            orient.diff ( evalPts [ spanEvalIndex + 1 ], evalPts [ spanEvalIndex + numEvalV + 1 ] );
             if ( edgeNormalU [ 1 ].dot ( orient ) < 0.0 ) edgeNormalU [ 1 ] *= - 1.0;
 
             if ( edgeNormalU [ 1 ].dot ( velocityV ) < 0.0 )
@@ -1311,11 +1311,11 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
                 edgeNormalU [ 1 ].crossProduct ( normal, velocityV );
                 if ( edgeNormalU [ 1 ].dot ( orient ) < 0.0 ) edgeNormalU [ 1 ] *= - 1.0;
             }
-            
-            edge.calc ( evalPts [ spanEvalIndex + 1 ], evalPts [ spanEvalIndex + numEvalV + 1] );
+
+            edge.diff ( evalPts [ spanEvalIndex + 1 ], evalPts [ spanEvalIndex + numEvalV + 1] );
             edgeNormalV [ 1 ].crossProduct ( normal, edge );
 
-            orient.calc ( evalPts [ spanEvalIndex + 1 ], evalPts [ spanEvalIndex ] );
+            orient.diff ( evalPts [ spanEvalIndex + 1 ], evalPts [ spanEvalIndex ] );
             if ( edgeNormalV [ 1 ].dot ( orient ) < 0.0 ) edgeNormalV [ 1 ] *= - 1.0;
 
             if ( edgeNormalV [ 1 ].dot ( velocityU ) < 0.0 )
@@ -1328,17 +1328,17 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
 
             // Calculate and orient third set of edge normals
 
-            velocityU.calc ( ctrlPts [ baseIndex ], ctrlPts [ baseIndex - vSize ] );
-            velocityV.calc ( ctrlPts [ baseIndex ], ctrlPts [ baseIndex + 1 ] );
+            velocityU.diff ( ctrlPts [ baseIndex ], ctrlPts [ baseIndex - vSize ] );
+            velocityV.diff ( ctrlPts [ baseIndex ], ctrlPts [ baseIndex + 1 ] );
 
             normal.crossProduct ( velocityU, velocityV );
 
-            edge.calc ( evalPts [ spanEvalIndex + numEvalV ],
+            edge.diff ( evalPts [ spanEvalIndex + numEvalV ],
                         evalPts [ spanEvalIndex + numEvalV + 1 ] );
 
             edgeNormalU [ 2 ].crossProduct ( normal, edge );
 
-            orient.calc ( evalPts [ spanEvalIndex + numEvalV ], evalPts [ spanEvalIndex ] );
+            orient.diff ( evalPts [ spanEvalIndex + numEvalV ], evalPts [ spanEvalIndex ] );
 
             if ( edgeNormalU [ 2 ].dot ( orient ) < 0.0 ) edgeNormalU [ 2 ] *= - 1.0;
 
@@ -1348,10 +1348,10 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
                 if ( edgeNormalU [ 2 ].dot ( orient ) < 0.0 ) edgeNormalU [ 2 ] *= - 1.0;
             }
 
-            edge.calc ( evalPts [ spanEvalIndex + numEvalV ], evalPts [ spanEvalIndex ] );
+            edge.diff ( evalPts [ spanEvalIndex + numEvalV ], evalPts [ spanEvalIndex ] );
             edgeNormalV [ 2 ].crossProduct ( normal, edge );
 
-            orient.calc ( evalPts [ spanEvalIndex + numEvalV ],
+            orient.diff ( evalPts [ spanEvalIndex + numEvalV ],
                           evalPts [ spanEvalIndex + numEvalV + 1 ] );
 
             if ( edgeNormalV [ 2 ].dot ( orient ) < 0.0 ) edgeNormalV [ 2 ] *= - 1.0;
@@ -1364,17 +1364,17 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
 
             // Calculate and orient fourth set of edge normals
 
-            velocityU.calc ( ctrlPts [ baseIndex + degV ], ctrlPts [ baseIndex + degV - vSize ] );
-            velocityV.calc ( ctrlPts [ baseIndex + degV ], ctrlPts [ baseIndex + degV - 1 ] );
+            velocityU.diff ( ctrlPts [ baseIndex + degV ], ctrlPts [ baseIndex + degV - vSize ] );
+            velocityV.diff ( ctrlPts [ baseIndex + degV ], ctrlPts [ baseIndex + degV - 1 ] );
 
             normal.crossProduct ( velocityU, velocityV );
 
-            edge.calc ( evalPts [ spanEvalIndex + numEvalV + 1 ],
+            edge.diff ( evalPts [ spanEvalIndex + numEvalV + 1 ],
                         evalPts [ spanEvalIndex + numEvalV ] );
 
             edgeNormalU [ 3 ].crossProduct ( normal, edge );
 
-            orient.calc ( evalPts [ spanEvalIndex + numEvalV + 1 ], evalPts [ spanEvalIndex + 1 ] );
+            orient.diff ( evalPts [ spanEvalIndex + numEvalV + 1 ], evalPts [ spanEvalIndex + 1 ] );
 
             if ( edgeNormalU [ 3 ].dot ( orient ) < 0.0 ) edgeNormalU [ 3 ] *= - 1.0;
 
@@ -1384,10 +1384,10 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
                 if ( edgeNormalU [ 3 ].dot ( orient ) < 0.0 ) edgeNormalU [ 3 ] *= - 1.0;
             }
 
-            edge.calc ( evalPts [ spanEvalIndex + numEvalV + 1 ], evalPts [ spanEvalIndex + 1 ] );
+            edge.diff ( evalPts [ spanEvalIndex + numEvalV + 1 ], evalPts [ spanEvalIndex + 1 ] );
             edgeNormalV [ 3 ].crossProduct ( normal, edge );
 
-            orient.calc ( evalPts [ spanEvalIndex + numEvalV + 1 ],
+            orient.diff ( evalPts [ spanEvalIndex + numEvalV + 1 ],
                           evalPts [ spanEvalIndex + numEvalV ] );
 
             if ( edgeNormalV [ 3 ].dot ( orient ) < 0.0 ) edgeNormalV [ 3 ] *= - 1.0;
@@ -1412,11 +1412,11 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
                 bool withinEdge2_4 = false;
                 bool withinEdge4_3 = false;
                 bool withinEdge3_1 = false;
-            
+
                 // Corner 1.
-                
-                orient.calc ( evalPts [ spanEvalIndex ], points [ ptIndex ] );
-                
+
+                orient.diff ( evalPts [ spanEvalIndex ], points [ ptIndex ] );
+
                 if ( orient.dot ( edgeNormalU [ 0 ] ) >= 0.0 )
                     withinEdge1_2 = true;
 
@@ -1425,7 +1425,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
 
                 // Corner 2.
 
-                orient.calc ( evalPts [ spanEvalIndex + 1 ], points [ ptIndex ] );
+                orient.diff ( evalPts [ spanEvalIndex + 1 ], points [ ptIndex ] );
 
                 if ( orient.dot ( edgeNormalU [ 1 ] ) >= 0.0 )
                     withinEdge1_2 = true;
@@ -1435,21 +1435,21 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
 
                 // Corner 3.
 
-                orient.calc ( evalPts [ spanEvalIndex + numEvalV ], points [ ptIndex ] );
+                orient.diff ( evalPts [ spanEvalIndex + numEvalV ], points [ ptIndex ] );
 
                 if ( orient.dot ( edgeNormalU [ 2 ] ) >= 0.0 )
                     withinEdge4_3 = true;
-                
+
                 if ( orient.dot ( edgeNormalV [ 2 ] ) >= 0.0 )
                     withinEdge3_1 = true;
 
                 // Corner 4.
-                    
-                orient.calc ( evalPts [ spanEvalIndex + numEvalV + 1 ], points [ ptIndex ] );
+
+                orient.diff ( evalPts [ spanEvalIndex + numEvalV + 1 ], points [ ptIndex ] );
 
                 if ( orient.dot ( edgeNormalU [ 3 ] ) >= 0.0 )
                     withinEdge4_3 = true;
-                
+
                 if ( orient.dot ( edgeNormalV [ 3 ] ) >= 0.0 )
                     withinEdge2_4 = true;
 
@@ -1472,9 +1472,9 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
                     newGuess -> culled = false;
                     newGuess -> ignoreParamBounds = false;
                     newGuess -> converged = false;
-    
+
                     tmpList -> append ( newGuess, false );
-    
+
                     hasGuess [ ptIndex ] = true;
                     lastGuess [ ptIndex ] = newGuess;
                 }
@@ -1490,7 +1490,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
 
     // If a candidate span is not found for a given point then find closest evaluated point
     // but don't impose parametric bounds to the guess.
-        
+
     for ( int ptIndex = 0; ptIndex < numPoints; ptIndex ++ )
     {
         if ( ! hasGuess [ ptIndex ] )
@@ -1498,7 +1498,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
             snlSurfLocnGuess* newGuess = new snlSurfLocnGuess;
 
             index = 0;
-        
+
             for ( int indexU = 0; indexU < numEvalU; indexU ++ )
             {
                 for ( int indexV = 0; indexV < numEvalV; indexV ++ )
@@ -1512,8 +1512,8 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
                         newGuess -> paramV = paramV [ indexV ];
                         newGuess -> pt = evalPts [ index ];
                     }
-                        
-                    index ++;  
+
+                    index ++;
                 }
             }
 
@@ -1543,7 +1543,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
         {
             if ( guess -> origPtIndex == ptIndex )
                 retList -> append ( guess, true );
-            
+
             guess = tmpList -> next();
         }
     }
@@ -1562,7 +1562,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation ( snlPoint* points, in
     delete[] lastGuess;
 
     delete tmpList;
-    
+
     return retList;
 }
 
@@ -1609,7 +1609,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points
         paramEnd = knotVectU -> val ( cSpan );
     else
         paramEnd = knotVectU -> max();
-     
+
 
     int numSteps;
 
@@ -1632,17 +1632,17 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points
         {
             numSteps = granU + 1;
         }
-    
+
         // Generate params for span.
-        
+
         for ( index = 0; index < numSteps; index ++ )
         {
             paramU [ paramIndex ] = param;
 
             spanU [ paramIndex ++ ] = span;
-    
+
             param += paramStep;
-    
+
             if ( param > paramEnd ) param = paramEnd;  // Round off error trap.
         }
 
@@ -1657,7 +1657,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points
     }
 
     // V direction.
-    
+
     cSpan = knotVectV -> getFirstSpan();
 
     paramStart = knotVectV -> val ( cSpan );
@@ -1686,15 +1686,15 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points
         {
             numSteps = granV + 1;
         }
-    
+
         for ( index = 0; index < numSteps; index ++ )
         {
             paramV [ paramIndex ] = param;
 
             spanV [ paramIndex ++ ] = span;
-    
+
             param += paramStep;
-    
+
             if ( param > paramEnd ) param = paramEnd;  // Round off error trap.
         }
 
@@ -1733,7 +1733,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points
         {
             evalPts [ index ] = eval ( paramU [ indexU ], paramV [ indexV ], basisU [ indexU ],
                                        basisV [ indexV ] );
-                          
+
             index ++;
         }
     }
@@ -1768,9 +1768,9 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points
                     if ( ! guesses [ guessIndex + guessOffset ] )
                     {
                         // Create new guess.
-                        
+
                         snlSurfLocnGuess* newGuess = new snlSurfLocnGuess;
-    
+
                         newGuess -> paramU = paramU [ indexU ];
                         newGuess -> paramV = paramV [ indexV ];
                         newGuess -> pt = evalPts [ index ];
@@ -1795,7 +1795,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points
 
                     int replaceIndex = guessOffset;
                     double dist = guesses [ guessOffset ] -> dist;
-                    
+
                     for ( int guessIndex = 1; guessIndex < numGuessesPerPt; guessIndex ++ )
                     {
                         if ( guesses [ guessIndex + guessOffset ] -> dist > dist )
@@ -1808,7 +1808,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points
                     if ( dist > distSqrd )
                     {
                         // Replace guess.
-    
+
                         guesses [ replaceIndex ] -> paramU = paramU [ indexU ];
                         guesses [ replaceIndex ] -> paramV = paramV [ indexV ];
                         guesses [ replaceIndex ] -> pt = evalPts [ index ];
@@ -1853,7 +1853,7 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation ( snlPoint* points
     delete[] basisU;
     delete[] basisV;
 
-    return retList;    
+    return retList;
 }
 
 ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation_triMethod ( snlPoint* points, int numPoints, bool* pointMask )
@@ -1867,14 +1867,14 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation_triMethod ( snlPoint* 
     //!
     //! @return List of surface location guess structs. Caller owns this list.
 
-    
-    
+
+
 }
 
 int snlSurface::hasAmbigEdges ( sEdge* results, double tolerance )
 {
     //! See if the surface has ambiguous edges
-    //  --------------------------------------    
+    //  --------------------------------------
     //! @param results Array of sEdge. Should be size 4.
     //! @param tolerance Tolerance of edge detection.
     //!
@@ -2076,37 +2076,37 @@ int snlSurface::hasAmbigEdges ( sEdge* results, double tolerance )
             case 0:
 
                 // Min U.
-                
+
                 if ( locns [ index ].paramU < min_u + tolerance )
                     edgeIsAmbig [ 0 ] = true;
-                    
+
                 break;
-                
+
             case 1:
-            
+
                 // Max U.
-                
+
                 if ( locns [ index ].paramU > max_u - tolerance )
                     edgeIsAmbig [ 1 ] = true;
-                    
+
                 break;
-                
+
             case 2:
 
                 // Min V.
 
                 if ( locns [ index ].paramV < min_v + tolerance )
                     edgeIsAmbig [ 2 ] = true;
-                    
+
                 break;
-                
+
             case 3:
 
                 // Max V.
 
                 if ( locns [ index ].paramV > max_v - tolerance )
                     edgeIsAmbig [ 3 ] = true;
-                    
+
                 break;
         }
     }
@@ -2159,7 +2159,7 @@ int snlSurface::hasAmbigEdges ( sEdge* results, double tolerance )
 int snlSurface::hasAmbigEdges_depr ( sEdge* results )
 {
     //! See if the surface has ambiguous edges
-    //! --------------------------------------    
+    //! --------------------------------------
     //! @param results Array of sEdge. Should be size 4.
     //!
     //! @return Number of ambiguous edges.
@@ -2177,15 +2177,15 @@ int snlSurface::hasAmbigEdges_depr ( sEdge* results )
 
     // Min / Max T
 
-    evalPt [ 0 ] = eval ( minT, ( ( maxU - minU ) / 2 ) + minU );    
+    evalPt [ 0 ] = eval ( minT, ( ( maxU - minU ) / 2 ) + minU );
 
-    evalPt [ 1 ] = eval ( maxT, ( ( maxU - minU ) / 2 ) + minU );    
+    evalPt [ 1 ] = eval ( maxT, ( ( maxU - minU ) / 2 ) + minU );
 
     // Min / Max U
 
-    evalPt  [ 2 ] = eval (( ( maxT - minT ) / 2 ) + minT, minU );    
+    evalPt  [ 2 ] = eval (( ( maxT - minT ) / 2 ) + minT, minU );
 
-    evalPt [ 3 ] = eval (( ( maxT - minT ) / 2 ) + minT, maxU );    
+    evalPt [ 3 ] = eval (( ( maxT - minT ) / 2 ) + minT, maxU );
 
     // Get projection function to do the work.
 

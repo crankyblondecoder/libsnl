@@ -23,12 +23,12 @@
 #ifdef SGI_MIPS
 
     #include <math.h>
-    
+
 #else
 
     #include <cmath>
     using namespace std;
-    
+
 #endif
 
 
@@ -47,11 +47,11 @@ snlCtrlPointNet::snlCtrlPointNet ( const snlCtrlPointNet& copyFrom )
 {
     // Copy constructor.
     // -----------------
-    
+
     ctrlPtArraySize = copyFrom.ctrlPtArraySize;
-    
+
     ctrlPts = new snlCtrlPoint [ ctrlPtArraySize ];
-    
+
     for ( unsigned index = 0; index < ctrlPtArraySize; index ++ )
         ctrlPts [ index ] = copyFrom.ctrlPts [ index ];
 }
@@ -80,8 +80,8 @@ void snlCtrlPointNet::transform ( snlTransform& transf )
     // Transform all control points.
     // -----------------------------
 
-    for ( unsigned index = 0; index < ctrlPtArraySize; index ++ )        
-            transf.transform ( ctrlPts + index );    
+    for ( unsigned index = 0; index < ctrlPtArraySize; index ++ )
+            transf.transform ( ctrlPts + index );
 }
 
 void snlCtrlPointNet::transformSelected ( snlTransform& transf )
@@ -116,7 +116,7 @@ snlCtrlPoint* snlCtrlPointNet::getCtrlPtsPtr()
 {
     // Return non-constant pointer to control points array.
     // ----------------------------------------------------
-    
+
     return ctrlPts;
 }
 
@@ -287,13 +287,13 @@ double snlCtrlPointNet::calcFlatness ( snlPoint** points, unsigned size )
     double      flatness = 0;
 
     if ( size < 3 ) return 0;
-    
+
     snlPoint pt1 ( *( points [ 0 ] ) );
     snlPoint pt2 ( *( points [ size -1 ] ) );
-    
-    pt1.normalise();
-    pt2.normalise();
-    
+
+    pt1.project();
+    pt2.project();
+
     snlVector lineV ( pt1, pt2 );
 
     // If lineV is zero length then use distance to pt1 for flatness.
@@ -306,8 +306,8 @@ double snlCtrlPointNet::calcFlatness ( snlPoint** points, unsigned size )
     for ( unsigned index = 1; index < ( size - 1 ); index ++ )
     {
         pt2 = * ( points [ index ] );
-        
-        pt2.normalise();
+
+        pt2.project();
 
         if ( usePoint )
         {
@@ -319,13 +319,13 @@ double snlCtrlPointNet::calcFlatness ( snlPoint** points, unsigned size )
 
             // Calculate dot product.
             dotP = lineV.dot ( testV );
-    
+
             // Project test vector onto baseline vector.
             proj = dotP / lineV.length();
-    
+
             // Length of test vector.
             testLength = testV.length();
-    
+
             // Length of normal from baseline to test point.
             normDist = sqrt ( testLength * testLength - proj * proj );
         }
@@ -351,7 +351,7 @@ double snlCtrlPointNet::calcDeg1Flatness ( snlPoint** points ) const
     for ( int index = 0; index < 4; index ++ )
     {
         nPoints [ index ] = *( points [ index ] );
-        nPoints [ index ].normalise();
+        nPoints [ index ].project();
     }
 
     // Approximate distance between lines that span opposite corners.
@@ -373,22 +373,22 @@ double snlCtrlPointNet::calcCurvature ( snlPoint** points )
 {
     // Calculate Curvature.
     // --------------------
-    // points:      Array of 3 pointers to control points to evaluate.     
+    // points:      Array of 3 pointers to control points to evaluate.
     //
     // returns:     Curvature as angle between vectors.
-    
+
     snlPoint pt1 ( *( points [ 0 ] ) );
     snlPoint pt2 ( *( points [ 1 ] ) );
     snlPoint pt3 ( *( points [ 2 ] ) );
-    
-    pt1.normalise();
-    pt2.normalise();
-    pt3.normalise();
-    
+
+    pt1.project();
+    pt2.project();
+    pt3.project();
+
     snlVector vect1 ( pt1, pt2 );
     snlVector vect2 ( pt2, pt3 );
-    
-    if ( vect1.isNull() || vect2.isNull() ) return 0.0;    
+
+    if ( vect1.isZero() || vect2.isZero() ) return 0.0;
 
     return vect1.angle ( vect2 );
 }
@@ -436,7 +436,7 @@ bool snlCtrlPointNet::isConvex ( snlPoint** points, int numPts, double sensitivi
 
             // Do convex test.
 
-            if ( ! testProject.isNull() )
+            if ( ! testProject.isZero() )
             {
                 double dotP = testProject.dot ( endProject );
                 if ( dotP > 0 ) return false;
@@ -456,18 +456,18 @@ bool snlCtrlPointNet::isConvex ( snlPoint** points, int numPts, double sensitivi
         if ( angle < 1.0 )
         {
             // Project end point onto chord.
-    
+
             snlVector endProject = projectToLine ( **( points + index - 1 ), **( points + index + 1 ),
                                                 **points );
-    
+
             // Project point to do convex test with, onto chord.
-    
+
             snlVector testProject = projectToLine ( **( points + index - 1 ), **( points + index + 1 ),
                                                     **( points + index ) );
-    
+
             // Do convex test.
-    
-            if ( ! testProject.isNull() )
+
+            if ( ! testProject.isZero() )
             {
                 double dotP = testProject.dot ( endProject );
                 if ( dotP > 0 ) return false;
@@ -485,9 +485,9 @@ void snlCtrlPointNet::replacePoints ( snlCtrlPoint* newPoints )
     // newPoints:   New points to use. This object owns them.
     //
     // Notes:       The caller is trusted to provide the correct size of control point array.
- 
+
     if ( ctrlPts ) delete[] ctrlPts;
-    
+
     ctrlPts = newPoints;
 }
 
@@ -499,36 +499,36 @@ void snlCtrlPointNet::replacePoints ( const snlCtrlPoint* newPoints, unsigned nu
     // newPoints:    New points to place into array.
     // numNewPoint:  Number of new points to use.
     // replaceIndex: Starting index in array where replacement should begin.
-    // numToReplace: Number of points to replace. Can be different from numNewPoints.    
+    // numToReplace: Number of points to replace. Can be different from numNewPoints.
     //
     // Notes:    Does not shrink or grow control point array allocation. That must be done seperately
     //           at a higher level or memory errors _will_ occur.
-    
-    
+
+
     // Account for the number of new points being more than the number being replaced.
-        
+
     if ( numNewPoints > numToReplace )
     {
         unsigned diff = numNewPoints - numToReplace;
-        
+
         for ( unsigned index = ctrlPtArraySize - 1; index >= replaceIndex + numNewPoints; index -- )
             ctrlPts [ index ] = ctrlPts [ index - diff ];
-    }    
-    
+    }
+
     // Copy new points into array.
-    
+
     for ( unsigned index = 0; index < numNewPoints; index ++ )
         ctrlPts [ replaceIndex + index ] = newPoints [ index ];
-    
+
     // Account for the number of new points being less than the number being replaced.
-    
+
     if ( numNewPoints < numToReplace )
     {
         unsigned diff = numToReplace - numNewPoints;
-        
+
         for ( unsigned index = replaceIndex + numNewPoints; index < ctrlPtArraySize - diff; index ++ )
             ctrlPts [ index ] = ctrlPts [ index + diff ];
-    }    
+    }
 }
 
 void snlCtrlPointNet::appendPointSpace ( unsigned numPoints )
@@ -537,16 +537,16 @@ void snlCtrlPointNet::appendPointSpace ( unsigned numPoints )
     // ----------------------------------------------
 
     if ( numPoints <= 0 ) return;
-    
+
     snlCtrlPoint* newPts = new snlCtrlPoint [ ctrlPtArraySize + numPoints ];
-    
+
     for ( unsigned index = 0; index < ctrlPtArraySize; index ++ )
-        newPts [ index ] = ctrlPts [ index ];        
+        newPts [ index ] = ctrlPts [ index ];
 
     ctrlPtArraySize += numPoints;
 
     delete[] ctrlPts;
-    
+
     ctrlPts = newPts;
 }
 
@@ -554,17 +554,17 @@ void snlCtrlPointNet::truncatePointSpace ( unsigned numPoints )
 {
     // Remove space from end of array.
     // -------------------------------
-    
+
     snlCtrlPoint* newPts = new snlCtrlPoint [ ctrlPtArraySize - numPoints ];
-    
+
     for ( unsigned index = 0; index < ( ctrlPtArraySize - numPoints ); index ++ )
-        newPts [ index ] = ctrlPts [ index ];        
+        newPts [ index ] = ctrlPts [ index ];
 
     ctrlPtArraySize -= numPoints;
 
     delete[] ctrlPts;
-    
-    ctrlPts = newPts;    
+
+    ctrlPts = newPts;
 }
 
 void snlCtrlPointNet::appendPoints ( const snlCtrlPoint* points, unsigned numPoints )
@@ -573,22 +573,22 @@ void snlCtrlPointNet::appendPoints ( const snlCtrlPoint* points, unsigned numPoi
     // ------------------------------------------------
     // points:    Points to append.
     // numPoints: Number of points to append.
-    
+
     unsigned oldSize = ctrlPtArraySize;
-    
+
     appendPointSpace ( numPoints );
-    
+
     unsigned pointsIndex = 0;
-    
+
     for ( unsigned index = oldSize; index < ctrlPtArraySize; index ++ )
-        ctrlPts [ index ] = points [ pointsIndex ++ ];    
+        ctrlPts [ index ] = points [ pointsIndex ++ ];
 }
 
 void snlCtrlPointNet::print()
 {
     // Print all points.
     // -----------------
-    
+
     for ( unsigned index = 0; index < ctrlPtArraySize; index ++ )
     {
         cout << "[ " << index << " ]";
@@ -603,7 +603,7 @@ void snlCtrlPointNet::print ( unsigned fromIndex, unsigned toIndex )
     // --------------------------------
     // fromIndex:        Starting control point index.
     // toIndex:          Ending control point index.
-    
+
     for ( unsigned index = fromIndex; index <= toIndex; index ++ )
     {
         cout << "[ " << index << " ]";
@@ -616,9 +616,9 @@ bool snlCtrlPointNet::hasConcurrentPoints() const
 {
     // Return true if any concurrent points exist in net.
     // --------------------------------------------------
-    
+
     bool concurrent = false;
-    
+
     for ( unsigned index = 0; index < ctrlPtArraySize; index ++ )
     {
         for ( unsigned index2 = 0; index2 < ctrlPtArraySize; index2 ++ )
@@ -628,7 +628,7 @@ bool snlCtrlPointNet::hasConcurrentPoints() const
                     concurrent = true;
         }
     }
-    
+
     return concurrent;
 }
 

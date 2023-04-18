@@ -1,5 +1,4 @@
 // libSNL - Simple Nurbs Library
-// Copyright Scott A.E. Lanham, Australia.
 // ---------------------------------------
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,24 +16,15 @@
 
 // *** 4x4 Matrix of doubles ***
 
-#ifndef SNLMATRIX4X4_H
-#define SNLMATRIX4X4_H
+#ifndef SNL_MATRIX_4X4_H
+#define SNL_MATRIX_4X4_H
 
 #include "snlPoint.h"
 
-#ifdef SGI_MIPS
+#include <iostream>
+#include <cmath>
 
-    #include <iostream.h>
-    #include <math.h>
-    
-#else
-
-    #include <iostream>
-    #include <cmath>
-    
-    using namespace std;
-    
-#endif
+using namespace std;
 
 class snlMatrix_4X4
 {
@@ -44,7 +34,7 @@ class snlMatrix_4X4
 
         snlMatrix_4X4();
         virtual ~snlMatrix_4X4();
-        
+
         snlMatrix_4X4 ( snlMatrix_4X4& copyFrom );
 
         void ident();  // Set matrix to identity.
@@ -60,7 +50,7 @@ class snlMatrix_4X4
         void multiply ( snlMatrix_4X4&, bool pre = false );  // Multiply this matrix by given matrix.
 
         void transform ( snlPoint* );  // Transform given point with matrix.
-        
+
         double* elements();
 
         void print();  //!< Print matrice to standard out.

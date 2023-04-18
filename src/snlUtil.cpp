@@ -46,13 +46,13 @@ double distToLine ( snlPoint lineStart, snlPoint lineEnd, snlPoint compare )
     // lineStart:    Start of line.
     // lineEnd:      End of line.
     // compare:      Point to compare to line.
-    
-    lineStart.normalise();
-    lineEnd.normalise();
-    compare.normalise();
-    
-    snlVector lineV ( lineStart, lineEnd );    
-    
+
+    lineStart.project();
+    lineEnd.project();
+    compare.project();
+
+    snlVector lineV ( lineStart, lineEnd );
+
     snlVector testV ( lineStart, compare );
 
     // Calculate dot product.
@@ -80,12 +80,12 @@ snlVector projectToLine ( snlPoint lineStart, snlPoint lineEnd, snlPoint compare
     //
     // Notes:        Returned vector points _TO_ line if based from given point "compare".
 
-    lineStart.normalise();
-    lineEnd.normalise();
-    compare.normalise();
-    
-    snlVector lineV ( lineStart, lineEnd );    
-    
+    lineStart.project();
+    lineEnd.project();
+    compare.project();
+
+    snlVector lineV ( lineStart, lineEnd );
+
     snlVector testV ( lineStart, compare );
 
     // Calculate dot product.
@@ -95,7 +95,7 @@ snlVector projectToLine ( snlPoint lineStart, snlPoint lineEnd, snlPoint compare
     double proj = dotP / lineV.length();
 
     // Generate projected vector.
-    
+
     lineV.length ( proj );
     lineV -= testV;
 
@@ -124,7 +124,7 @@ bool isInteriorToTriangle ( snlPoint& testPt, snlPoint& verticeA, snlVector& bou
 
     snlVector testPointVector ( verticeA, testPt );  // Vector from triangle vertice to projected point.
 
-    testPointVector.unitise();
+    testPointVector.normalise();
 
     // Remember that the cosine that results from a dot product is clamped between 1 and -1.
     // 1 represent and angle of 0 degrees and -1 represents and angle of 180 degrees.
@@ -136,9 +136,9 @@ bool isInteriorToTriangle ( snlPoint& testPt, snlPoint& verticeA, snlVector& bou
 
     triCos = boundB1.dot ( boundB2 );
 
-    testPointVector.calc ( verticeB, testPt );
+    testPointVector.diff ( verticeB, testPt );
 
-    testPointVector.unitise();
+    testPointVector.normalise();
 
     if ( testPointVector.dot ( boundB1 ) < triCos || testPointVector.dot ( boundB2 ) < triCos )
         isInterior = false;

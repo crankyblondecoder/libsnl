@@ -31,12 +31,12 @@ snlCtrlPointNetSurface::snlCtrlPointNetSurface ( snlCtrlPoint* cPtArray, unsigne
     sizeV = size_v;
 
     ctrlPtArraySize = sizeU * sizeV;
-    
+
     if ( copy )
     {
-        // Copy points into object.        
+        // Copy points into object.
         ctrlPts = new snlCtrlPoint [ ctrlPtArraySize ];
-        
+
         for ( unsigned count = 0; count < ctrlPtArraySize; count ++ )
             ctrlPts [ count ] = cPtArray [ count ];
     }
@@ -61,7 +61,7 @@ snlCtrlPointNetSurface::snlCtrlPointNetSurface ( unsigned size_u, unsigned size_
     sizeV = size_v;
 
     if ( ! sizeU || ! sizeV ) return;
-    
+
     ctrlPtArraySize = size_u * size_v;
 
     ctrlPts = new snlCtrlPoint [ ctrlPtArraySize ];
@@ -110,7 +110,7 @@ void snlCtrlPointNetSurface::setSizeU ( unsigned size )
 {
     // Set sizeU to size.
     // ------------------
-    
+
     sizeU = size;
 }
 
@@ -118,7 +118,7 @@ void snlCtrlPointNetSurface::setSizeV ( unsigned size )
 {
     // Set sizeV to size.
     // ------------------
-    
+
     sizeV = size;
 }
 
@@ -140,7 +140,7 @@ snlCtrlPoint* snlCtrlPointNetSurface::growU ( int increaseBy, bool reallocate )
     // increaseBy:      Size U direction should be increased by.
 
     if ( ! ctrlPts ) return 0;
-    
+
     if ( reallocate )
     {
         snlCtrlPoint* newPts = new snlCtrlPoint [ ctrlPtArraySize + ( sizeV * increaseBy ) ];
@@ -153,7 +153,7 @@ snlCtrlPoint* snlCtrlPointNetSurface::growU ( int increaseBy, bool reallocate )
         delete[] ctrlPts;
 
         ctrlPts = newPts;
-        
+
         ctrlPtArraySize += sizeV * increaseBy;
     }
 
@@ -170,9 +170,9 @@ snlCtrlPoint* snlCtrlPointNetSurface::growV ( int increaseBy, bool reallocate )
     // increaseBy:      Size V direction should be increased by.
 
     if ( ! ctrlPts ) return 0;
-    
+
     snlCtrlPoint*   newPts;
-    
+
     if ( reallocate )
         newPts = new snlCtrlPoint [ ctrlPtArraySize + ( sizeU * increaseBy )];
     else
@@ -182,7 +182,7 @@ snlCtrlPoint* snlCtrlPointNetSurface::growV ( int increaseBy, bool reallocate )
 
     int oldPos = sizeU * sizeV - 1;  // Don't use ctrlPtArraySize. Realloc may have changed it.
     int newPos = sizeU * ( sizeV + increaseBy ) - 1 - increaseBy;
-    
+
     for ( int indexU = sizeU - 1; indexU > -1; indexU -- )
     {
         for ( int indexV = sizeV - 1; indexV > -1; indexV -- )
@@ -198,7 +198,7 @@ snlCtrlPoint* snlCtrlPointNetSurface::growV ( int increaseBy, bool reallocate )
         delete[] ctrlPts;
 
         ctrlPts = newPts;
-        
+
         ctrlPtArraySize += sizeU * increaseBy;
     }
 
@@ -211,7 +211,7 @@ snlCtrlPoint* snlCtrlPointNetSurface::shrinkU()
 {
     // Shrink control point net in U direction by 1.
     // ---------------------------------------------
-    
+
    if ( ! ctrlPts ) return 0;
 
     snlCtrlPoint* newPts = new snlCtrlPoint [ ctrlPtArraySize - sizeV ];
@@ -237,7 +237,7 @@ snlCtrlPoint* snlCtrlPointNetSurface::shrinkV()
 {
     // Shrink control point net in V direction by 1.
     // ---------------------------------------------
-    
+
     if ( ! ctrlPts ) return 0;
 
     snlCtrlPoint* newPts = new snlCtrlPoint [ ctrlPtArraySize - sizeU ];
@@ -293,39 +293,39 @@ double snlCtrlPointNetSurface::calcFlatness ( int indexU, int indexV, int numPoi
     // Pre-calculate vectors and normals.
 
     // 4 Corners.
-    
+
     int indexB = numPointsV - 1;
     int indexC = numPoints - numPointsV;
     int indexD = numPoints - 1;
 
     snlCtrlPoint ptA = *(ctrlPointPtrs [ 0 ]);
-    ptA.normalise();
+    ptA.project();
     snlCtrlPoint ptB = *(ctrlPointPtrs [ numPointsV - 1 ]);
-    ptB.normalise();
+    ptB.project();
     snlCtrlPoint ptC = *(ctrlPointPtrs [ numPoints - numPointsV ]);
-    ptC.normalise();
+    ptC.project();
     snlCtrlPoint ptD = *(ctrlPointPtrs [ numPoints - 1 ]);
-    ptD.normalise();
+    ptD.project();
 
     // Side Vectors.
-    
+
     snlVector ab ( ptA, ptB );
-    ab.unitise();
-    
+    ab.normalise();
+
     snlVector ba = ab * -1.0;
 
     snlVector ac ( ptA, ptC );
-    ac.unitise();
+    ac.normalise();
 
     snlVector ca = ac * -1.0;
 
     snlVector bd ( ptB, ptD );
-    bd.unitise();
+    bd.normalise();
 
     snlVector db = bd * -1.0;
 
     snlVector cd ( ptC, ptD );
-    cd.unitise();
+    cd.normalise();
 
     snlVector dc = cd * -1.0;
 
@@ -356,7 +356,7 @@ double snlCtrlPointNetSurface::calcFlatness ( int indexU, int indexV, int numPoi
         bool interiorFound = false;  // True if at least one triangle contains projection.
 
         snlCtrlPoint t = *(ctrlPointPtrs [ index ]);
-        t.normalise();
+        t.project();
 
         // Project point to and compare to triangle rooted at A.
 
@@ -376,7 +376,7 @@ double snlCtrlPointNetSurface::calcFlatness ( int indexU, int indexV, int numPoi
 
         // Project point to and compare to triangle rooted at B.
 
-        toProj.calc ( ptB, t );
+        toProj.diff ( ptB, t );
 
         projVect = toProj.project ( normB );
 
@@ -389,10 +389,10 @@ double snlCtrlPointNetSurface::calcFlatness ( int indexU, int indexV, int numPoi
         if ( isInterior ) interiorFound = true;
 
         if ( isInterior &&  maxDistance < projDist ) maxDistance = projDist;
-        
+
         // Project point to and compare to triangle rooted at C.
 
-        toProj.calc ( ptC, t );
+        toProj.diff ( ptC, t );
 
         projVect = toProj.project ( normC );
 
@@ -405,10 +405,10 @@ double snlCtrlPointNetSurface::calcFlatness ( int indexU, int indexV, int numPoi
         if ( isInterior ) interiorFound = true;
 
         if ( isInterior &&  maxDistance < projDist ) maxDistance = projDist;
-        
+
         // Project point to and compare to triangle rooted at D.
 
-        toProj.calc ( ptD, t );
+        toProj.diff ( ptD, t );
 
         projVect = toProj.project ( normD );
 
@@ -421,12 +421,12 @@ double snlCtrlPointNetSurface::calcFlatness ( int indexU, int indexV, int numPoi
         if ( isInterior ) interiorFound = true;
 
         if ( isInterior &&  maxDistance < projDist ) maxDistance = projDist;
-        
+
         // If no triangle contains a projection then project to the six triangle outlines and take _smallest_ value
 
         if ( ! interiorFound )
         {
-            toProj.calc ( ptA, t );
+            toProj.diff ( ptA, t );
 
             double projMaxDistance = ab.projectDist ( toProj );  // A -> B.
 
@@ -438,7 +438,7 @@ double snlCtrlPointNetSurface::calcFlatness ( int indexU, int indexV, int numPoi
 
             if ( projDist < projMaxDistance ) projMaxDistance = projDist;
 
-            toProj.calc ( ptD, t );
+            toProj.diff ( ptD, t );
 
             projDist = db.projectDist ( toProj );  // D -> B.
 
@@ -448,7 +448,7 @@ double snlCtrlPointNetSurface::calcFlatness ( int indexU, int indexV, int numPoi
 
             if ( projDist < projMaxDistance ) projMaxDistance = projDist;
 
-            toProj.calc ( ptB, t );
+            toProj.diff ( ptB, t );
 
             projDist = bc.projectDist ( toProj );  // B -> C.
 
@@ -468,29 +468,29 @@ double snlCtrlPointNetSurface::calcFlatnessU ( int indexU, int indexV, int numPo
     // indexU:      U index of starting position in control point net.
     // indexV:      V index of starting position in control point net.
     // numPoints:   Number of points, including starting point, to test.
-    
+
     snlCtrlPoint** testCtrlPoints  = new snlCtrlPoint* [ numPoints ];
-    
+
     double flatness;
-    
+
     if ( degree1 )
     {
         testCtrlPoints [ 0 ] = getPoint ( indexU, indexV );
         testCtrlPoints [ 1 ] = getPoint ( indexU + 1, indexV );
         testCtrlPoints [ 2 ] = getPoint ( indexU, indexV + 1 );
         testCtrlPoints [ 3 ] = getPoint ( indexU + 1, indexV + 1 );
-        
-        flatness = calcDeg1Flatness ( (snlPoint**) testCtrlPoints );        
+
+        flatness = calcDeg1Flatness ( (snlPoint**) testCtrlPoints );
     }
     else
     {
         locatePointsU ( indexU, indexV, numPoints, testCtrlPoints );
-        
+
         flatness = snlCtrlPointNet::calcFlatness ( (snlPoint**) testCtrlPoints, numPoints );
     }
-    
+
     delete[] testCtrlPoints;
-    
+
     return flatness;
 }
 
@@ -501,11 +501,11 @@ double snlCtrlPointNetSurface::calcFlatnessV ( int indexU, int indexV, int numPo
     // indexU:      U index of starting position in control point net.
     // indexV:      V index of starting position in control point net.
     // numPoints:   Number of points, including starting point, to test.
-    
+
     snlCtrlPoint** testCtrlPoints  = new snlCtrlPoint* [ numPoints ];
-    
+
     double flatness;
-    
+
     if ( degree1 )
     {
         testCtrlPoints [ 0 ] = getPoint ( indexU, indexV );
@@ -513,17 +513,17 @@ double snlCtrlPointNetSurface::calcFlatnessV ( int indexU, int indexV, int numPo
         testCtrlPoints [ 2 ] = getPoint ( indexU + 1, indexV );
         testCtrlPoints [ 3 ] = getPoint ( indexU + 1, indexV + 1 );
 
-        flatness = calcDeg1Flatness ( (snlPoint**) testCtrlPoints );        
+        flatness = calcDeg1Flatness ( (snlPoint**) testCtrlPoints );
     }
     else
-    {    
+    {
         locatePointsV ( indexU, indexV, numPoints, testCtrlPoints );
-            
+
         flatness = snlCtrlPointNet::calcFlatness ( (snlPoint**) testCtrlPoints, numPoints );
     }
-    
+
     delete[] testCtrlPoints;
-    
+
     return flatness;
 }
 
@@ -536,7 +536,7 @@ double snlCtrlPointNetSurface::maxFlatnessU ( int span )
     double maxFlatness = 0.0;
 
     int maxU = sizeU - span;
-    
+
     for ( int indexV = 0; indexV < sizeV; indexV ++ )
     {
         for ( int indexU = 0; indexU < maxU; indexU ++ )
@@ -561,7 +561,7 @@ double snlCtrlPointNetSurface::maxFlatnessV ( int span )
     double maxFlatness = 0.0;
 
     int maxV = sizeV - span;
-    
+
     for ( int indexU = 0; indexU < sizeU; indexU ++ )
     {
         for ( int indexV = 0; indexV < maxV; indexV ++ )
@@ -582,32 +582,32 @@ double snlCtrlPointNetSurface::maxCurvatureU()
     // Calculate the maximum curvature of surface in U direction.
     // ----------------------------------------------------------
     // Returns:     Maximum curvature as an angle between 0 and PI.
-    
+
     snlCtrlPoint** testCtrlPoints  = new snlCtrlPoint* [ 3 ];
     snlPoint** testPoints  = new snlPoint* [ 3 ];
-    
+
     double maxCurvature = 0.0;
-    
+
     for ( int indexV = 0; indexV < sizeV; indexV ++ )
     {
         for ( int indexU = 0; indexU < sizeU - 2; indexU ++ )
         {
-            locatePointsU ( indexU, indexV, 3, testCtrlPoints );    
-    
+            locatePointsU ( indexU, indexV, 3, testCtrlPoints );
+
             // Make sure pointer is converted correctly.
-        
+
             for ( int index = 0; index < 3; index ++ )
                 testPoints [ index ] = testCtrlPoints [ index ];
-            
+
              double curvature = calcCurvature ( testPoints );
-             
+
              if ( curvature > maxCurvature ) maxCurvature = curvature;
         }
-    } 
-    
+    }
+
     delete[] testPoints;
     delete[] testCtrlPoints;
-    
+
     return maxCurvature;
 }
 
@@ -616,32 +616,32 @@ double snlCtrlPointNetSurface::maxCurvatureV()
     // Calculate the maximum curvature of surface in V direction.
     // ----------------------------------------------------------
     // Returns:     Maximum curvature as an angle between 0 and PI.
-    
+
     snlCtrlPoint** testCtrlPoints  = new snlCtrlPoint* [ 3 ];
     snlPoint** testPoints  = new snlPoint* [ 3 ];
-    
+
     double maxCurvature = 0.0;
-    
+
     for ( int indexU = 0; indexU < sizeU; indexU ++ )
     {
         for ( int indexV = 0; indexV < sizeV - 2; indexV ++ )
         {
-            locatePointsV ( indexU, indexV, 3, testCtrlPoints );    
-    
+            locatePointsV ( indexU, indexV, 3, testCtrlPoints );
+
             // Make sure pointer is converted correctly.
-        
+
             for ( int index = 0; index < 3; index ++ )
                 testPoints [ index ] = testCtrlPoints [ index ];
-            
+
              double curvature = calcCurvature ( testPoints );
-             
+
              if ( curvature > maxCurvature ) maxCurvature = curvature;
         }
-    } 
-    
+    }
+
     delete[] testPoints;
     delete[] testCtrlPoints;
-    
+
     return maxCurvature;
 }
 
@@ -658,7 +658,7 @@ void snlCtrlPointNetSurface::locatePoints ( int indexU, int indexV, int numPoint
     //
     // Notes:           There is no array bounds check in this function. So be carefull of the U and V indexes
     //                  being passed to this function.
-    
+
     int arrayIndex = indexU * sizeV + indexV;
 
     int retArrayIndex = 0;
@@ -684,9 +684,9 @@ void snlCtrlPointNetSurface::locatePointsU ( int indexU, int indexV, int numPoin
     // indexV:      V index of starting position in control point net.
     // numPoints:   Number of points, including starting point.
     // testPoints:  Pointer array to return pointers in.
-    
+
     int arrayIndex = indexU * sizeV + indexV;
-    
+
     for ( int ptNum = 0; ptNum < numPoints; ptNum ++ )
     {
         if ( (unsigned) arrayIndex < ctrlPtArraySize )
@@ -696,7 +696,7 @@ void snlCtrlPointNetSurface::locatePointsU ( int indexU, int indexV, int numPoin
         }
         else
             break;
-    }            
+    }
 }
 
 void snlCtrlPointNetSurface::locatePointsV ( int indexU, int indexV, int numPoints, snlCtrlPoint** testPoints ) const
@@ -707,9 +707,9 @@ void snlCtrlPointNetSurface::locatePointsV ( int indexU, int indexV, int numPoin
     // indexV:      V index of starting position in control point net.
     // numPoints:   Number of points, including starting point.
     // testPoints:  Pointer array to return pointers in.
-    
+
     int arrayIndex = indexU * sizeV + indexV;
-    
+
     for ( int ptNum = 0; ptNum < numPoints; ptNum ++ )
     {
         if ( (unsigned) arrayIndex < ctrlPtArraySize )
@@ -719,7 +719,7 @@ void snlCtrlPointNetSurface::locatePointsV ( int indexU, int indexV, int numPoin
         }
         else
             break;
-    }            
+    }
 }
 
 int snlCtrlPointNetSurface::maxConnections() const
@@ -745,9 +745,9 @@ void snlCtrlPointNetSurface::selectPoint ( int indexU, int indexV )
 {
     // Select point at U, V.
     // ---------------------
-    
+
     int index = indexU * sizeV + indexV;
-    
+
     ctrlPts [ index ].select ( true );
 }
 
@@ -755,7 +755,7 @@ void snlCtrlPointNetSurface::selectLineConstU ( int indexU )
 {
     // Select line in constant U direction.
     // ------------------------------------
-    
+
     for ( int indexV = 0; indexV < sizeV; indexV ++ )
         selectPoint ( indexU, indexV );
 }
@@ -764,7 +764,7 @@ void snlCtrlPointNetSurface::selectLineConstV ( int indexV )
 {
     // Select line in constant V direction.
     // ------------------------------------
-    
+
     for ( int indexU = 0; indexU < sizeU; indexU ++ )
         selectPoint ( indexU, indexV );
 }
@@ -773,17 +773,17 @@ void snlCtrlPointNetSurface::print()
 {
     // Print control points to std out.
     // --------------------------------
-    
+
     for ( int indexU = 0; indexU < sizeU; indexU ++ )
     {
         cout << indexU << ": ";
-        
+
         for ( int indexV = 0; indexV < sizeV; indexV ++ )
         {
             ctrlPts [ indexU * sizeV + indexV ].print();
             cout << "\n";
         }
-        
+
         cout << "\n";
     }
 }
@@ -797,20 +797,20 @@ void snlCtrlPointNetSurface::printCompare ( snlCtrlPointNetSurface& compareTo )
     for ( int indexU = 0; indexU < sizeU; indexU ++ )
     {
         cout << indexU << ": ";
-        
+
         for ( int indexV = 0; indexV < sizeV; indexV ++ )
         {
             snlPoint pt1 = ctrlPts [ indexU * sizeV + indexV ];
             snlPoint pt2 = compareTo.ctrlPts [ indexU * sizeV + indexV ];
-            
+
             if ( pt1 == pt2 )
                 cout << "E";
             else
                 cout << "NE";
-                
+
             cout << "\t";
         }
-        
+
         cout << "\n";
     }
 }

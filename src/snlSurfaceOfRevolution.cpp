@@ -25,8 +25,8 @@ snlSurfaceOfRevolution::snlSurfaceOfRevolution()
     profile = 0;
     axis_start = 0;
     axis_end = 0;
-    
-    rot_angle = M_PI * 2.0;  
+
+    rot_angle = M_PI * 2.0;
 }
 
 snlSurfaceOfRevolution::~snlSurfaceOfRevolution()
@@ -35,7 +35,7 @@ snlSurfaceOfRevolution::~snlSurfaceOfRevolution()
     if ( axis_start ) delete axis_start;
     if ( axis_end ) delete axis_end;
 }
-        
+
 snlSurfaceOfRevolution::snlSurfaceOfRevolution ( snlCurve* profileCurve, snlPoint* axisStart, snlPoint* axisEnd, double rotationAngle )
 {
     // Construct new surface of revolution.
@@ -47,17 +47,17 @@ snlSurfaceOfRevolution::snlSurfaceOfRevolution ( snlCurve* profileCurve, snlPoin
     //
     // Notes:    All objects are owned by this object.
     //           Revolution about axis is right handed.
-    
+
     profile = profileCurve;
     axis_start = axisStart;
     axis_end = axisEnd;
-    
+
     if ( rotationAngle > M_PI * 2.0 || rotationAngle == 0.0)
         rot_angle = M_PI * 2.0;
     else if ( rotationAngle < ( - M_PI * 2.0 ) )
         rot_angle = - M_PI * 2.0;
     else
-        rot_angle = rotationAngle;        
+        rot_angle = rotationAngle;
 }
 
 snlCurve& snlSurfaceOfRevolution::profileCurve()
@@ -68,7 +68,7 @@ snlCurve& snlSurfaceOfRevolution::profileCurve()
 void snlSurfaceOfRevolution::profileCurve ( snlCurve* profileCurve )
 {
     if ( profile ) delete profile;
-    
+
     profile = profileCurve;
 }
 
@@ -80,7 +80,7 @@ snlPoint& snlSurfaceOfRevolution::axisStart()
 void snlSurfaceOfRevolution::axisStart ( snlPoint* startPoint )
 {
     if ( axis_start ) delete axis_start;
-    
+
     axis_start = startPoint;
 }
 
@@ -92,7 +92,7 @@ snlPoint& snlSurfaceOfRevolution::axisEnd()
 void snlSurfaceOfRevolution::axisEnd ( snlPoint* endPoint )
 {
     if ( axis_end ) delete axis_end;
-    
+
     axis_end = endPoint;
 }
 
@@ -113,56 +113,56 @@ void snlSurfaceOfRevolution::vertexNet ( snlVertexNet* vNet, double tolerance, b
     // tolerance:    Tolerance to approximate to.
     // parametric:   Do a parametric analysis as opposed to knot refinement.
     // vNet:         Vertex net to fill with data.
-    
+
     snlCurve* profileCopy = new snlCurve ( *profile );
-    
+
     if ( tolerance > 0.0 )
-        profileCopy -> refine ( tolerance );    
-    
+        profileCopy -> refine ( tolerance );
+
     const snlCtrlPoint* ctrlPts = profileCopy -> controlPointNet().getCtrlPts();
-    
+
     int numPts = profileCopy -> controlPointNet().size();
-    
+
     vNet -> vertexNet ( ctrlPts, numPts );
-    
+
     // Find angle step to use.
-    
+
     snlPoint axis_start_norm ( *axis_start );
-    axis_start_norm.normalise();
-    
+    axis_start_norm.project();
+
     snlPoint axis_end_norm ( *axis_end );
-    axis_end_norm.normalise();    
-    
+    axis_end_norm.project();
+
     // Get largest radius
-    
+
     double maxRadius = 0.0;
-    
+
     for ( int index = 0; index < numPts; index ++ )
-    {        
+    {
         double dist = distToLine ( axis_start_norm, axis_end_norm, ctrlPts [ index ] );
-        
+
         if ( dist > maxRadius )
-            maxRadius = dist;        
+            maxRadius = dist;
     }
-    
+
     // Calculate steps based on tolerance and maximum radius.
-    
+
     double angleStep = 2 * acos ( 1.0 - ( tolerance / maxRadius ) );
-    
+
     int numSteps = (int ) ( rot_angle / angleStep ) + 1;
-    
+
     angleStep = rot_angle / (double) numSteps;
-    
-    // Rotate and append points at discrete angle steps.   
-    
+
+    // Rotate and append points at discrete angle steps.
+
     snlTransform transf;
-    
+
     transf.rotate ( angleStep, axis_start_norm, axis_end_norm );
-    
+
     for ( int step = 0; step < numSteps; step ++ )
     {
         profileCopy -> controlPointNet().transform ( transf );
-        
+
         vNet -> appendRow ( ctrlPts );
     }
 }
@@ -170,9 +170,9 @@ void snlSurfaceOfRevolution::vertexNet ( snlVertexNet* vNet, double tolerance, b
 snlPoint snlSurfaceOfRevolution::eval ( knot paramU, knot paramV ) const
 {
     snlPoint retPoint;
-    
+
     // !@#$ Incomplete
-    
+
     return retPoint;
 }
 

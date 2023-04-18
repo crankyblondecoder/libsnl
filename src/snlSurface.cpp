@@ -21,7 +21,7 @@
 snlSurface::~snlSurface()
 {
     if ( ctrlPtNet ) delete ctrlPtNet;
-    
+
     if ( knotVectU ) delete knotVectU;
     if ( knotVectV ) delete knotVectV;
 
@@ -56,7 +56,7 @@ snlSurface::snlSurface ( const snlSurface& surfaceToCopy )
     copyFrom ( surfaceToCopy );
 }
 
-snlSurface::snlSurface ( int degreeU, int degreeV, unsigned sizeU, unsigned sizeV, 
+snlSurface::snlSurface ( int degreeU, int degreeV, unsigned sizeU, unsigned sizeV,
                          snlPoint& origin, snlPoint& cornerMaxU, snlPoint& cornerMaxV )
 {
     //! Construct a new NURBS surface.
@@ -70,12 +70,12 @@ snlSurface::snlSurface ( int degreeU, int degreeV, unsigned sizeU, unsigned size
     //! @param cornerMaxV Point at (u,v) = (0,MaxV).
 
     init();
-    
+
     ctrlPtNet = new snlCtrlPointNetSurface ( sizeU, sizeV, origin, cornerMaxU, cornerMaxV );
-    
+
     knotVectU = new snlKnotVector ( 0.0, 1.0, sizeU + degreeU + 1, degreeU );
     knotVectV = new snlKnotVector ( 0.0, 1.0, sizeV + degreeV + 1, degreeV );
-    
+
     degU = degreeU;
     degV = degreeV;
 }
@@ -98,18 +98,18 @@ snlSurface::snlSurface ( int degreeU, int degreeV, unsigned sizeU, unsigned size
     //! @attention Does NOT COPY point and knot data. So don't delete them elsewhere.
 
     init();
-    
+
     degU = degreeU;
     degV = degreeV;
 
     ctrlPtNet = new snlCtrlPointNetSurface ( points, sizeU, sizeV, false );
-    
+
     if ( knotsU )
         knotVectU = new snlKnotVector (  knotsU, sizeU + degU + 1, degreeU );
     else
         knotVectU = new snlKnotVector (  0.0, 1.0, sizeU + degU + 1, degreeU );
-    
-    if ( knotsV )    
+
+    if ( knotsV )
         knotVectV = new snlKnotVector (  knotsV, sizeV + degV + 1, degreeV );
     else
         knotVectV = new snlKnotVector (  0.0, 1.0, sizeV + degV + 1, degreeV );
@@ -146,17 +146,17 @@ snlSurface::snlSurface ( snlCurve& curve1, snlCurve& curve2, int direction )
         knotVectU = new snlKnotVector ( 0.0, 1.0, 4, 1 );
         knotVectV = new snlKnotVector ( curve_1 -> knotVector() );
     }
-    
+
     // Generate control points.
-    
+
     int size = curve_1 -> size();
     int arraySize = size * 2;
-    
+
     snlCtrlPoint* ctrlPts = new snlCtrlPoint [ arraySize ];
-    
+
     const snlCtrlPoint* copyNet1 = curve_1 -> controlPointNet().getCtrlPts();
     const snlCtrlPoint* copyNet2 = curve_2 -> controlPointNet().getCtrlPts();
-    
+
     int ctrlPtsIndex = 0;
 
     if ( direction == SNL_U_DIR )
@@ -166,16 +166,16 @@ snlSurface::snlSurface ( snlCurve& curve1, snlCurve& curve2, int direction )
             ctrlPts [ ctrlPtsIndex ++ ] = copyNet1 [ index ];
             ctrlPts [ ctrlPtsIndex ++ ] = copyNet2 [ index ];
         }
-        
+
         ctrlPtNet = new snlCtrlPointNetSurface ( ctrlPts, size, 2, false );
-        
+
         degU = curve_1 -> degree();
         degV = 1;
     }
     else
     {
         int ctrlPtsIndex2 = size;
-        
+
         for ( int index = 0; index < size; index ++ )
         {
             ctrlPts [ ctrlPtsIndex ++ ] = copyNet1 [ index ];
@@ -183,7 +183,7 @@ snlSurface::snlSurface ( snlCurve& curve1, snlCurve& curve2, int direction )
         }
 
         ctrlPtNet = new snlCtrlPointNetSurface ( ctrlPts, 2, size, false );
-        
+
         degU = 1;
         degV = curve_1 -> degree();
     }
@@ -226,7 +226,7 @@ snlSurface::snlSurface ( snlCurve** curves, int numCurves, int dir )
     //!      It is assumed the curves are exactly the same size with the same knot vector.
 
     init();
-    
+
     // Assemble points to be interpolated.
 
     int numCurvePts = curves [ 0 ] -> size();
@@ -253,7 +253,7 @@ snlSurface::snlSurface ( snlCurve** curves, int numCurves, int dir )
         }
 
         const snlCtrlPoint* curvePts = ( curves [ curveIndex ] -> controlPointNet() ).getCtrlPts();
-        
+
         for ( int ptIndex = 0; ptIndex < numCurvePts; ptIndex ++ )
         {
             points [ index ] = curvePts [ ptIndex ];
@@ -265,7 +265,7 @@ snlSurface::snlSurface ( snlCurve** curves, int numCurves, int dir )
     // Generate parameters
 
     knot* params = globalInterpGenParams ( SNL_GLOBAL_INTERP_CENTRIFUGAL, points, sizeU, sizeV, dir );
-                                           
+
     // Generate knot vectors.
 
     if ( dir == SNL_U_DIR )
@@ -338,7 +338,7 @@ snlSurface::snlSurface ( snlCurve** curves, int numCurves, int dir )
     ctrlPtNet = new snlCtrlPointNetSurface ( ctrlPts, sizeU, sizeV );
 
     // Set other variables.
-    
+
     if ( dir == SNL_U_DIR )
     {
         degU = 2;
@@ -394,10 +394,10 @@ void snlSurface::copyFrom ( const snlSurface& surfaceToCopy )
     //  -------------------------------------------
 
     ctrlPtNet = new snlCtrlPointNetSurface ( *(surfaceToCopy.ctrlPtNet) );
-    
+
     knotVectU = new snlKnotVector ( *(surfaceToCopy.knotVectU) );
     knotVectV = new snlKnotVector ( *(surfaceToCopy.knotVectV) );
-    
+
     degU = surfaceToCopy.degU;
     degV = surfaceToCopy.degV;
 
@@ -508,7 +508,7 @@ void snlSurface::genBilinearCoons ( snlCurve* curve_U1, snlCurve* curve_U2, snlC
 
     delete surf_U;
     delete surf_V;
-    
+
 }
 
 knot* snlSurface::globalInterpGenParams ( int type, snlPoint* points, int sizeU, int sizeV,
@@ -539,12 +539,12 @@ knot* snlSurface::globalInterpGenParams ( int type, snlPoint* points, int sizeU,
     }
 
     knot* chordLengths = new knot [ ( size - 1 ) * oSize ];
-    
+
     knot* totalChordLengths = new knot [ oSize ];
 
     for ( int index = 0; index < oSize; index ++ )
         totalChordLengths [ index ] = 0.0;
-    
+
     snlVector chord;
 
     chord.homogeneous = true;
@@ -552,36 +552,36 @@ knot* snlSurface::globalInterpGenParams ( int type, snlPoint* points, int sizeU,
     // Intermediate step. Calculate (square root of) chord length.
 
     int chordIndex = 0;
-    
+
     for ( int cIndex = 1; cIndex < size; cIndex ++ )
     {
         int     index;
-        
+
         if ( dir == SNL_U_DIR )
             index = cIndex * sizeV;
         else
             index = cIndex;
-        
+
         for ( int oIndex = 0; oIndex < oSize; oIndex ++ )
         {
             if ( dir == SNL_U_DIR )
             {
-                chord.calc ( points [ index - sizeV ], points [ index ] );
+                chord.diff ( points [ index - sizeV ], points [ index ] );
                 index ++;
             }
             else
             {
-                chord.calc ( points [ index - 1 ], points [ index ] );
+                chord.diff ( points [ index - 1 ], points [ index ] );
                 index += sizeV;
             }
-            
+
             knot chordLength;
-            
+
             if ( type == SNL_GLOBAL_INTERP_CENTRIFUGAL )
                 chordLength = sqrt ( chord.length() );
-            else        
+            else
                 chordLength = chord.length();
-                
+
             totalChordLengths [ oIndex ] += chordLength;
 
 if ( chordLength == 0.0 )
@@ -590,7 +590,7 @@ if ( chordLength == 0.0 )
     cout << "start pt: "; points [ index - sizeV - 1 ].print(); cout << "\n";
     cout << "end pt: "; points [ index - 1 ].print(); cout << "\n";
 }
-            
+
             chordLengths [ chordIndex ++ ] = chordLength;
         }
     }
@@ -598,16 +598,16 @@ if ( chordLength == 0.0 )
     // Calculate final parameter values.
 
     knot* params = new knot [ size ];
-    
+
     params [ 0 ] = 0.0;
     params [ size - 1 ] = 1.0;
 
     chordIndex = 0;
-    
+
     for ( int cIndex = 1; cIndex < size - 1; cIndex ++ )
     {
         params [ cIndex ] = 0.0;
-        
+
         for ( int oIndex = 0; oIndex < oSize; oIndex ++ )
         {
             // Sum across all chords.
@@ -647,7 +647,7 @@ void snlSurface::genGlobalInterpSurf ( int interpType, snlPoint* pointsInterp, i
     knot* paramsV = globalInterpGenParams ( interpType, pointsInterp, sizeU, sizeV, SNL_V_DIR );
 
     // Generate knot vectors.
-    
+
     knotVectU = new snlKnotVector ( sizeU, degreeU, paramsU );
     knotVectV = new snlKnotVector ( sizeV, degreeV, paramsV );
 
@@ -689,13 +689,13 @@ void snlSurface::genGlobalInterpSurf ( int interpType, snlPoint* pointsInterp, i
     for ( int baseIndex = 0; baseIndex < numPts; baseIndex += sizeV )
     {
         // Each line in V direction is based at baseIndex.
-        
+
         int maxVLineIndex = baseIndex + sizeV;
 
         // Find isoparametric curve points to evaluate.
 
         int curvePtsIndex = 0;
-        
+
         for ( int vLineIndex = baseIndex; vLineIndex < maxVLineIndex; vLineIndex ++ )
             curvePtsV [ curvePtsIndex ++ ] = intermPts [ vLineIndex ];
 
@@ -728,7 +728,7 @@ int snlSurface::degreeU() const
 {
     //! Return degree of surface in U direction.
     //  ----------------------------------------
-    
+
     return degU;
 }
 
@@ -736,15 +736,15 @@ int snlSurface::degreeV() const
 {
     //! Return degree of surface in V direction.
     //  ----------------------------------------
-    
+
     return degV;
 }
-        
+
 unsigned snlSurface::sizeU() const
 {
     //! Return size of control point array in U direction.
     //  --------------------------------------------------
-    
+
     return ctrlPtNet -> getSizeU();
 }
 
@@ -752,7 +752,7 @@ unsigned snlSurface::sizeV() const
 {
     //! Return size of control point array in V direction.
     //  --------------------------------------------------
-    
+
     return ctrlPtNet -> getSizeV();
 }
 
@@ -788,20 +788,20 @@ knot snlSurface::maxV()
 
     return knotVectV -> max();
 }
-        
+
 const snlCtrlPoint* snlSurface::controlPoints()
 {
     //! Return pointer to array of surfaces' control points.
     //  ----------------------------------------------------
-    
+
     return ctrlPtNet -> getCtrlPts();
 }
-        
+
 const knot* snlSurface::knotsU()
 {
     //! Return pointer to array of knots in U direction.
     //  ------------------------------------------------
-    
+
     return knotVectU -> array();
 }
 
@@ -809,7 +809,7 @@ const knot* snlSurface::knotsV()
 {
     //! Return pointer to array of knots in V direction.
     //  ------------------------------------------------
-    
+
     return knotVectV -> array();
 }
 
@@ -817,7 +817,7 @@ snlCtrlPointNetSurface& snlSurface::controlPointNet()
 {
     //! Return reference to control point network object for surface.
     //  -------------------------------------------------------------
-    
+
     return *ctrlPtNet;
 }
 
@@ -825,7 +825,7 @@ const snlKnotVector& snlSurface::knotVectorU()
 {
     //! Return pointer to Knot vector in U direction.
     //  ---------------------------------------------
-    
+
     return *knotVectU;
 }
 
@@ -833,7 +833,7 @@ const snlKnotVector& snlSurface::knotVectorV()
 {
     //! Return pointer to Knot vector in U direction.
     //  ---------------------------------------------
-    
+
     return *knotVectV;
 }
 
@@ -851,12 +851,12 @@ snlPoint snlSurface::evalHmg ( knot paramU, knot paramV, basis* basisU, basis* b
 
     snlPoint      rPoint;  // Return point.
     snlPoint      iPoint;  // Intermediate point.
-    
+
     unsigned    vStart;  // The index where the V "line" starts in the control point array.
-    
+
     unsigned spanU = knotVectU -> findSpan ( paramU );
-    unsigned spanV = knotVectV -> findSpan ( paramV );    
-    
+    unsigned spanV = knotVectV -> findSpan ( paramV );
+
     // Evaluate basis functions.
 
     basis* bValsU;
@@ -867,7 +867,7 @@ snlPoint snlSurface::evalHmg ( knot paramU, knot paramV, basis* basisU, basis* b
         bValsU = knotVectU -> evalBasis ( paramU );
 
     basis* bValsV;
-        
+
     if ( basisV )
         bValsV = basisV;
     else
@@ -876,7 +876,7 @@ snlPoint snlSurface::evalHmg ( knot paramU, knot paramV, basis* basisU, basis* b
     unsigned baseVIndex = spanV - (unsigned) degV;  // Where in the V dimension the processing starts.
 
     rPoint.w ( 0 );
-    
+
     // Get control point array.
     const snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPts();
 
@@ -891,11 +891,11 @@ snlPoint snlSurface::evalHmg ( knot paramU, knot paramV, basis* basisU, basis* b
             snlPoint tmpPoint = ( ctrlPts [ vStart + baseVIndex + indexV ] ) * bValsV [ indexV ];
             iPoint += tmpPoint;
         }
-        
+
         snlPoint tmpPoint = iPoint * bValsU [ indexU ];
         rPoint += tmpPoint;
     }
-    
+
     if ( ! basisU ) delete[] bValsU;
     if ( ! basisV ) delete[] bValsV;
 
@@ -926,7 +926,7 @@ snlPoint snlSurface::eval ( knot paramU, knot paramV, basis* basisU, basis* basi
         cout << "Surface Eval. Out of bounds U: " << paramU << "  Min: " << minU << "  Max: " << maxU << "\n";
         paramU = maxU;
     }
-     
+
     if ( paramU < minU )
     {
         cout.precision ( 16 );
@@ -940,17 +940,17 @@ snlPoint snlSurface::eval ( knot paramU, knot paramV, basis* basisU, basis* basi
         cout << "Surface Eval. Out of bounds U: " << paramV << "  Min: " << minU << "  Max: " << maxU << "\n";
         paramV = maxV;
     }
-     
+
     if ( paramV < minV )
     {
         cout.precision ( 16 );
         cout << "Surface Eval. Out of bounds U: " << paramV << "  Min: " << minU << "  Max: " << maxU << "\n";
         paramV = minV;
     }
-    
+
     snlPoint retPoint = evalHmg ( paramU, paramV, basisU, basisV );
-    retPoint.normalise();
-    
+    retPoint.project();
+
     return retPoint;
 }
 
@@ -979,7 +979,7 @@ snlPoint snlSurface::eval ( knot paramU, knot paramV ) const
         cout << "Surface Eval. Out of bounds U: " << paramU << "  Min: " << minU << "  Max: " << maxU << "\n";
         paramU = maxU;
     }
-     
+
     if ( paramU < minU )
     {
         cout.precision ( 16 );
@@ -993,7 +993,7 @@ snlPoint snlSurface::eval ( knot paramU, knot paramV ) const
         cout << "Surface Eval. Out of bounds U: " << paramV << "  Min: " << minU << "  Max: " << maxU << "\n";
         paramV = maxV;
     }
-     
+
     if ( paramV < minV )
     {
         cout.precision ( 16 );
@@ -1002,14 +1002,14 @@ snlPoint snlSurface::eval ( knot paramU, knot paramV ) const
     }
 
     snlPoint retPoint = evalHmg ( paramU, paramV );
-    retPoint.normalise();
-    
+    retPoint.project();
+
     return retPoint;
 }
 
 snlPoint* snlSurface::evalDerivsHmg ( knot paramU, knot paramV, unsigned derivU, unsigned derivV,
                                       basis* basisU, basis* basisV )
-{                                             
+{
     //! Evaluate Non Rational Homogeneous Surface Derivatives.
     //  ------------------------------------------------------
     //! @param paramU Parameter in U direction to evaluate at.
@@ -1024,36 +1024,36 @@ snlPoint* snlSurface::evalDerivsHmg ( knot paramU, knot paramV, unsigned derivU,
 
     const snlPoint* cPnt;
     snlPoint*       vPnts = new snlPoint [ derivV + 1 ];
-    
+
     // Find spans
     unsigned spanU = knotVectU -> findSpan ( paramU );
-    unsigned spanV = knotVectV -> findSpan ( paramV );    
-    
+    unsigned spanV = knotVectV -> findSpan ( paramV );
+
     // Evaluate basis functions.
 
     basis* bValsU;
     basis* bValsV;
-    
+
     if ( basisU )
         bValsU = basisU;
     else
         bValsU = knotVectU -> evalBasisDeriv ( paramU, derivU );
-        
+
     if ( basisV )
         bValsV = basisV;
     else
         bValsV = knotVectV -> evalBasisDeriv ( paramV, derivV );
 
     unsigned baseVIndex = spanV - degV;  // Where in the V dimension the processing starts.
-    
+
     unsigned evalPtsSize = ( derivU + 1 ) * ( derivV + 1 );
-    
+
     snlPoint* evalPts = new snlPoint [ evalPtsSize ];
 
     // Set eval points net to 0.
-    for ( unsigned index = 0; index < evalPtsSize; index ++ )    
+    for ( unsigned index = 0; index < evalPtsSize; index ++ )
         evalPts [ index ].null();  // Set x, y, z and w to zero.
-        
+
     // Get control point array.
     const snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPts();
 
@@ -1064,7 +1064,7 @@ snlPoint* snlSurface::evalDerivsHmg ( knot paramU, knot paramV, unsigned derivU,
         unsigned vStart = ( spanU - degU + indexU ) * sizeV();
 
         // Zero vPnts array.
-        for ( unsigned index = 0; index <= derivV; index ++ )        
+        for ( unsigned index = 0; index <= derivV; index ++ )
             vPnts [ index ].null();
 
         // Utilise V direction basis values.
@@ -1078,7 +1078,7 @@ snlPoint* snlSurface::evalDerivsHmg ( knot paramU, knot paramV, unsigned derivU,
             {
                 // Calc index into basis derivs for V direction.
                 unsigned vDerivStart = ( dIndexV * ( degV + 1 ) ) + indexV;
-                
+
                 snlPoint tmpPoint = ( *cPnt ) * bValsV [ vDerivStart ];
                 vPnts [ dIndexV ] += tmpPoint;
             }
@@ -1094,7 +1094,7 @@ snlPoint* snlSurface::evalDerivsHmg ( knot paramU, knot paramV, unsigned derivU,
             for ( unsigned dIndexV = 0; dIndexV <= derivV; dIndexV ++ )
             {
                 unsigned evalIndex = dIndexU * ( derivV + 1 ) + dIndexV;
-                
+
                 snlPoint tmpPoint = vPnts [ dIndexV ] * cBValU;
                 evalPts [ evalIndex ] += tmpPoint;
             }
@@ -1105,7 +1105,7 @@ snlPoint* snlSurface::evalDerivsHmg ( knot paramU, knot paramV, unsigned derivU,
 
     if ( ! basisU ) delete[] bValsU;
     if ( ! basisV ) delete[] bValsV;
-    
+
     return evalPts;
 }
 
@@ -1131,13 +1131,13 @@ snlPoint* snlSurface::evalDerivs ( knot paramU, knot paramV, unsigned derivU, un
     unsigned    kBaseIndex2;
 
     snlPoint    iPoint;  // Intermediate point. Holds x, y and z of homogeneous point.
-    snlPoint    iPoint2;  // Another intermediate point.    
+    snlPoint    iPoint2;  // Another intermediate point.
 
     // Get homogeneous derivatives.
     snlPoint* derivPts = evalDerivsHmg ( paramU, paramV, derivU, derivV );
-    
+
     // Array for returning points in.
-    snlPoint* evalPts = new snlPoint [ ( derivU + 1 ) * ( derivV + 1 ) ];    
+    snlPoint* evalPts = new snlPoint [ ( derivU + 1 ) * ( derivV + 1 ) ];
 
     unsigned dSizeV = derivV + 1;
 
@@ -1173,10 +1173,10 @@ snlPoint* snlSurface::evalDerivs ( knot paramU, knot paramV, unsigned derivU, un
 
                 iPoint.x ( iPoint.x() - binCoefs::binCoefArray [ kIndex ] [ iIndex ] * derivPts [ cDIndex ].w() *
                            evalPts [ kBaseIndex2 + lIndex ].x() );
-                           
+
                 iPoint.y ( iPoint.y() - binCoefs::binCoefArray [ kIndex ] [ iIndex ] * derivPts [ cDIndex ].w() *
                            evalPts [ kBaseIndex2 + lIndex ].y() );
-                           
+
                 iPoint.z ( iPoint.z() - binCoefs::binCoefArray [ kIndex ] [ iIndex ] * derivPts [ cDIndex ].w() *
                            evalPts [ kBaseIndex2 + lIndex ].z() );
 
@@ -1187,11 +1187,11 @@ snlPoint* snlSurface::evalDerivs ( knot paramU, knot paramV, unsigned derivU, un
                     iPoint2.x ( iPoint2.x() + binCoefs::binCoefArray [ lIndex ] [ jIndex ] *
                                 derivPts [ cDIndex + jIndex ].w() *
                                 evalPts [ kBaseIndex2 + lIndex - jIndex ].x() );
-                                
+
                     iPoint2.y ( iPoint2.y() + binCoefs::binCoefArray [ lIndex ] [ jIndex ] *
                                 derivPts [ cDIndex + jIndex ].w() *
                                 evalPts [ kBaseIndex2 + lIndex - jIndex ].y() );
-                                
+
                     iPoint2.z ( iPoint2.z() + binCoefs::binCoefArray [ lIndex ] [ jIndex ] *
                                 derivPts [ cDIndex + jIndex ].w() *
                                 evalPts [ kBaseIndex2 + lIndex - jIndex ].z() );
@@ -1200,16 +1200,16 @@ snlPoint* snlSurface::evalDerivs ( knot paramU, knot paramV, unsigned derivU, un
                 snlPoint tmpPoint = iPoint2 * binCoefs::binCoefArray [ kIndex ] [ iIndex ];
                 iPoint -= tmpPoint;
             }
-            
+
             evalPts [ kBaseIndex + lIndex ] = iPoint / ( derivPts [ 0 ].w() );
             evalPts [ kBaseIndex + lIndex ].w ( 0 );  // No delta in w component at any time.
         }
     }
-    
+
     delete[] derivPts;
-    
+
     evalPts [ 0 ].w ( 1.0 );  // First entry in array is not a derivative.
-    
+
     return evalPts;
 }
 
@@ -1243,7 +1243,7 @@ void snlSurface::velocities ( knot paramU, knot paramV, snlPoint& evalPoint, snl
              << minU << "  Max: " << maxU << "\n";
         paramU = maxU;
     }
-     
+
     if ( paramU < minU )
     {
         cout.precision ( 16 );
@@ -1259,7 +1259,7 @@ void snlSurface::velocities ( knot paramU, knot paramV, snlPoint& evalPoint, snl
              << "  Max: " << maxU << "\n";
         paramV = maxV;
     }
-     
+
     if ( paramV < minV )
     {
         cout.precision ( 16 );
@@ -1269,12 +1269,12 @@ void snlSurface::velocities ( knot paramU, knot paramV, snlPoint& evalPoint, snl
     }
 
     // Get homogeneous velocities.
-    
+
     snlPoint* derivPts = evalDerivsHmg ( paramU, paramV, 1, 1, basisU, basisV );
 
     basis wVal = derivPts [ 0 ].elements [ 3 ];
 
-    derivPts [ 0 ].normalise();
+    derivPts [ 0 ].project();
 
     evalPoint = derivPts [ 0 ];
 
@@ -1286,7 +1286,7 @@ void snlSurface::velocities ( knot paramU, knot paramV, snlPoint& evalPoint, snl
                                * derivPts [ 0 ].elements [ 1 ] ) / wVal;
     velocityU.elements [ 2 ] = ( derivPts [ 2 ].elements [ 2 ] - uWVal
                                * derivPts [ 0 ].elements [ 2 ] ) / wVal;
-    
+
     basis vWVal = derivPts [ 1 ].elements [ 3 ];
 
     velocityV.elements [ 0 ] = ( derivPts [ 1 ].elements [ 0 ] - vWVal
@@ -1325,7 +1325,7 @@ void snlSurface::insertKnot ( knot iParam, int dir, bool reallocate )
         oDeg = degU;
         cKnts = knotVectV;
         oKnts = knotVectU;
-        
+
         ctrlPtNet -> growV ( 1, reallocate );
     }
     else
@@ -1334,10 +1334,10 @@ void snlSurface::insertKnot ( knot iParam, int dir, bool reallocate )
         oDeg = degV;
         cKnts = knotVectU;
         oKnts = knotVectV;
-        
+
         ctrlPtNet -> growU ( 1, reallocate );
     }
-    
+
     // Span new knot belongs to.
     unsigned span = cKnts -> findSpan ( iParam );
 
@@ -1353,7 +1353,7 @@ void snlSurface::insertKnot ( knot iParam, int dir, bool reallocate )
 
     // Build temp array to store new array of control points in.
     snlCtrlPoint* tmpPts = new snlCtrlPoint [ cDeg ];
-    
+
     // Get pointer to control points.
     snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPtsPtr();
 
@@ -1448,7 +1448,7 @@ void snlSurface::insertKnot ( knot iParam, int dir, int numToInsert, bool reallo
         cout << "Bad use of function: snlSurface::insertKnot. Can't insert " << numToInsert << " knots.\n";
         return;
     }
-    
+
     int             count, index, lineIndex, offset;
     unsigned        cDeg, oDeg;   // Degree to be processed.
     snlKnotVector*  cKnts;  // Current knots
@@ -1461,7 +1461,7 @@ void snlSurface::insertKnot ( knot iParam, int dir, int numToInsert, bool reallo
         oDeg = degU;
         cKnts = knotVectV;
         oKnts = knotVectU;
-        
+
         ctrlPtNet -> growV ( numToInsert, reallocate );
     }
     else
@@ -1470,19 +1470,19 @@ void snlSurface::insertKnot ( knot iParam, int dir, int numToInsert, bool reallo
         oDeg = degV;
         cKnts = knotVectU;
         oKnts = knotVectV;
-        
+
         ctrlPtNet -> growU ( numToInsert, reallocate );
     }
-    
+
     // Span new knot belongs to.
     unsigned span = cKnts -> findSpan ( iParam );
 
     int multi = cKnts -> findMultiplicity ( iParam );  // Multiplicity of knot vector at param.
 
     // Pre calculate alphas.
-    
+
     int numAlphas = cDeg - multi;
-    
+
     double* alpha = new double [ numAlphas * numToInsert ];
 
     for ( int insertCount = 1; insertCount <= numToInsert; insertCount ++ )
@@ -1492,19 +1492,19 @@ void snlSurface::insertKnot ( knot iParam, int dir, int numToInsert, bool reallo
             index = span - cDeg + insertCount + count;
 
             int alphaIndex = count + ( ( insertCount - 1 ) * numAlphas );
-            
+
             alpha [ alphaIndex ]  = ( iParam - ( cKnts -> val ( index ) ) )
                                     / ( cKnts -> val ( index + cDeg - insertCount + 1 )
                                       - cKnts -> val ( index ) );
         }
     }
-    
+
     // Build temp array to store new array of control points in.
 
     int numNewPts = cDeg - multi + numToInsert - 1;
-    
+
     snlCtrlPoint* tmpPts = new snlCtrlPoint [ numNewPts ];
-    
+
     // Get pointer to control points.
     snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPtsPtr();
 
@@ -1544,24 +1544,24 @@ void snlSurface::insertKnot ( knot iParam, int dir, int numToInsert, bool reallo
 
             for ( int copyCount = 0; copyCount < insertCount + 1; copyCount ++ )
                 tmpPts [ numAlphas + insertCount - copyCount ] = tmpPts [ numAlphas + insertCount - copyCount - 1 ];
-            
+
             // Calculate new points
 
             int alphaOffset = ( insertCount + 1 ) * numAlphas;
 
             index = numAlphas - 1;
-            
+
             for ( count = numAlphas - insertCount - 2; count >= 0 ; count -- )
             {
                 tmpPts [ index ].x ( ( alpha [ alphaOffset + count ] * tmpPts [ index ].x() )
                                      + ( ( 1.0 - alpha [ alphaOffset + count ] ) * tmpPts [ index - 1 ].x() ) );
-                                     
+
                 tmpPts [ index ].y ( ( alpha [ alphaOffset + count ] * tmpPts [ index ].y() )
                                      + ( ( 1.0 - alpha [ alphaOffset + count ] ) * tmpPts [ index - 1 ].y() ) );
-                                     
+
                 tmpPts [ index ].z ( ( alpha [ alphaOffset + count ] * tmpPts [ index ].z() )
                                      + ( ( 1.0 - alpha [ alphaOffset + count ] ) * tmpPts [ index - 1 ].z() ) );
-                                     
+
                 tmpPts [ index ].w ( ( alpha [ alphaOffset + count ] * tmpPts [ index ].w() )
                                      + ( ( 1.0 - alpha [ alphaOffset + count ] ) * tmpPts [ index - 1 ].w() ) );
 
@@ -1607,7 +1607,7 @@ void snlSurface::insertKnot ( knot iParam, int dir, int numToInsert, bool reallo
             // Copy new control points into array.
 
             index = ( span - cDeg + 1 ) * sizeV() + lineIndex;
-            
+
             for ( count = 0; count < numNewPts; count ++ )
             {
                 ctrlPts [ index ] = tmpPts [ count ];
@@ -1638,7 +1638,7 @@ double snlSurface::removeKnots ( int numKnots, unsigned removalIndex, int direct
     //! @return Maximum error encountered.
 
     if ( numKnots < 1 ) return 0.0;
-    
+
     double maxTol = 0.0;
 
     snlKnotVector* knotVect;
@@ -1651,23 +1651,23 @@ double snlSurface::removeKnots ( int numKnots, unsigned removalIndex, int direct
     {
         knotVect = knotVectV;
     }
-    
+
     double param = knotVect -> val ( removalIndex );
-    
+
     int multi = knotVect -> findMultiplicity ( removalIndex );
-    
+
     int numToRemove = numKnots > multi ? multi : numKnots;
-    
+
     for ( int count = 0; count < numToRemove; count ++ )
     {
         double tol = removeKnot ( removalIndex, direction, tolerance, reallocate );
-        
+
         if ( tol > maxTol ) maxTol = tol;
-        
+
         removalIndex = knotVect -> findSpan ( param );
     }
-    
-    return maxTol;   
+
+    return maxTol;
 }
 
 double snlSurface::removeKnot ( unsigned rIndex, int dir, double tolerance, bool reallocate )
@@ -1715,7 +1715,7 @@ double snlSurface::removeKnot ( unsigned rIndex, int dir, double tolerance, bool
     unsigned numEqns = cDeg - multi + 1;
 
     // Pre calculate alphas.
-    double* alpha = cKnts -> calcRemovalAlphas ( rSpan );    
+    double* alpha = cKnts -> calcRemovalAlphas ( rSpan );
 
     // Maximum error variable.
     double maxError = 0;
@@ -1723,16 +1723,16 @@ double snlSurface::removeKnot ( unsigned rIndex, int dir, double tolerance, bool
     // Build temp array to store new array of control points in.
     // First and last points are not new.
     snlCtrlPoint* tmpPts = new snlCtrlPoint [ numEqns + 1 ];
-    
+
     // Copy control points. Only copy back if the tolerance is ok.
-    
+
     const snlCtrlPoint* ctrlPtsToCopy = controlPoints();
-    
+
     snlCtrlPoint* ctrlPts = new snlCtrlPoint [ sizeU() * sizeV() ];
-    
+
     for ( unsigned index = 0; index < ( sizeU() * sizeV() ); index ++ )
         ctrlPts [ index ] = ctrlPtsToCopy [ index ];
-        
+
     // Do for each "line" in direction of removal.
     for ( lineIndex = 0; lineIndex < ( oKnts -> size() - oDeg - 1 ); lineIndex ++ )
     {
@@ -1777,9 +1777,9 @@ double snlSurface::removeKnot ( unsigned rIndex, int dir, double tolerance, bool
 
             snlCtrlPoint original = ctrlPts [ rSpan - cDeg + offset + numEqns - 1 ];
 
-            original.normalise();
+            original.project();
 
-            tmpPts [ numEqns ].normalise();
+            tmpPts [ numEqns ].project();
 
             snlVector errorVect ( original, tmpPts [ numEqns ] );
 
@@ -1806,9 +1806,9 @@ double snlSurface::removeKnot ( unsigned rIndex, int dir, double tolerance, bool
 
             snlCtrlPoint original = ctrlPts [ ( rSpan - cDeg + numEqns - 1 )  * sizeV() + lineIndex ];
 
-            original.normalise();
+            original.project();
 
-            tmpPts [ numEqns ].normalise();
+            tmpPts [ numEqns ].project();
 
             snlVector errorVect ( original, tmpPts [ numEqns ] );
 
@@ -1834,16 +1834,16 @@ double snlSurface::removeKnot ( unsigned rIndex, int dir, double tolerance, bool
 
     // If maximum error was under tolerance then go ahead with removal.
     if ( maxError < tolerance || tolerance == 0.0 )
-    {    
+    {
         // Remove knot from knot vector
         cKnts -> removeKnot ( rSpan );
-        
+
         ctrlPtNet -> replacePoints ( ctrlPts );
-        
+
         if ( dir == SNL_V_DIR )
             ctrlPtNet -> shrinkV();
         else
-            ctrlPtNet -> shrinkU();        
+            ctrlPtNet -> shrinkU();
     }
 
     delete[] tmpPts;
@@ -1863,21 +1863,19 @@ unsigned snlSurface::createBezierSegments ( int dir, int** numKnotsAdded )
     //! @return Number of Bezier segments present.
 
     unsigned        cDeg;   // Degree to be processed. Current degree, other degree.
-    unsigned        cSize, oSize; // Number of control points in current and other direction.
+    unsigned        oSize; // Number of control points in current and other direction.
     snlKnotVector*  cKnts;  // Current knots
 
     if ( dir == SNL_V_DIR )
     {
         cDeg = degV;
         cKnts = knotVectV;
-        cSize = sizeV();
         oSize = sizeU();
     }
     else
     {
         cDeg = degU;
         cKnts = knotVectU;
-        cSize = sizeU();
         oSize = sizeV();
     }
 
@@ -1885,35 +1883,35 @@ unsigned snlSurface::createBezierSegments ( int dir, int** numKnotsAdded )
     unsigned numSpans = cKnts -> getNumSpans();
 
     if ( cDeg <= 1 ) return numSpans;  // 1st degree curve sections are already Bezier segments.
-    
+
     int* knotsAdded = new int [ numSpans ];  // Last array element is unused and is left here so that a zero length array doesn't occur.
 
     // Find first spans knot index.
     unsigned knotIndex = cKnts -> getFirstSpan();
 
     // Resize control points array just once for all knot insertions.
-    
+
     unsigned nextSpan = knotIndex;
     unsigned extraKnots = 0;
-    
+
     // Find amount to resize by.
     for ( unsigned spanIndex = 1; spanIndex < numSpans; spanIndex ++ )
     {
         nextSpan = cKnts -> getNextSpan ( nextSpan );
-        
+
         extraKnots += cDeg - ( cKnts -> findMultiplicity ( nextSpan ) );
-    }    
-    
+    }
+
     // Append extra control point space to end of current control points.
     ctrlPtNet -> appendPointSpace ( oSize * extraKnots );
 
     // *** Create Bezier segments ***
-    
+
     // Find knot index of second knot span.
     nextSpan = cKnts -> getNextSpan ( knotIndex );
-    
+
     for ( unsigned spanIndex = 0; spanIndex < numSpans - 1; spanIndex ++ )
-    {        
+    {
         // Increase multiplicity of span to degree.
 
         unsigned multi = cKnts -> findMultiplicity ( nextSpan );
@@ -1938,7 +1936,7 @@ unsigned snlSurface::createBezierSegments ( int dir, int** numKnotsAdded )
         *numKnotsAdded = knotsAdded;
     else
         delete[] knotsAdded;
-    
+
     return numSpans;
 }
 
@@ -1979,37 +1977,37 @@ void snlSurface::createConvexBezierSegments ( int* numU, int* numV, double sensi
         keepChecking = false;
 
         int sizeV = ctrlPtNet -> getSizeV();
-    
+
         for ( int segment = 0; segment < numUSegments; segment ++ )
         {
             int indexU = segment * degU;
-    
+
             bool convex = true;
-    
+
             // Check all constant V lines for concave control point combinations.
-    
+
             for ( int indexV = 0; indexV < sizeV; indexV ++ )
             {
                 ctrlPtNet -> locatePointsU ( indexU, indexV, degU + 1, testPoints );
-    
+
                 if ( ! ( ctrlPtNet -> isConvex ( (snlPoint**) testPoints, degU + 1, sensitivity ) ) )
                 {
                     convex = false;
                     break;
                 }
             }
-    
+
             // If any part in U direction is concave then subdivide all patches in range.
-    
+
             if ( ! convex )
             {
                 knot startKnot = knotVectU -> val ( ( segment + 1 ) * degU );
                 knot endKnot = knotVectU -> val ( ( segment + 2 ) * degU );
-    
+
                 // Insert multiple knots into middle of patch to create two new Bezier segments.
-                
+
                 insertKnot ( ( ( endKnot - startKnot ) / 2.0 ) + startKnot, SNL_U_DIR, degU, true );
-    
+
                 numUSegments ++;
                 segment ++;
 
@@ -2025,15 +2023,15 @@ void snlSurface::createConvexBezierSegments ( int* numU, int* numV, double sensi
     while ( keepChecking )
     {
         keepChecking = false;
-        
+
         int sizeU = ctrlPtNet -> getSizeU();
-    
+
         for ( int segment = 0; segment < numVSegments; segment ++ )
         {
             int indexV = segment * degV;
-    
+
             bool convex = true;
-    
+
             // Check all U lines for concave control point combinations.
 
             for ( int indexU = 0; indexU < sizeU; indexU ++ )
@@ -2048,16 +2046,16 @@ void snlSurface::createConvexBezierSegments ( int* numU, int* numV, double sensi
             }
 
             // If any part in V direction is concave then subdivide all patches in range.
-    
+
             if ( ! convex )
             {
                 knot startKnot = knotVectV -> val ( ( segment + 1 ) * degV );
                 knot endKnot = knotVectV -> val ( ( segment + 2 ) * degV );
-    
+
                 // Insert multiple knots into middle of patch to create two new Bezier segments.
-                
+
                 insertKnot ( ( ( endKnot - startKnot ) / 2.0 ) + startKnot, SNL_V_DIR, degV, true );
-    
+
                 numVSegments ++;
                 segment ++;
 
@@ -2079,9 +2077,9 @@ void snlSurface::elevateDegree ( int direction, int byDegree )
     //! @param direction Parametric direction to elevate degree in. ( enum parametricDirections ).
     //! @param byDegree Number of degrees to elevate direction by.
     //!                 Convert curve into Bezier segments.
-    
+
     int* addedKnots = 0;
-    
+
     unsigned numSegments = createBezierSegments ( direction, &addedKnots );
 
     // Grow control point net.
@@ -2112,22 +2110,22 @@ void snlSurface::elevateDegree ( int direction, int byDegree )
     }
 
     // Elevate degree of Bezier segments.
-    
+
     int segmentSize = cDeg + 1;
     int newSegmentSize = segmentSize + byDegree;
-    
+
     snlCtrlPoint* tmpPts = new snlCtrlPoint [ newSegmentSize ];
 
     snlCtrlPoint** linePtPtrs = new snlCtrlPoint* [ lineSize ];
 
     snlCtrlPoint* linePts = new snlCtrlPoint [ lineSize ];
-    
+
     for ( int lineIndex = 0; lineIndex < numLines; lineIndex ++ )
     {
         // Generate new points per segment.
-        
+
         int ptsIndex = 0;
-        
+
         unsigned spanIndex = cDeg * 2;
 
         if ( direction == SNL_U_DIR )
@@ -2142,34 +2140,34 @@ void snlSurface::elevateDegree ( int direction, int byDegree )
         }
 
         // Elevate segments.
-        
+
         for ( unsigned segment = 0; segment < numSegments; segment ++ )
         {
             // Populate control points to process for line.
 
             int segmentStartIndex = segment * ( segmentSize - 1 );
-    
+
             for ( int index = 0; index < segmentSize; index ++ )
             {
                 linePts [ ptsIndex + index ] = *( linePtPtrs [ segmentStartIndex + index ] );
             }
 
             // Process segment.
-        
+
             snlCurve::elevateBezierSegmentPointsDegree ( cDeg, byDegree, linePts + ptsIndex, tmpPts );
-        
+
             // Replace points in temp control point array. Index 0 remains unchanged.
             for ( int index = 1; index < newSegmentSize; index ++ )
                 linePts [ ptsIndex + index ] = tmpPts [ index ];
-        
+
             ptsIndex += cDeg + byDegree;
-        
+
             if ( lineIndex == 0 )
             {
                 // Add knots to knot vector. This is only done _once_.
                 cKnotVect -> increaseMultiplicity ( spanIndex, byDegree );
             }
-        
+
             spanIndex += cDeg + byDegree;
         }
 
@@ -2180,33 +2178,33 @@ void snlSurface::elevateDegree ( int direction, int byDegree )
     }
 
     // Make sure start clamp is of degree + 1 multiplicity.
-    
+
     cKnotVect -> increaseMultiplicity ( cDeg, byDegree );
-    
+
     // Increase degree indicator variables
-    
+
     cDeg += byDegree;
-    
+
     cKnotVect -> degree ( cDeg );
 
     if ( direction == SNL_U_DIR )
         degU = cDeg;
     else
         degV = cDeg;
-    
+
     // Remove number of knots that were added during knot insertion.
     // No knots were added to degree one sections.
 
     if ( cDeg - byDegree > 1 )
     {
         unsigned spanIndex = cKnotVect -> getFirstSpan();
-        
+
         spanIndex += cDeg;
-        
+
         for ( unsigned segment = 0; segment < numSegments - 1; segment ++ )
         {
             removeKnots ( addedKnots [ segment ], spanIndex, direction, 0.0, true );
-        
+
             spanIndex += cDeg - addedKnots [ segment ];
         }
     }
@@ -2232,68 +2230,63 @@ double snlSurface::reduceDegree ( int dir, unsigned numDeg, double tolerance )
     //! @par Notes:
     //!      This function has not been optimised.
 
-    unsigned        cDeg, oDeg;   // Degree to be processed. Current degree, other degree.
+    unsigned        cDeg;   // Degree to be processed. Current degree, other degree.
     unsigned        cSize, oSize; // Number of control points in current and other direction.
     snlKnotVector*  cKnts;  // Current knots
-    snlKnotVector*  oKnts;  // Other knots.
 
     double maxError = 0.0;
-        
+
     // Save knots and control points of original surface.
-    
+
     snlCtrlPointNetSurface* ctrlPtNetCopy = new snlCtrlPointNetSurface ( *ctrlPtNet );
-       
+
     snlKnotVector* knotVectUCopy = new snlKnotVector ( *knotVectU );
     snlKnotVector* knotVectVCopy = new snlKnotVector ( *knotVectV );
 
-    // Convert into Bezier segments.    
+    // Convert into Bezier segments.
     unsigned numSpans = createBezierSegments ( dir );
-    
+
     if ( dir == SNL_V_DIR )
     {
         cDeg = degV;
-        oDeg = degU;
         cKnts = knotVectV;
-        oKnts = knotVectU;
         cSize = sizeV();
         oSize = sizeU();
     }
     else
     {
         cDeg = degU;
-        oDeg = degV;
         cKnts = knotVectU;
-        oKnts = knotVectV;
         cSize = sizeU();
         oSize = sizeV();
     }
 
     // *** Reduce degree of Bezier segments ***
-    
+
     snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPtsPtr();
-    
+
     for ( unsigned count = 0; count < numDeg; count ++ )
-    {    
+    {
         unsigned rDeg = cDeg - count;  // Current degree during reduction.
-        
+
         // Pre-calculate alphas.
         double* alpha = new double [ rDeg - 1 ];
-                
+
         for ( unsigned index = 1; index < rDeg; index ++ )
-            alpha [ index - 1 ] = (double) index / (double) rDeg;        
-        
+            alpha [ index - 1 ] = (double) index / (double) rDeg;
+
         for ( unsigned patchIndex = 0; patchIndex < numSpans; patchIndex ++ )
         {
             // Process up each "line" in the direction to be reduced.
-            for ( unsigned lineIndex = 0; lineIndex < oSize; lineIndex ++ )        
-            {                
+            for ( unsigned lineIndex = 0; lineIndex < oSize; lineIndex ++ )
+            {
                 // Reduce patch.
-                
+
                 snlCtrlPoint*   cPnt;  // Current point.
                 snlCtrlPoint*   pPnt;  // Previous point.
-                
+
                 // Get starting and previous point's pointer.
-                
+
                 if ( dir == SNL_V_DIR )
                 {
                     // V Direction.
@@ -2306,16 +2299,16 @@ double snlSurface::reduceDegree ( int dir, unsigned numDeg, double tolerance )
                     pPnt = ctrlPts + (unsigned)( ( patchIndex * rDeg * oSize ) + lineIndex );
                     cPnt = pPnt + sizeV();
                 }
-                
+
                 snlCtrlPoint newPoint;
-                
+
                 // Caculate new internal patch points. ie First and last points aren't modified.
-                
+
                 for ( unsigned pIndex = 1; pIndex < rDeg; pIndex ++ )
                 {
                     if ( pIndex > 1 )
                         *pPnt = newPoint;
-                    
+
                     newPoint.x ( ( cPnt -> x() - ( ( pPnt -> x() ) * alpha [ pIndex - 1 ] ) )
                                  / ( 1 - alpha [ pIndex - 1 ] ) );
                     newPoint.y ( ( cPnt -> y() - ( ( pPnt -> y() ) * alpha [ pIndex - 1 ] ) )
@@ -2323,45 +2316,45 @@ double snlSurface::reduceDegree ( int dir, unsigned numDeg, double tolerance )
                     newPoint.z ( ( cPnt -> z() - ( ( pPnt -> z() ) * alpha [ pIndex - 1 ] ) )
                                  / ( 1 - alpha [ pIndex - 1 ] ) );
                     newPoint.w ( ( cPnt -> w() - ( ( pPnt -> w() ) * alpha [ pIndex - 1 ] ) )
-                                 / ( 1 - alpha [ pIndex - 1 ] ) );                    
-                    
+                                 / ( 1 - alpha [ pIndex - 1 ] ) );
+
                     // Find next points.
                     pPnt = cPnt;
-                    
+
                     if ( dir == SNL_V_DIR )
                         // V direction.
                         cPnt ++;
                     else
                         // U direction
                         cPnt += sizeV();
-                }                
-                
+                }
+
                 // Calculate error.
-                                
+
                 snlCtrlPoint cPntCopy ( *cPnt );
-                cPntCopy.normalise();
-                
-                newPoint.normalise();
-                
+                cPntCopy.project();
+
+                newPoint.project();
+
                 double cError = ( snlVector ( cPntCopy, newPoint ).length() );
-                
-                if ( cError > maxError ) maxError = cError;        
+
+                if ( cError > maxError ) maxError = cError;
             }
-            
+
             // Adjust knot vector.
             cKnts -> removeKnot ( ( patchIndex * ( rDeg - 1 ) ) + 1 );
         }
-        
+
         // Reduce end clamp multiplicity.
         cKnts -> removeKnot ( ( cKnts -> size() ) - 1 );
-        
+
         // Rearrange array to facilitate removal of redundant control points.
-        
+
         snlCtrlPoint* copyFrom = ctrlPts;
         snlCtrlPoint* copyTo = ctrlPts;
-        
+
         if ( dir == SNL_V_DIR )
-        {        
+        {
             for ( unsigned lineIndex = 0; lineIndex < oSize; lineIndex ++ )
             {
                 for ( unsigned patchIndex = 0; patchIndex < numSpans; patchIndex ++ )
@@ -2372,10 +2365,10 @@ double snlSurface::reduceDegree ( int dir, unsigned numDeg, double tolerance )
                         copyTo++;
                         copyFrom++;
                     }
-                
-                    copyFrom++;                                
+
+                    copyFrom++;
                 }
-            
+
                 *copyTo = *copyFrom;
                 copyTo++;
                 copyFrom++;
@@ -2384,8 +2377,8 @@ double snlSurface::reduceDegree ( int dir, unsigned numDeg, double tolerance )
         else
         {
             // U direction.
-            
-            for ( unsigned patchIndex = 0; patchIndex < numSpans; patchIndex ++ )            
+
+            for ( unsigned patchIndex = 0; patchIndex < numSpans; patchIndex ++ )
             {
                 for ( unsigned lineIndex = 0; lineIndex < rDeg - 1; lineIndex ++ )
                 {
@@ -2396,30 +2389,30 @@ double snlSurface::reduceDegree ( int dir, unsigned numDeg, double tolerance )
                         copyFrom++;
                     }
                 }
-                
-                copyFrom += oSize;  // Skip a line.            
+
+                copyFrom += oSize;  // Skip a line.
             }
-            
-            // Copy last line.            
-            
+
+            // Copy last line.
+
             for ( unsigned count = 0; count < oSize; count ++ )
             {
                 *copyTo = *copyFrom;
                 copyTo++;
                 copyFrom++;
-            }            
+            }
         }
-        
+
         // Adjust current new size to reflect control point removals.
-        cSize -= numSpans;        
-        
-        // Clean up.        
-        delete[] alpha;        
+        cSize -= numSpans;
+
+        // Clean up.
+        delete[] alpha;
     }
-        
+
     // Set control point net to correct size.
     ctrlPtNet -> truncatePointSpace ( numDeg * numSpans );
-    
+
     if ( dir == SNL_V_DIR )
     {
         ctrlPtNet -> setSizeV ( cSize );
@@ -2430,30 +2423,30 @@ double snlSurface::reduceDegree ( int dir, unsigned numDeg, double tolerance )
         ctrlPtNet -> setSizeU ( cSize );
         degU -= numDeg;
     }
-    
+
     // Remove additional knots only if under tolerance.
-        
+
     if ( ( tolerance != 0.0 ) && ( tolerance > maxError ) )
     {
         // !@#$ Simplify surface here.
     }
-    
+
     if ( ( maxError < tolerance ) || ( tolerance == 0.0 ) )
     {
         // Can keep new knots and control points so delete original copies.
-            
-        delete ctrlPtNetCopy;   
+
+        delete ctrlPtNetCopy;
         delete knotVectUCopy;
-        delete knotVectVCopy;        
+        delete knotVectVCopy;
     }
     else
     {
         // Reinstate old knots and control points.
-        
+
         delete ctrlPtNet;
         delete knotVectV;
         delete knotVectU;
-        
+
         ctrlPtNet = ctrlPtNetCopy;
         knotVectV = knotVectVCopy;
         knotVectU = knotVectUCopy;
@@ -2463,7 +2456,7 @@ double snlSurface::reduceDegree ( int dir, unsigned numDeg, double tolerance )
         else
             degU += numDeg;
     }
-    
+
     return maxError;
 }
 
@@ -2549,11 +2542,11 @@ void snlSurface::refineHull_UV ( double tolerance )
             while ( indexV )
             {
                 // Don't check rectangular span if both and U and V are already marked for subdivision.
-                
+
                 if ( ! ( spanSubU [ spanU ] && spanSubV [ spanV ] ) )
                 {
                     double flatness = ctrlPtNet -> calcFlatness ( indexU - degU, indexV - degV, degU + 1, degV + 1 );
-    
+
                     if ( flatness > tolerance )
                     {
                         if ( ! spanSubU [ spanU ] )
@@ -2569,10 +2562,10 @@ void snlSurface::refineHull_UV ( double tolerance )
                                                       - knotVectV -> val ( indexV ) ) / 2 )
                                                       + knotVectV -> val ( indexV );
                         }
-                        
+
                         spanSubU [ spanU ] = true;
                         spanSubV [ spanV ] = true;
-                        
+
                         tolOk = false;
                     }
                 }
@@ -2622,11 +2615,11 @@ bool snlSurface::refineHull_U ( double tolerance, bool singlePass )
     //! @param singlePass Only do a single refinement pass.
     //!
     //! @return If tolerance is was okay. Should be true unless single pass is specified.
-    
+
     if ( degU < 2 ) return true;
-    
+
     bool tolOk = false;  // Tolerance is okay.
-    
+
     while ( ! tolOk )
     {
         tolOk = true;
@@ -2647,21 +2640,21 @@ bool snlSurface::refineHull_U ( double tolerance, bool singlePass )
             int indexU = knotVectU -> getFirstSpan();
 
             int spanNum = 0;
-            
+
             while ( indexU )
             {
                 // Test for flatness
-            
+
                 double  flatness;
-                
+
                 flatness = ctrlPtNet -> calcFlatnessU ( indexU - degU, indexV, degU + 1, false );
 
                 if ( flatness > tolerance )
                 {
                     // Insert knot into surface. Half way between existing knots.
-                
+
                     int insertIndex = indexU;
-                
+
                     knot insertParam = ( ( knotVectU -> val ( insertIndex + 1 )
                                          - knotVectU -> val ( insertIndex ) ) / 2 )
                                          + knotVectU -> val ( insertIndex );
@@ -2680,13 +2673,13 @@ bool snlSurface::refineHull_U ( double tolerance, bool singlePass )
         }
 
         // Insert knots where needed to subdivide span.
-        
+
         for ( int spanNum = 0; spanNum < numSpans; spanNum ++ )
         {
             if ( spanSub [ spanNum ] )
                 insertKnot ( spanSubVal [ spanNum ], SNL_U_DIR );
         }
-        
+
         delete[] spanSub;
         delete[] spanSubVal;
 
@@ -2701,11 +2694,11 @@ bool snlSurface::refineHull_V ( double tolerance, bool singlePass )
     //! Refine control point net in V direction until it is
     //! guaranteed be within tolerance to surface.
     // ---------------------------------------------------
-    
+
     if ( degV < 2 ) return true;
-    
+
     bool tolOk = false;
-    
+
     while ( ! tolOk )
     {
         tolOk = true;
@@ -2722,25 +2715,25 @@ bool snlSurface::refineHull_V ( double tolerance, bool singlePass )
             spanSub [ index ] = false;
 
         for ( int indexU = 0; (unsigned) indexU < ( ctrlPtNet -> getSizeU() ); indexU ++ )
-        {            
+        {
             int indexV = knotVectV -> getFirstSpan();
 
             int spanNum = 0;
-            
+
             while ( indexV )
             {
                 // Test for flatness
-            
+
                 double  flatness;
-                
+
                 flatness = ctrlPtNet -> calcFlatnessV ( indexU, indexV - degV, degV + 1, false );
 
                 if ( flatness > tolerance )
                 {
                     // Insert knot into surface. Half way between existing knots.
-                
+
                     int insertIndex = indexV;
-                
+
                     knot insertParam = ( ( knotVectV -> val ( insertIndex + 1 )
                                          - knotVectV -> val ( insertIndex ) ) / 2 )
                                          + knotVectV -> val ( insertIndex );
@@ -2751,7 +2744,7 @@ bool snlSurface::refineHull_V ( double tolerance, bool singlePass )
 
                     tolOk = false;
                 }
-                
+
                 indexV = knotVectV -> getNextSpan ( indexV );
 
                 spanNum ++;
@@ -2759,7 +2752,7 @@ bool snlSurface::refineHull_V ( double tolerance, bool singlePass )
         }
 
         // Insert knots where needed to subdivide span.
-        
+
         for ( int spanNum = 0; spanNum < numSpans; spanNum ++ )
         {
             if ( spanSub [ spanNum ] )
@@ -2801,10 +2794,10 @@ void snlSurface::refineHullBezier ( double tolerance )
 
         bool* splitSpanU = new bool [ numUSegments ];  // Split knot span corresponding to array index if true.
         bool* splitSpanV = new bool [ numVSegments ];
-    
+
         knot* splitKnotU = new knot [ numUSegments ];  // Knot value within span that span will be split at.
         knot* splitKnotV = new knot [ numVSegments ];
-            
+
         for ( int index = 0; index < numUSegments; index ++ )
             splitSpanU [ index ] = false;
 
@@ -2812,7 +2805,7 @@ void snlSurface::refineHullBezier ( double tolerance )
             splitSpanV [ index ] = false;
 
         // Step through each segment and calculate control point distance to surface.
-    
+
         for ( int segU = 0; segU < numUSegments; segU ++ )
         {
             for ( int segV = 0; segV < numVSegments; segV ++ )
@@ -2823,7 +2816,7 @@ if ( segU == 159 && segV == 2 )
     cout << "stop\n";
 }
                 // Don't test a segment if it has already being split.
-                
+
                 if ( ! splitSpanU [ segU ] || ! splitSpanV [ segV ] )
                 {
                     double flatness = ctrlPtNet -> calcFlatness ( segU * degU, segV * degV, degU + 1, degV + 1 );
@@ -2842,9 +2835,9 @@ cout << "SegU: " << segU << " SegV: " << segV << " Flatness: " << flatness << "\
         if ( ! tolOk )
         {
             // Split spans. First find parameters to insert.
-    
+
             int spanIndex = knotVectU -> getFirstSpan();  // Current span index.
-    
+
             for ( int spanNum = 0; spanNum < numUSegments; spanNum ++ )
             {
                 if ( splitSpanU [ spanNum ] )
@@ -2853,12 +2846,12 @@ cout << "SegU: " << segU << " SegV: " << segV << " Flatness: " << flatness << "\
                                                - knotVectU -> val ( spanIndex ) ) / 2 )
                                                + knotVectU -> val ( spanIndex );
                 }
-    
+
                 spanIndex = knotVectU -> getNextSpan ( spanIndex );
             }
-    
+
             spanIndex = knotVectV -> getFirstSpan();
-    
+
             for ( int spanNum = 0; spanNum < numVSegments; spanNum ++ )
             {
                 if ( splitSpanV [ spanNum ] )
@@ -2867,18 +2860,18 @@ cout << "SegU: " << segU << " SegV: " << segV << " Flatness: " << flatness << "\
                                                - knotVectV -> val ( spanIndex ) ) / 2 )
                                                + knotVectV -> val ( spanIndex );
                 }
-    
+
                 spanIndex = knotVectV -> getNextSpan ( spanIndex );
             }
-    
+
             // Insert knots into each vector.
-    
+
             for ( int spanNum = 0; spanNum < numUSegments; spanNum ++ )
             {
                 if ( splitSpanU [ spanNum ] )
                     insertKnot ( splitKnotU [ spanNum ], SNL_U_DIR, degU );
             }
-    
+
             for ( int spanNum = 0; spanNum < numVSegments; spanNum ++ )
             {
                 if ( splitSpanV [ spanNum ] )
@@ -2902,7 +2895,7 @@ double snlSurface::maxCurvatureU()
     //! Return maximum curvature of surface in U direction.
     //  ---------------------------------------------------
     //! @return Value between 0 and PI.
-    
+
     return ctrlPtNet -> maxCurvatureU();
 }
 
@@ -2911,7 +2904,7 @@ double snlSurface::maxCurvatureV()
     //! Return maximum curvature of surface in V direction.
     //  ---------------------------------------------------
     //! @return Value between 0 and PI.
-    
+
     return ctrlPtNet -> maxCurvatureV();
 }
 
@@ -2973,7 +2966,7 @@ snlSCtrlPtLocn* snlSurface::findClosestCtrlPt ( snlPoint* points, int numPoints 
     index = 0;
 
     double dist;
-    
+
     for ( int indexU = 0; indexU < uSize; indexU ++ )
     {
         for ( int indexV = 0; indexV < vSize; indexV ++ )
@@ -3018,9 +3011,9 @@ snlCurve* snlSurface::extractEdge ( int edge )
             ctrlPtPtrs = new snlCtrlPoint* [ size ];
             ctrlPtNet -> locatePointsV ( 0, 0, size, ctrlPtPtrs );
             knotVect = new snlKnotVector ( *knotVectV );
-            
+
             break;
-            
+
         case SNL_EDGE_VMIN:
 
             size = ctrlPtNet -> getSizeU();
@@ -3029,23 +3022,23 @@ snlCurve* snlSurface::extractEdge ( int edge )
             knotVect = new snlKnotVector ( *knotVectU );
 
             break;
-        
+
         case SNL_EDGE_UMAX:
-        
+
             size = ctrlPtNet -> getSizeV();
             ctrlPtPtrs = new snlCtrlPoint* [ size ];
             ctrlPtNet -> locatePointsV ( ctrlPtNet -> getSizeU() - 1, 0, size, ctrlPtPtrs );
             knotVect = new snlKnotVector ( *knotVectV );
-            
+
             break;
 
         case SNL_EDGE_VMAX:
-        
+
             size = ctrlPtNet -> getSizeU();
             ctrlPtPtrs = new snlCtrlPoint* [ size ];
             ctrlPtNet -> locatePointsU ( 0, ctrlPtNet -> getSizeV() - 1, size, ctrlPtPtrs );
             knotVect = new snlKnotVector ( *knotVectU );
-            
+
             break;
     };
 
@@ -3141,7 +3134,7 @@ cout.precision ( 16 );
             constParam = paramU;
             paramV = min_v;
             break;
-            
+
         case SNL_EDGE_VMIN:
 
             paramU = min_u;
@@ -3149,9 +3142,9 @@ cout.precision ( 16 );
             constParam = paramV;
             stepU = true;
             break;
-        
+
         case SNL_EDGE_UMAX:
-        
+
             paramU = max_u;
             constParam = paramU;
             paramV = min_v;
@@ -3192,7 +3185,7 @@ cout.precision ( 16 );
     int arcIndex = 0;
 
     knot lastParam;
-    
+
     for ( int index = -1; index < edgeCurveSize; index ++ )
     {
         if ( index == edgeCurveSize - 1 )
@@ -3223,17 +3216,17 @@ cout.precision ( 16 );
             if ( ( stepU && paramU == lastParam ) || ( ! stepU && paramV == lastParam ) )
                 continue;
         }
-       
+
         if ( stepU )
             lastParam = paramU;
         else
             lastParam = paramV;
-        
+
         arcLocn* locn = new arcLocn;
 
         locn -> cParamU = paramU;
         locn -> cParamV = paramV;
-        
+
         velocities ( paramU, paramV, locn -> cPt, locn -> velU, locn -> velV );
 
         // Controlling surface
@@ -3256,7 +3249,7 @@ cout.precision ( 16 );
     }
 
     delete[] initialLocns;
-    
+
 cout << "Finished stepping out. Num Locations: " << arcLocnList.count() << "\n";
     // Project control points to matching surface then calculate new control points
 
@@ -3278,7 +3271,7 @@ cout << "Finished stepping out. Num Locations: " << arcLocnList.count() << "\n";
         {
             if ( ! locn -> converged && ! locn -> stalled )
                 points [ index ++ ] = locn -> normPt;
-            
+
             locn = arcLocnList.next();
         }
 
@@ -3314,7 +3307,7 @@ cout << "Finished stepping out. Num Locations: " << arcLocnList.count() << "\n";
             {
                 // Calculate new guess for arc location on controlling surface.
 
-                double distDelta; 
+                double distDelta;
 
                 snlVector mRadius ( locn -> normPt, surfLocns [ index ].pt );
 
@@ -3336,7 +3329,7 @@ cout << "Finished stepping out. Num Locations: " << arcLocnList.count() << "\n";
                 if ( stepU )
                 {
                     // U is fixed.
-                    
+
                     double length = locn -> velV.length();
                     knot deltaV = mRadius.dot ( locn -> velV ) / ( length * length );
 
@@ -3356,12 +3349,12 @@ cout << "Finished stepping out. Num Locations: " << arcLocnList.count() << "\n";
                 else
                 {
                     // V is fixed.
-                    
+
                     double length = locn -> velU.length();
                     knot deltaU = mRadius.dot ( locn -> velU ) / ( length * length );
 
                     knot newU = locn -> cParamU + deltaU;
-                    
+
                     if ( newU > max_u ) newU = max_u;
                     if ( newU < min_u ) newU = min_u;
 
@@ -3455,7 +3448,7 @@ cout << "Finished stepping out. Num Locations: " << arcLocnList.count() << "\n";
     snlSurface* retSurf = new snlSurface ( curves, arcCount );
 
     // Clean up and return.
-    
+
     for ( index = 0; index < arcCount; index ++ )
         delete curves [ index ];
 
@@ -3494,7 +3487,7 @@ void snlSurface::makeCompatible ( snlSurface* surfaceToMatch, int direction )
     else
     {
         // SNL_V_DIR.
-        
+
         if ( degV > ( surfaceToMatch -> degV ) )
             surfaceToMatch -> elevateDegree ( direction, degV - ( surfaceToMatch -> degV ) );
 
@@ -3506,7 +3499,7 @@ void snlSurface::makeCompatible ( snlSurface* surfaceToMatch, int direction )
 
     synchronise ( *surfaceToMatch, direction );
     surfaceToMatch -> synchronise ( *this, direction );
-    
+
 }
 
 void snlSurface::synchronise ( snlSurface& surface, int direction )
@@ -3525,10 +3518,10 @@ void snlSurface::synchronise ( snlSurface& surface, int direction )
     //!           as it's argument.
 
     int tDeg, oDeg;  // This degree, other surfaces degree.
-    
+
     snlKnotVector* tKnotVect;  // This surfaces knot vector in direction.
     snlKnotVector* oKnotVect;  // Other surfaces knot vector in direction.
-    
+
     if ( direction == SNL_U_DIR )
     {
         tDeg = degU;
@@ -3550,7 +3543,7 @@ void snlSurface::synchronise ( snlSurface& surface, int direction )
 
     knot thisMin = tKnotVect -> min();
     knot thisMax = tKnotVect -> max();
-    
+
     knot compMin = oKnotVect -> min();
     knot compMax = oKnotVect -> max();
 
@@ -3566,31 +3559,31 @@ void snlSurface::synchronise ( snlSurface& surface, int direction )
     }
 
     // Sync knots.
-    
+
     unsigned numSpans = oKnotVect -> getNumSpans();
-        
+
     unsigned spanIndex = oKnotVect -> getFirstSpan();
-        
+
     for ( unsigned index = 0; index < numSpans; index ++ )
     {
         knot param = oKnotVect -> val ( spanIndex );
-        
+
         int multi = oKnotVect -> findMultiplicity ( spanIndex );
-        
+
         unsigned insertSpan = tKnotVect -> findSpan ( param );  // Where param would be inserted in this object.
-        
+
         // If knot already exists in this surface then reduce multiplicity to add.
-        
+
         if ( tKnotVect -> val ( insertSpan ) == param )
             multi -= tKnotVect -> findMultiplicity ( insertSpan );
-        
+
         if ( multi > 0 )
             insertKnot ( param, direction, multi, true );
-        
+
         // Get next span.
-        
+
         spanIndex = oKnotVect -> getNextSpan ( spanIndex );
-    }    
+    }
 }
 
 void snlSurface::addTrimCurve ( snlCurve* curve )
@@ -3619,7 +3612,7 @@ void snlSurface::print()
 {
     //! Print surfaces control points and knot vectors to std out.
     //  ----------------------------------------------------------
-    
+
     ctrlPtNet -> print();
 
     cout << "Knotvector U - ";
@@ -3645,11 +3638,11 @@ void snlSurface::print_cpp()
     ctrlPtNet -> print_cpp();
 
     cout << "\n";
-    
+
     cout << "knot knotVectorU [ " << knotVectU -> size() << " ] = ";
     knotVectU -> print_cpp();
     cout << "\n\n";
-    
+
     cout << "knot knotVectorV [ " << knotVectV -> size() << " ] = ";
     knotVectV -> print_cpp();
     cout << "\n";
@@ -3662,14 +3655,14 @@ void snlSurface::vertexNet ( snlVertexNet* vNet, double tolerance, bool parametr
     //! @param tolerance Tolerance to surface of approximation.
     //! @param parametric Do a parametric analysis of the surface as opposed to knot refinement.
     //! @param vNet Vertex net to fill with data.
-        
-    
+
+
     const snlCtrlPoint*   ctrlPts;
     int                   sizeU;
     int                   sizeV;
-    
+
     snlSurface* tmpSurf = 0;
-    
+
     if ( tolerance > 0.0 )
     {
         tmpSurf = new snlSurface ( *this );
@@ -3679,14 +3672,14 @@ void snlSurface::vertexNet ( snlVertexNet* vNet, double tolerance, bool parametr
         sizeV = ( tmpSurf -> ctrlPtNet ) -> getSizeV();
     }
     else
-    {    
+    {
         ctrlPts = ctrlPtNet -> getCtrlPts();
         sizeU = ctrlPtNet -> getSizeU();
         sizeV = ctrlPtNet -> getSizeV();
     }
-    
-    vNet -> vertexNet ( ctrlPts, sizeU, sizeV );    
-    
+
+    vNet -> vertexNet ( ctrlPts, sizeU, sizeV );
+
     if ( tmpSurf ) delete tmpSurf;
 }
 
@@ -3718,7 +3711,7 @@ void snlSurface::triangleMesh ( snlTriangleMesh* triMesh, int toleranceType, dou
     for ( int indexU = 0; indexU < sizeU - 1; indexU ++ )
     {
         int vertIndex = indexU * sizeV;
-        
+
         for ( int indexV = 0; indexV < sizeV - 1; indexV ++ )
         {
             // Create edges and triangles.
@@ -3727,10 +3720,10 @@ void snlSurface::triangleMesh ( snlTriangleMesh* triMesh, int toleranceType, dou
                 leftEdge = triMesh -> addEdge ( vertIndex, vertIndex + 1 );  // Left Edge.
             else
                 leftEdge = nextLeftEdges [ indexV ];
-                
+
             if ( indexV == 0 )
                 bottomEdge = triMesh -> addEdge ( vertIndex, vertIndex + sizeV );  // Bottom Edge.
-            
+
             diagonalEdge = triMesh -> addEdge ( vertIndex + 1, vertIndex + sizeV );  // Diagonal.
 
             topEdge = triMesh -> addEdge ( vertIndex + 1, vertIndex + sizeV + 1 );  // Top Edge.
@@ -3770,7 +3763,7 @@ void snlSurface::genSurfRevolution ( snlCurve& generator, snlPoint& axisStart, s
     //!      direction.
 
     // Clamp angle to 360 degrees.
-    
+
     if ( angle > 360.0 ) angle = 360.0;
 
     double radAngle = ( angle / 180.0 ) * M_PI;
@@ -3817,18 +3810,18 @@ void snlSurface::genSurfRevolution ( snlCurve& generator, snlPoint& axisStart, s
         if ( projDist != 0.0 )
         {
             // Calculate mid point to axis distance.
-    
+
             double dist = projDist / midPtWeight;  // Mid point weight is the cosine of the step angle.
-    
+
             // Generate new control point.
-    
+
             projection.length ( dist - projDist );
         }
 
         midPoints [ index ] = curvePts [ index ] + projection;
 
         // Multiply by mid point weight.
-        
+
         midPoints [ index ].multiplyWeight ( midPtWeight );
     }
 
@@ -3850,7 +3843,7 @@ void snlSurface::genSurfRevolution ( snlCurve& generator, snlPoint& axisStart, s
             if ( ! indexU || ( indexU == ( sizeU - 1 ) && angle == 360.0 ) )
                 // If this is the first U index then curve points are taken as is.
                 surfPts [ index ] = curvePts [ indexV ];
-                
+
             else
             {
                 // Calculate rotated control point.
@@ -3864,11 +3857,11 @@ void snlSurface::genSurfRevolution ( snlCurve& generator, snlPoint& axisStart, s
                 {
                     // Is a mid point.
                     surfPts [ index ] = midPoints [ indexV ];
-                }   
-                
+                }
+
                 rotations [ stepIndex ].transform ( surfPts [ index ] );
             }
-        
+
             index ++;
         }
 
@@ -3880,7 +3873,7 @@ void snlSurface::genSurfRevolution ( snlCurve& generator, snlPoint& axisStart, s
     // Generate Knot Vectors.
 
     // U Knot Vector.
-    
+
     knot* uKnots = new knot [ sizeU + 3 ];  // Degree 2 knot vector.
 
     for ( index = 0; index < 3; index ++ )
@@ -3903,7 +3896,7 @@ void snlSurface::genSurfRevolution ( snlCurve& generator, snlPoint& axisStart, s
         uKnots [ index ++ ] = knotVal;  // Multiplicity 2.
         uKnots [ index ++ ] = knotVal;
 
-        knotVal += knotStep; 
+        knotVal += knotStep;
     }
 
     knotVectU = new snlKnotVector ( uKnots, sizeU + 3, 2 );

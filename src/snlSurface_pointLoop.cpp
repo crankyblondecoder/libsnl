@@ -43,7 +43,7 @@ snlSurface::snlSurface ( snlPoint* points, int numPoints, snlPrimType primType, 
     // primType:    Type of primitive surface to use to fit points to.
     // axisStart:   Starting point of axis for Cone and Cylinder. Centre point for sphere. ( Not required for plane ).
     // axisEnd:     Ending point of axis for Cone and Cylinder. ( Not required for Sphere ).
-    
+
     init();
 
     // Make sure first and last points are compatible with primitive being built.
@@ -72,22 +72,22 @@ snlSurface::snlSurface ( snlPoint* points, int numPoints, snlPrimType primType, 
 
             fitPlane ( pointsToUse, numPoints );
             break;
-        
+
         case SNL_PRIM_SPHERE:
 
             fitSphere ( pointsToUse, numPoints, axisStart );
             break;
-        
+
         case SNL_PRIM_CYLINDER:
-        
+
             fitCylinder ( pointsToUse, numPoints, axisStart, axisEnd );
             break;
-        
+
         case SNL_PRIM_CONE:
 
             fitCone ( pointsToUse, numPoints, axisStart, axisEnd );
             break;
-            
+
         case SNL_BILINEAR_COONS:
         default:
 
@@ -112,7 +112,7 @@ void snlSurface::fitBilinearCoons ( snlPoint* points, int numPoints )
     for ( int index = 0; index < numPoints; index ++ )
     {
         normPoints [ index ] = points [ index ];
-        normPoints [ index ].normalise();
+        normPoints [ index ].project();
     }
 
     // Create an interpolated curve of degree 2.
@@ -149,7 +149,7 @@ void snlSurface::fitBilinearCoons ( snlPoint* points, int numPoints )
     for ( int splitNumber = 0; splitNumber < 3; splitNumber ++ )
     {
         double splitDistance = splitLength * (double) ( splitNumber + 1 );
-        
+
         while ( ( distance + sectionLengths [ sectionIndex ] ) < splitDistance )
         {
             distance += sectionLengths [ sectionIndex ++ ];
@@ -170,11 +170,11 @@ void snlSurface::fitBilinearCoons ( snlPoint* points, int numPoints )
     snlCurve* curve2;
     snlCurve* curve3;
     snlCurve* curve4;
-    
+
     curve1 = new snlCurve ( *initialCurve );
     curve1 -> truncate ( splitParams [ 0 ], false, false );
     curve1 -> reparameterise ( 0.0, 1.0 );  // All knot vectors should be clamped to [ 0.0, 1.0 ].
-    
+
     curve2 = new snlCurve ( *initialCurve );
     curve2 -> truncate ( splitParams [ 0 ], true, false );
     curve2 -> truncate ( splitParams [ 1 ], false, false );
@@ -251,7 +251,7 @@ void snlSurface::fitPlane ( snlPoint* points, int numPoints )
             maxProjDist = dist;
             maxProjVector = projVect;
         }
-        
+
         snlPoint projPoint = points [ index ] + projVect;  // Project point onto base line.
 
         // Determine if point should be new base line starting point.
@@ -288,7 +288,7 @@ void snlSurface::fitPlane ( snlPoint* points, int numPoints )
     degU = 1;
     degV = 1;
 
-    ctrlPtNet = new snlCtrlPointNetSurface ( ctrlPts, 2, 2, false );    
+    ctrlPtNet = new snlCtrlPointNetSurface ( ctrlPts, 2, 2, false );
 }
 
 void snlSurface::fitCylinder ( snlPoint* points, int numPoints, snlPoint* axisStart, snlPoint* axisEnd )
@@ -305,14 +305,14 @@ void snlSurface::fitCylinder ( snlPoint* points, int numPoints, snlPoint* axisSt
     snlVector axis ( *axisStart, *axisEnd );
 
     // Calculate initial projections that are used for cylinder angle determination.
-    
+
     snlVector angleProjMax = projectToLine ( *axisStart, *axisEnd, points [ 0 ] );  // Projection associated with maximum angle.
 
     snlPoint newAxisStart = points [ 0 ] + angleProjMax;  // New axis bound points.
     snlPoint newAxisEnd = newAxisStart;
-    
+
     angleProjMax *= -1.0;  // These projections must be pointing from axis outwards.
-    
+
     snlVector angleProjMin = angleProjMax;  // Projection associated with minimum angle.
 
     snlVector lastProj;  // Projection vector that next projection is compared to.
@@ -349,12 +349,12 @@ void snlSurface::fitCylinder ( snlPoint* points, int numPoints, snlPoint* axisSt
 
             crossProd.crossProduct ( lastProj, projVect );
 
-            if ( ! crossProd.isNull() )
+            if ( ! crossProd.isZero() )
             {
                 // If normal vector ( cross product ) is opposite direction to axis then angle is negative.
-    
+
                 double angle = lastProj.angle ( projVect );
-    
+
                 if ( crossProd.dot ( axis ) > 0.0 )
                 {
                     // Positive angle.
@@ -425,14 +425,14 @@ void snlSurface::fitCone ( snlPoint* points, int numPoints, snlPoint* axisStart,
     snlVector axis ( *axisStart, *axisEnd );
 
     // Calculate initial projections that are used for angle determination.
-    
+
     snlVector angleProjMax = projectToLine ( *axisStart, *axisEnd, points [ 0 ] );  // Projection associated with maximum angle.
 
     snlPoint newAxisStart = points [ 0 ] + angleProjMax;  // New axis bound points.
     snlPoint newAxisEnd = newAxisStart;
-    
+
     angleProjMax *= -1.0;  // These projections must be pointing from axis outwards.
-    
+
     snlVector angleProjMin = angleProjMax;  // Projection associated with minimum angle.
 
     snlVector lastProj;  // Projection vector that next projection is compared to.
@@ -470,7 +470,7 @@ void snlSurface::fitCone ( snlPoint* points, int numPoints, snlPoint* axisStart,
     {
         snlVector projVect = projectToLine ( *axisStart, *axisEnd, points [ index ] );
 
-        if ( projVect.isNull() )
+        if ( projVect.isZero() )
             intersectsAxis = true;
 
         snlPoint projPt = points [ index ] + projVect;
@@ -494,13 +494,13 @@ void snlSurface::fitCone ( snlPoint* points, int numPoints, snlPoint* axisStart,
         projVect *= -1.0;  // Make sure vector is pointing outwards from axis.
 
         // Make sure base projection is not a null vector.
-        
-        if ( baseProj.isNull() && ! projVect.isNull() )
+
+        if ( baseProj.isZero() && ! projVect.isZero() )
             baseProj = projVect;
 
         // Calculate absolute angle.
 
-        if ( ! projVect.isNull() )
+        if ( ! projVect.isZero() )
         {
             curAbsAngle = baseProj.angle ( projVect );
 
@@ -510,7 +510,7 @@ void snlSurface::fitCone ( snlPoint* points, int numPoints, snlPoint* axisStart,
 
             crossProd.crossProduct ( baseProj, projVect );
 
-            if ( ! crossProd.isNull() && crossProd.dot ( axis ) < 0.0 )
+            if ( ! crossProd.isZero() && crossProd.dot ( axis ) < 0.0 )
             {
                 // Adjust for negative angle.
 
@@ -524,12 +524,12 @@ void snlSurface::fitCone ( snlPoint* points, int numPoints, snlPoint* axisStart,
 
             crossProd.crossProduct ( lastProj, projVect );
 
-            if ( ! crossProd.isNull() )
+            if ( ! crossProd.isZero() )
             {
                 // If normal vector ( cross product ) is opposite direction to axis then angle is negative.
-    
+
                 double angle = lastProj.angle ( projVect );
-    
+
                 if ( crossProd.dot ( axis ) > 0.0 )
                 {
                     // Positive angle.
@@ -538,7 +538,7 @@ void snlSurface::fitCone ( snlPoint* points, int numPoints, snlPoint* axisStart,
                     negTraverse = false;
 
                     if ( accumAngle > maxAngle )
-                    
+
                     {
                         maxAngle = accumAngle;
                         angleProjMax = projVect;
@@ -634,7 +634,7 @@ void snlSurface::fitCone ( snlPoint* points, int numPoints, snlPoint* axisStart,
         }
 
         // Calculate new cone parameters.
-        
+
         absAngle = ( M_PI * 2.0 ) - maxGap;
 
         double rotAngle = endGap * circleSectSliceSize;
@@ -654,9 +654,9 @@ void snlSurface::fitCone ( snlPoint* points, int numPoints, snlPoint* axisStart,
         absAngle = maxAngle - minAngle;  // minAngle must be below or equal to 0.
 
         // Recalculate more exact absAngle from vectors but using previously calculated absAngle as guide.
-    
+
         double angle = angleProjMax.angle ( angleProjMin );
-    
+
         if ( absAngle > M_PI )
             absAngle = ( M_PI * 2.0 ) - angle;
         else
@@ -675,7 +675,7 @@ void snlSurface::fitCone ( snlPoint* points, int numPoints, snlPoint* axisStart,
     snlVector axisProj = angleProjMin;
     axisProj.length ( axisStartRadius );
     snlPoint curveStart = newAxisStart + axisProj;
-    
+
     axisProj = angleProjMin;
     axisProj.length ( axisEndRadius );
     snlPoint curveEnd = newAxisEnd + axisProj;
@@ -721,9 +721,9 @@ void snlSurface::fitSphere ( snlPoint* points, int numPoints, snlPoint* sphereCe
     for ( int ptIndex = 1; ptIndex < numPoints; ptIndex ++ )
     {
         // Calculate angle to basis plane normal. Latitude.
-        
-        refVect.calc ( *sphereCentre, points [ ptIndex ] );
-        
+
+        refVect.diff ( *sphereCentre, points [ ptIndex ] );
+
         double normAngle = basisPlaneNormal.angle ( refVect );
 
         if ( normAngle > latMax ) latMax = normAngle;
@@ -743,7 +743,7 @@ void snlSurface::fitSphere ( snlPoint* points, int numPoints, snlPoint* sphereCe
             lonAngle -= relLonAngle;  // Angle is negative.
         else
             lonAngle += relLonAngle;
-            
+
         if ( lonAngle > lonMax ) lonMax = lonAngle;
         if ( lonAngle < lonMin ) lonMin = lonAngle;
 
@@ -753,12 +753,12 @@ void snlSurface::fitSphere ( snlPoint* points, int numPoints, snlPoint* sphereCe
     // Angle bounds have been determined. Create spherical patch.
 
     // First create a circular arc.
-    
+
     lonBasisNormal.crossProduct ( basisPlaneNormal, baseVect );
 
     snlTransform latTransf;
     snlTransform lonTransf;
-    
+
     lonTransf.rotate ( lonMin, *sphereCentre, basisPlaneNormal );
 
     snlPoint startPoint ( points [ 0 ] );
@@ -770,7 +770,7 @@ void snlSurface::fitSphere ( snlPoint* points, int numPoints, snlPoint* sphereCe
 
     latTransf.ident();
     latTransf.rotate ( latMax - ( M_PI / 2.0 ), *sphereCentre, lonBasisNormal );
-    
+
     snlPoint endPoint ( points [ 0 ] );
 
     latTransf.transform ( endPoint );
