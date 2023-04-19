@@ -43,7 +43,7 @@ snlTransform::snlTransform ( double* matrix )
     // -----------------------------------------------------------------------
 
     for ( int index = 0; index < 16; index ++ )
-        element [ index ] = matrix [ index ];
+        _elements [ index ] = matrix [ index ];
 }
 
 void snlTransform::transform ( snlPoint* pt )
@@ -92,7 +92,7 @@ void snlTransform::transform ( double* elements )
 
         for ( mRow = 0; mRow < 4; mRow ++ )
         {
-            tmpPt [ mRow ] += cVal * element [ mIndex ++ ];
+            tmpPt [ mRow ] += cVal * _elements [ mIndex ++ ];
         }
     }
 

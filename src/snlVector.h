@@ -18,13 +18,10 @@ class snlVector
 		 */
 		snlVector();
 
-		/** New vector as deep copy from other vector. */
-		snlVector(const snlVector& copyFrom);
-
 		/**
 		 * New vector given three or more components.
 		 */
-		snlVector(double x, double y, double z, double w = 0.0);
+		snlVector(double x, double y, double z, double w);
 
 		/**
 		 * Set the components of this as the vector which if added to the first vector gives the second vector.
@@ -122,6 +119,9 @@ class snlVector
 
 		bool operator == (snlVector& compare);
 
+		/** Assign another vector to this. Copies elements from the other vector. */
+		snlVector& operator = (snlVector& copyFrom);
+
 		/** Get the x coordinate. */
 		double x();
 		/** Get the y coordinate. */
@@ -157,8 +157,6 @@ class snlVector
 		bool isZero();
 
 		void print();
-
-	protected:
 
 		double elements[4];
 };
@@ -361,6 +359,16 @@ inline bool snlVector::operator == (snlVector& compare)
 		elements[1] == compare.elements[1] &&
 		elements[2] == compare.elements[2] &&
 		elements[3] == compare.elements[3];
+}
+
+inline snlVector& snlVector::operator = (snlVector& copyFrom)
+{
+	elements[0] == copyFrom.elements[0];
+	elements[1] == copyFrom.elements[1];
+	elements[2] == copyFrom.elements[2];
+	elements[3] == copyFrom.elements[3];
+
+	return *this;
 }
 
 #endif

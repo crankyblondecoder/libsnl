@@ -1,64 +1,230 @@
-// libSNL - Simple Nurbs Library
-// ---------------------------------------
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU Library General Public License for more details.
-//
-//  You should have received a copy of the GNU Library General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-
-// *** 4x4 Matrix of doubles ***
-
 #ifndef SNL_MATRIX_4X4_H
 #define SNL_MATRIX_4X4_H
 
-#include "snlPoint.h"
+#include "snlVector.h"
 
 #include <iostream>
 #include <cmath>
 
 using namespace std;
 
+/** 4x4 Matrix of doubles */
 class snlMatrix_4X4
 {
-    // Matrix optimised for size 4 X 4 of double
+	public:
 
-    public:
+		virtual ~snlMatrix_4X4();
 
-        snlMatrix_4X4();
-        virtual ~snlMatrix_4X4();
+		snlMatrix_4X4();
 
-        snlMatrix_4X4 ( snlMatrix_4X4& copyFrom );
+		/** Copy constructor. */
+		snlMatrix_4X4(snlMatrix_4X4& copyFrom);
 
-        void ident();  // Set matrix to identity.
+		/** Assignment. Required because there are pointers to deal with. */
+		snlMatrix_4X4& operator = (snlMatrix_4X4& copyFrom);
 
-        void translateIdent ( double x, double y, double z );  // Setup matrix as translation identity.
+		/** Set matrix to identity. */
+		void ident();
 
-        void rotateXIdent ( double yy, double yz, double zy, double zz );
-        void rotateYIdent ( double xx, double xz, double zx, double zz );
-        void rotateZIdent ( double xx, double xy, double yx, double yy );
+		/** Setup matrix as translation identity. */
+		void translateIdent(double x, double y, double z);
 
-        void scaleIdent ( double x, double y, double z );
+		/**
+		 * Create rotation identity for rotation about x axis.
+		 * @param yy y coordinate scalar for new y.
+		 * @param yz z coordinate scalar for new y.
+		 * @param zy y coordinate scalar for new z.
+		 * @param zz z coordinate scalar for new z.
+		 */
+		void rotateXIdent(double yy, double yz, double zy, double zz);
 
-        void multiply ( snlMatrix_4X4&, bool pre = false );  // Multiply this matrix by given matrix.
+		/**
+		 * Create rotation identity for rotation about y axis.
+		 * @param xx x coordinate scalar for new x.
+		 * @param xz z coordinate scalar for new x.
+		 * @param zx x coordinate scalar for new z.
+		 * @param zz z coordinate scalar for new z.
+		 */
+		void rotateYIdent(double xx, double xz, double zx, double zz);
 
-        void transform ( snlPoint* );  // Transform given point with matrix.
+		/**
+		 * Create rotation identity for rotation about z axis.
+		 * @param xx x coordinate scalar for new x.
+		 * @param xy y coordinate scalar for new x.
+		 * @param yx x coordinate scalar for new y.
+		 * @param yy y coordinate scalar for new y.
+		 */
+		void rotateZIdent(double xx, double xy, double yx, double yy);
 
-        double* elements();
+		/**
+		 * Create scaling identity for scaling operation.
+		 * @param x Scaling factor in X direction.
+		 * @param y Scaling factor in Y direction.
+		 * @param z Scaling factor in Z direction.
+		 */
+		void scaleIdent(double x, double y, double z);
 
-        void print();  //!< Print matrice to standard out.
+		/**
+		 * Pre-multiply the given matrix to this matrix and store result in this.
+		 * @param multMatrix Matrix to multiply to this.
+		 */
+		void preMultiply(snlMatrix_4X4&);
 
-    protected:
+		/**
+		 * Multiply this matrix to one or more vectors. Storing the result in each vector.
+		 */
+		void multiply(snlVector*, unsigned numVectors);
 
-        double*     element;  // OpenGL style array. NOT c/c++.
-        double*     scratch;  // Scratch space for matrix multiplication etc.
+		void print();  //!< Print matrice to standard out.
+
+	protected:
+
+		// NOTE: Data for matrix is done using pointers so _scratch and _elements can be swapped after calculations rather
+		//       then the overhead of a large copy operation.
+
+		/** Matrix elements in Column Major order (ie OpenGL Standard). */
+		double* _elements;
+
+		/** Scratch space for matrix multiplication etc. */
+		double* _scratch;
 };
+
+inline void snlMatrix_4X4::ident()
+{
+	_elements[0] = 1.0;
+	_elements[1] = 0.0;
+	_elements[2] = 0.0;
+	_elements[3] = 0.0;
+
+	_elements[4] = 0.0;
+	_elements[5] = 1.0;
+	_elements[6] = 0.0;
+	_elements[7] = 0.0;
+
+	_elements[8] = 0.0;
+	_elements[9] = 0.0;
+	_elements[10] = 1.0;
+	_elements[11] = 0.0;
+
+	_elements[12] = 0.0;
+	_elements[13] = 0.0;
+	_elements[14] = 0.0;
+	_elements[15] = 1.0;
+}
+
+inline void snlMatrix_4X4::translateIdent(double x, double y, double z)
+{
+	_elements[0] = 1.0;
+	_elements[1] = 0.0;
+	_elements[2] = 0.0;
+	_elements[3] = 0.0;
+
+	_elements[4] = 0.0;
+	_elements[5] = 1.0;
+	_elements[6] = 0.0;
+	_elements[7] = 0.0;
+
+	_elements[8] = 0.0;
+	_elements[9] = 0.0;
+	_elements[10] = 1.0;
+	_elements[11] = 0.0;
+
+	_elements[12] = x;
+	_elements[13] = y;
+	_elements[14] = z;
+	_elements[15] = 1.0;
+}
+
+inline void snlMatrix_4X4::rotateXIdent(double yy, double yz, double zy, double zz)
+{
+	_elements[0] = 1.0;
+	_elements[1] = 0.0;
+	_elements[2] = 0.0;
+	_elements[3] = 0.0;
+
+	_elements[4] = 0.0;
+	_elements[5] = yy;
+	_elements[6] = zy;
+	_elements[7] = 0.0;
+
+	_elements[8] = 0.0;
+	_elements[9] = yz;
+	_elements[10] = zz;
+	_elements[11] = 0.0;
+
+	_elements[12] = 0.0;
+	_elements[13] = 0.0;
+	_elements[14] = 0.0;
+	_elements[15] = 1.0;
+}
+
+inline void snlMatrix_4X4::rotateYIdent(double xx, double xz, double zx, double zz)
+{
+	_elements[0] = xx;
+	_elements[1] = 0.0;
+	_elements[2] = zx;
+	_elements[3] = 0.0;
+
+	_elements[4] = 0.0;
+	_elements[5] = 1.0;
+	_elements[6] = 0.0;
+	_elements[7] = 0.0;
+
+	_elements[8] = xz;
+	_elements[9] = 0.0;
+	_elements[10] = zz;
+	_elements[11] = 0.0;
+
+	_elements[12] = 0.0;
+	_elements[13] = 0.0;
+	_elements[14] = 0.0;
+	_elements[15] = 1.0;
+}
+
+inline void snlMatrix_4X4::rotateZIdent(double xx, double xy, double yx, double yy)
+{
+	_elements[0] = xx;
+	_elements[1] = yx;
+	_elements[2] = 0.0;
+	_elements[3] = 0.0;
+
+	_elements[4] = xy;
+	_elements[5] = yy;
+	_elements[6] = 0.0;
+	_elements[7] = 0.0;
+
+	_elements[8] = 0.0;
+	_elements[9] = 0.0;
+	_elements[10] = 1.0;
+	_elements[11] = 0.0;
+
+	_elements[12] = 0.0;
+	_elements[13] = 0.0;
+	_elements[14] = 0.0;
+	_elements[15] = 1.0;
+}
+
+inline void snlMatrix_4X4::scaleIdent(double x, double y, double z)
+{
+	_elements[0] = x;
+	_elements[1] = 0.0;
+	_elements[2] = 0.0;
+	_elements[3] = 0.0;
+
+	_elements[4] = 0.0;
+	_elements[5] = y;
+	_elements[6] = 0.0;
+	_elements[7] = 0.0;
+
+	_elements[8] = 0.0;
+	_elements[9] = 0.0;
+	_elements[10] = z;
+	_elements[11] = 0.0;
+
+	_elements[12] = 0.0;
+	_elements[13] = 0.0;
+	_elements[14] = 0.0;
+	_elements[15] = 1.0;
+}
 
 #endif

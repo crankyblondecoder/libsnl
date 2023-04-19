@@ -1,210 +1,132 @@
-// libSNL - Simple Nurbs Library
-// Copyright Scott A.E. Lanham, Australia.
-// ---------------------------------------
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU Library General Public License for more details.
-//
-//  You should have received a copy of the GNU Library General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-
-// *** 4x4 Matrix of doubles ***
-
 #include "snlMatrix_4x4.h"
 
 snlMatrix_4X4::snlMatrix_4X4()
 {
-    element = new double [ 16 ];
-    scratch = new double [ 16 ];
+}
+
+snlMatrix_4X4::snlMatrix_4X4()
+{
+	_elements = new double[16];
+	_scratch = new double[16];
 }
 
 snlMatrix_4X4::~snlMatrix_4X4()
 {
-    delete[] element;
-    delete[] scratch;
+	delete[] _elements;
+	delete[] _scratch;
 }
 
-snlMatrix_4X4::snlMatrix_4X4 ( snlMatrix_4X4& copyFrom )
+snlMatrix_4X4::snlMatrix_4X4(snlMatrix_4X4& copyFrom)
 {
-    element = new double [ 16 ];
-    scratch = new double [ 16 ];
-    
-    for ( int index = 0; index < 16; index ++ )
-        element [ index ] = copyFrom.element [ index ];
+	_elements = new double[16];
+	_scratch = new double[16];
+
+	_elements[0] = copyFrom._elements[0];
+	_elements[1] = copyFrom._elements[1];
+	_elements[2] = copyFrom._elements[2];
+	_elements[3] = copyFrom._elements[3];
+
+	_elements[4] = copyFrom._elements[4];
+	_elements[5] = copyFrom._elements[5];
+	_elements[6] = copyFrom._elements[6];
+	_elements[7] = copyFrom._elements[7];
+
+	_elements[8] = copyFrom._elements[8];
+	_elements[9] = copyFrom._elements[9];
+	_elements[10] = copyFrom._elements[10];
+	_elements[11] = copyFrom._elements[11];
+
+	_elements[12] = copyFrom._elements[12];
+	_elements[13] = copyFrom._elements[13];
+	_elements[14] = copyFrom._elements[14];
+	_elements[15] = copyFrom._elements[15];
 }
 
-void snlMatrix_4X4::ident()
+snlMatrix_4X4& snlMatrix_4X4::operator = (snlMatrix_4X4& copyFrom)
 {
-    // Set matrix to identity
-    // ----------------------
+	_elements[0] = copyFrom._elements[0];
+	_elements[1] = copyFrom._elements[1];
+	_elements[2] = copyFrom._elements[2];
+	_elements[3] = copyFrom._elements[3];
 
-    for ( int index = 0; index < 16; index ++ )
-    {
-        element [ index ] = 0;
-    }
+	_elements[4] = copyFrom._elements[4];
+	_elements[5] = copyFrom._elements[5];
+	_elements[6] = copyFrom._elements[6];
+	_elements[7] = copyFrom._elements[7];
 
-    element [ 0 ] = 1.0;
-    element [ 5 ] = 1.0;
-    element [ 10 ] = 1.0;
-    element [ 15 ] = 1.0;
+	_elements[8] = copyFrom._elements[8];
+	_elements[9] = copyFrom._elements[9];
+	_elements[10] = copyFrom._elements[10];
+	_elements[11] = copyFrom._elements[11];
+
+	_elements[12] = copyFrom._elements[12];
+	_elements[13] = copyFrom._elements[13];
+	_elements[14] = copyFrom._elements[14];
+	_elements[15] = copyFrom._elements[15];
+
+	return *this;
 }
 
-void snlMatrix_4X4::multiply ( snlMatrix_4X4& multMatrix, bool pre )
+void snlMatrix_4X4::preMultiply(snlMatrix_4X4& multMatrix)
 {
-    // multiply this matrix by given matrix
-    // ------------------------------------
-    // multMatrix:      Matrix to multiply.
-    // pre:             If true then pre multiply.
+	double cVal;
 
-    double      cVal;
+	double* matrixA;
+	double* matrixB;
 
-    double*     multA;
-    double*     multB;
+	// Pre multiply, ie AB, and store in B.
+	matrixA = multMatrix._elements;
+	matrixB = _elements;
 
-    int         pIndex = 0;  // Primary Index.
-    int         pRow, sRow;
-    int         sIndex = 0;  // Scratch Index.
-    int         multAIndex;  // Multiplier A matrix index.
+	// The current index of the result being calculated. ie Index into the elements of B.
+	int resultIndex = 0;
 
-    // Multiply AB
-    if ( pre )
-    {
-        // Pre multiply.
-        multA = multMatrix.element;
-        multB = element;
-    }
-    else
-    {
-        // Post multiply.
-        multA = element;
-        multB = multMatrix.element;
-    }
+	// The current index into the B matrix.
+	int bIndex = 0;
 
-    // Zero scratch space
-    for ( int index = 0; index < 16; index ++ ) scratch [ index ] = 0.0;
+	// The current B column element values. These will be involved in four calculations each.
+	double bVal0;
+	double bVal1;
+	double bVal2;
+	double bVal3;
 
-    for ( int pCol = 0; pCol < 4; pCol ++ )
-    {
-        multAIndex = 0;
+	// Four passes to fill four columns. Each pass iterates over the entire A matrix, each element once.
+	for(int pass = 0; pass < 4; pass ++)
+	{
+		// Get an entire column of B at a time. This allows the elements of B to be replaced immediately.
+		bVal0 = matrixB[bIndex++];
+		bVal1 = matrixB[bIndex++];
+		bVal2 = matrixB[bIndex++];
+		bVal3 = matrixB[bIndex++];
 
-        for ( pRow = 0; pRow < 4; pRow ++ )
-        {
-            cVal = multB [ pIndex ++ ];
-
-            for ( sRow = 0; sRow < 4; sRow ++ )
-            {
-                scratch [ sIndex + sRow ] += cVal * multA [ multAIndex ++ ];
-            }
-        }
-
-        sIndex += 4;
-    }
-
-    // Swap scratch and element matrices.
-    multA = element;  // multA is simply used as a temp variable.
-    element = scratch;
-    scratch = multA;
+		// Calculate an entire column of the result. Store in B.
+		matrixB[resultIndex++] = matrixA[0] * bVal0 + matrixA[4] * bVal1 + matrixA[8] * bVal2 + matrixA[12] * bVal3;
+		matrixB[resultIndex++] = matrixA[1] * bVal0 + matrixA[5] * bVal1 + matrixA[9] * bVal2 + matrixA[13] * bVal3;
+		matrixB[resultIndex++] = matrixA[2] * bVal0 + matrixA[6] * bVal1 + matrixA[10] * bVal2 + matrixA[14] * bVal3;
+		matrixB[resultIndex++] = matrixA[3] * bVal0 + matrixA[7] * bVal1 + matrixA[11] * bVal2 + matrixA[15] * bVal3;
+	}
 }
 
-void snlMatrix_4X4::translateIdent ( double x, double y, double z )
+void snlMatrix_4X4::multiply(snlVector*, unsigned numVectors)
 {
-    // Setup matrix as translation identity
-    // ------------------------------------
+	for(let index = 0; index < numVectors; index++)
+	{
 
-    ident();
-
-    element [ 12 ] = x;
-    element [ 13 ] = y;
-    element [ 14 ] = z;
-}
-
-
-void snlMatrix_4X4::rotateXIdent ( double yy, double yz, double zy, double zz )
-{
-    // Create rotation identity for rotation about x axis
-    // --------------------------------------------------
-    // yy:      y coordinate scalar for new y.
-    // yz:      z coordinate scalar for new y.
-    // zy:      y coordinate scalar for new z.
-    // zz:      z coordinate scalar for new z.
-
-    ident();
-
-    element [ 5 ] = yy;
-    element [ 9 ] = yz;
-    element [ 6 ] = zy;
-    element [ 10 ] = zz;
-}
-
-void snlMatrix_4X4::rotateYIdent ( double xx, double xz, double zx, double zz )
-{
-    // Create rotation identity for rotation about y axis
-    // --------------------------------------------------
-    // xx:      x coordinate scalar for new x.
-    // xz:      z coordinate scalar for new x.
-    // zx:      x coordinate scalar for new z.
-    // zz:      z coordinate scalar for new z.
-
-    ident();
-
-    element [ 0 ] = xx;
-    element [ 8 ] = xz;
-    element [ 2 ] = zx;
-    element [ 10 ] = zz;
-}
-
-void snlMatrix_4X4::rotateZIdent ( double xx, double xy, double yx, double yy )
-{
-    // Create rotation identity for rotation about y axis
-    // --------------------------------------------------
-    // xx:      x coordinate scalar for new x.
-    // xy:      y coordinate scalar for new x.
-    // yx:      x coordinate scalar for new y.
-    // yy:      y coordinate scalar for new y.
-
-    ident();
-
-    element [ 0 ] = xx;
-    element [ 4 ] = xy;
-    element [ 1 ] = yx;
-    element [ 5 ] = yy;
-}
-
-void snlMatrix_4X4::scaleIdent ( double x, double y, double z )
-{
-    // Create scaling identity for scaling operation.
-    // ----------------------------------------------
-    // x, y, z:     Scaling factors.
-
-    ident();
-
-    element [ 0 ] = x;
-    element [ 5 ] = y;
-    element [ 10 ] = z;
-}
-
-double* snlMatrix_4X4::elements()
-{
-    return element;
+	}
+	// TODO
+	blah;
 }
 
 void snlMatrix_4X4::print()
 {
-    for ( int row = 0; row < 4; row ++ )
-    {
-        for ( int col = 0; col < 4; col ++ )
-        {
-            cout << element [ row + ( col * 4 ) ] << "  ";
-        }
+	for(int row = 0; row < 4; row ++)
+	{
+		for(int col = 0; col < 4; col ++)
+		{
+			cout << _elements [ row +(col * 4) ] << "  ";
+		}
 
-        cout << "\n";
-    }
+		cout << "\n";
+	}
 }
 

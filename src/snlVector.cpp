@@ -8,14 +8,6 @@ snlVector::snlVector()
 	elements[3] = 0.0;
 }
 
-snlVector::snlVector(const snlVector& copyFrom)
-{
-	elements[0] = copyFrom.elements[0];
-	elements[1] = copyFrom.elements[1];
-	elements[2] = copyFrom.elements[2];
-	elements[3] = copyFrom.elements[3];
-}
-
 snlVector::snlVector(double x, double y, double z, double w)
 {
 	elements[0] = x;
