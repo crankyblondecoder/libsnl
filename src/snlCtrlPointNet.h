@@ -1,135 +1,109 @@
-// libSNL - Simple Nurbs Library
-// Copyright Scott A.E. Lanham, Australia.
-// ---------------------------------------
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU Library General Public License for more details.
-//
-//  You should have received a copy of the GNU Library General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-
-// *** Control Point Network - Base Class ***
-
 #ifndef SNLCTRLPOINTNET_H
 #define SNLCTRLPOINTNET_H
 
 #include "snlCtrlPoint.h"
 #include "snlTransform.h"
 
-#ifdef SGI_MIPS
+#include <iostream>
+#include <cmath>
+using namespace std;
 
-    #include <iostream.h>
-    #include <math.h>
-    
-#else
-
-    #include <iostream>
-    #include <cmath>
-    
-    using namespace std;
-    
-#endif
-
+/**
+ * Control Point Network - Base Class.
+ */
 class snlCtrlPointNet
 {
-    // Abstract base class of all control point objects.
+	// Abstract base class of all control point objects.
 
-    public:
+	public:
 
-        snlCtrlPointNet();
-        virtual ~snlCtrlPointNet();
-        
-        snlCtrlPointNet ( const snlCtrlPointNet& );  // Copy constructor.
-    
-        virtual void transform ( unsigned ptIndex, snlTransform& transform );  // Transform a control point.
-        
-        virtual void transform ( snlTransform& transform );  // Transform all points.
+		snlCtrlPointNet();
+		virtual ~snlCtrlPointNet();
 
-        virtual void transformSelected ( snlTransform& transform );
+		snlCtrlPointNet(const snlCtrlPointNet&);  // Copy constructor.
 
-        // Get number of control points that object holds.
-        virtual unsigned getNumPts() const;
+		virtual void transform(unsigned ptIndex, snlTransform& transform);  // Transform a control point.
 
-        // Get pointer to array of control points.
-        virtual const snlCtrlPoint* getCtrlPts() const;
-        
-        // Get pointer to array of control points. Non constant return.
-        virtual snlCtrlPoint* getCtrlPtsPtr();
+		virtual void transform(snlTransform& transform);  // Transform all points.
 
-        // Return copy of control point.
-        snlCtrlPoint getPoint ( unsigned index );
+		virtual void transformSelected(snlTransform& transform);
 
-        // Return pointer to control point.
-        virtual const snlCtrlPoint* getPointPtr ( unsigned index );
+		// Get number of control points that object holds.
+		virtual unsigned getNumPts() const;
 
-        // Get transformed Z. Does not modify control points.
-        virtual double getTransfZ ( unsigned index, snlTransform& );
+		// Get pointer to array of control points.
+		virtual const snlCtrlPoint* getCtrlPts() const;
 
-        virtual double getMaxTransfZ ( snlTransform& );
+		// Get pointer to array of control points. Non constant return.
+		virtual snlCtrlPoint* getCtrlPtsPtr();
 
-        virtual double getMinTransfZ ( snlTransform& );
+		// Return copy of control point.
+		snlCtrlPoint getPoint(unsigned index);
 
-        virtual bool hasPointsSelected();
+		// Return pointer to control point.
+		virtual const snlCtrlPoint* getPointPtr(unsigned index);
 
-        virtual unsigned numPointsSelected();
+		// Get transformed Z. Does not modify control points.
+		virtual double getTransfZ(unsigned index, snlTransform&);
 
-        virtual unsigned* getSelectedIndexes();
-        
-        virtual void selectAllPoints ( bool yesNo = true ); 
+		virtual double getMaxTransfZ(snlTransform&);
 
-        void selectPoint ( unsigned index, bool yesNo = true );
+		virtual double getMinTransfZ(snlTransform&);
 
-        virtual bool isSelected ( unsigned index );
+		virtual bool hasPointsSelected();
 
-        virtual void clearSelected();
-        
-        static double calcFlatness ( snlPoint** points, unsigned size );
-        double calcDeg1Flatness ( snlPoint** points ) const;
-        
-        double calcCurvature ( snlPoint** points );
+		virtual unsigned numPointsSelected();
 
-        bool isConvex ( snlPoint** points, int numPts, double sensitivity = 0.0 );
-        
-        virtual void replacePoints ( snlCtrlPoint* newPoints );  // Replace control points with new ones.
-        virtual void replacePoints ( const snlCtrlPoint* newPoints, unsigned numNewPoints, unsigned replaceIndex,
-                                     unsigned numToReplace );
-        
-        virtual void appendPointSpace ( unsigned numPoints );  // Add space to end of array.
-        virtual void truncatePointSpace ( unsigned numPoints );  // Remove space from end of array.
-        
-        virtual void appendPoints ( const snlCtrlPoint* points, unsigned numPoints );
-        
-        void print();
-        void print ( unsigned fromIndex, unsigned toIndex );
-        
-        bool hasConcurrentPoints() const;
+		virtual unsigned* getSelectedIndexes();
 
-        // Operators
+		virtual void selectAllPoints(bool yesNo = true);
 
-        void operator += ( const snlCtrlPointNet& ctrlPointNet );
-        void operator -= ( const snlCtrlPointNet& ctrlPointNet );
+		void selectPoint(unsigned index, bool yesNo = true);
 
-        // *** Abstract Interface ***
+		virtual bool isSelected(unsigned index);
 
-        // Return list of connected control points.
-        virtual int getCnctPts ( unsigned index, snlCtrlPoint* retPts ) = 0;
+		virtual void clearSelected();
 
-        // Return maximum number of connections a single control point can have.
-        virtual int maxConnections() const = 0;        
+		static double calcFlatness(snlPoint** points, unsigned size);
+		double calcDeg1Flatness(snlPoint** points) const;
 
-    protected:
+		double calcCurvature(snlPoint** points);
 
-        virtual bool checkBounds ( unsigned index );  // Check index against array bounds.
-        
-        snlCtrlPoint*       ctrlPts;
-        unsigned            ctrlPtArraySize;
+		bool isConvex(snlPoint** points, int numPts, double sensitivity = 0.0);
+
+		virtual void replacePoints(snlCtrlPoint* newPoints);  // Replace control points with new ones.
+		virtual void replacePoints(const snlCtrlPoint* newPoints, unsigned numNewPoints, unsigned replaceIndex,
+			unsigned numToReplace);
+
+		virtual void appendPointSpace(unsigned numPoints);  // Add space to end of array.
+		virtual void truncatePointSpace(unsigned numPoints);  // Remove space from end of array.
+
+		virtual void appendPoints(const snlCtrlPoint* points, unsigned numPoints);
+
+		void print();
+		void print(unsigned fromIndex, unsigned toIndex);
+
+		bool hasConcurrentPoints() const;
+
+		// Operators
+
+		void operator +=(const snlCtrlPointNet& ctrlPointNet);
+		void operator -=(const snlCtrlPointNet& ctrlPointNet);
+
+		// *** Abstract Interface ***
+
+		// Return list of connected control points.
+		virtual int getCnctPts(unsigned index, snlCtrlPoint* retPts) = 0;
+
+		// Return maximum number of connections a single control point can have.
+		virtual int maxConnections() const = 0;
+
+	protected:
+
+		virtual bool checkBounds(unsigned index);  // Check index against array bounds.
+
+		snlCtrlPoint* ctrlPts;
+		unsigned ctrlPtArraySize;
 };
 
 #endif

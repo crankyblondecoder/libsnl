@@ -104,23 +104,22 @@ class snlVector
 		void projectYZ();
 
 		/** Return new vector that is this vector multiplied by a scalar. */
-		snlVector operator * (double);
+		snlVector operator * (double scalar);
+		/** Return new vector that is the cross product of the given vector and this vector. */
+		snlVector operator * (snlVector& vect);
 		/** Return new vector that is this vector plus another vector. */
 		snlVector operator + (snlVector& vect);
 		/** Return new vector that is this vector minus another vector. */
 		snlVector operator - (snlVector& vect);
 
 		/** Add a vector to this vector. */
-		void operator += (snlVector& vect);
+		snlVector& operator += (snlVector& vect);
 		/** Subract a vector from this vector. */
-		void operator -= (snlVector& vect);
+		snlVector& operator -= (snlVector& vect);
 		/** Multiply this vector by a scalar. */
-		void operator *= (double);
+		snlVector& operator *= (double);
 
 		bool operator == (snlVector& compare);
-
-		/** Assign another vector to this. Copies elements from the other vector. */
-		snlVector& operator = (snlVector& copyFrom);
 
 		/** Get the x coordinate. */
 		double x();
@@ -310,6 +309,18 @@ inline snlVector snlVector::operator * (double scalar)
 		elements[3] * scalar);
 }
 
+inline snlVector snlVector::operator * (snlVector& vect)
+{
+	// Duplicated from crossProduct function for speed.
+	// [this] cross [vect].
+
+	return snlVector(
+		(elements[1] * vect.elements[2]) - (elements[2] * vect.elements[1]),
+		(elements[2] * vect.elements[0]) - (elements[0] * vect.elements[2]),
+		(elements[0] * vect.elements[1]) - (elements[1] * vect.elements[0]),
+		0.0);
+}
+
 inline snlVector snlVector::operator + (snlVector& vect)
 {
 	return	snlVector(
@@ -328,28 +339,34 @@ inline snlVector snlVector::operator - (snlVector& vect)
 		elements[3] - vect.elements[3]);
 }
 
-inline void snlVector::operator += (snlVector& vect)
+inline snlVector& snlVector::operator += (snlVector& vect)
 {
 	elements[0] += vect.elements[0];
 	elements[1] += vect.elements[1];
 	elements[2] += vect.elements[2];
 	elements[3] += vect.elements[3];
+
+	return *this;
 }
 
-inline void snlVector::operator -= (snlVector& vect)
+inline snlVector&  snlVector::operator -= (snlVector& vect)
 {
 	elements[0] -= vect.elements[0];
 	elements[1] -= vect.elements[1];
 	elements[2] -= vect.elements[2];
 	elements[3] -= vect.elements[3];
+
+	return *this;
 }
 
-inline void snlVector::operator *= (double scalar)
+inline snlVector&  snlVector::operator *= (double scalar)
 {
 	elements[0] *= scalar;
 	elements[1] *= scalar;
 	elements[2] *= scalar;
 	elements[3] *= scalar;
+
+	return *this;
 }
 
 inline bool snlVector::operator == (snlVector& compare)
@@ -359,16 +376,6 @@ inline bool snlVector::operator == (snlVector& compare)
 		elements[1] == compare.elements[1] &&
 		elements[2] == compare.elements[2] &&
 		elements[3] == compare.elements[3];
-}
-
-inline snlVector& snlVector::operator = (snlVector& copyFrom)
-{
-	elements[0] == copyFrom.elements[0];
-	elements[1] == copyFrom.elements[1];
-	elements[2] == copyFrom.elements[2];
-	elements[3] == copyFrom.elements[3];
-
-	return *this;
 }
 
 #endif

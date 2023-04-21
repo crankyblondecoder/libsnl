@@ -4,7 +4,6 @@
 #include "snlVector.h"
 
 #include <iostream>
-#include <cmath>
 
 using namespace std;
 
@@ -13,15 +12,11 @@ class snlMatrix_4X4
 {
 	public:
 
-		virtual ~snlMatrix_4X4();
-
+		/** Constructs a new matrix that is set to identity. */
 		snlMatrix_4X4();
 
-		/** Copy constructor. */
-		snlMatrix_4X4(snlMatrix_4X4& copyFrom);
-
-		/** Assignment. Required because there are pointers to deal with. */
-		snlMatrix_4X4& operator = (snlMatrix_4X4& copyFrom);
+		/** Constructs a new matrix that is initialised to given elements. */
+		snlMatrix_4X4(double initialElements[16]);
 
 		/** Set matrix to identity. */
 		void ident();
@@ -66,27 +61,32 @@ class snlMatrix_4X4
 
 		/**
 		 * Pre-multiply the given matrix to this matrix and store result in this.
+		 * @note Pre-multiplication covers all standard use cases for 3D scene graphs. The higher transforms always accumulate
+		 *       by pre-multiplying as the graph is traversed.
 		 * @param multMatrix Matrix to multiply to this.
 		 */
 		void preMultiply(snlMatrix_4X4&);
 
 		/**
-		 * Multiply this matrix to one or more vectors. Storing the result in each vector.
+		 * Multiply this matrix to one vector. Storing the result in the vector.
+		 * This is the matrix multiplied by the vector treated as a column vector.
 		 */
-		void multiply(snlVector*, unsigned numVectors);
+		void multiply(snlVector& vector);
+
+		/**
+		 * Multiply this matrix to one or more vectors. Storing the result in each vector.
+		 * This is the matrix multiplied by the vector treated as a column vector.
+		 * @param vectors Pointer to first element in array of vectors to process.
+		 * @param numVectors Number of vectors of array to process.
+		 */
+		void multiply(snlVector* vectors, unsigned numVectors);
 
 		void print();  //!< Print matrice to standard out.
 
 	protected:
 
-		// NOTE: Data for matrix is done using pointers so _scratch and _elements can be swapped after calculations rather
-		//       then the overhead of a large copy operation.
-
 		/** Matrix elements in Column Major order (ie OpenGL Standard). */
-		double* _elements;
-
-		/** Scratch space for matrix multiplication etc. */
-		double* _scratch;
+		double _elements[16];
 };
 
 inline void snlMatrix_4X4::ident()

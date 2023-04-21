@@ -2,69 +2,15 @@
 
 snlMatrix_4X4::snlMatrix_4X4()
 {
+	ident();
 }
 
-snlMatrix_4X4::snlMatrix_4X4()
+snlMatrix_4X4::snlMatrix_4X4(double initialElements[16])
 {
-	_elements = new double[16];
-	_scratch = new double[16];
-}
+	for(int index = 0; index < 16; index++) {
 
-snlMatrix_4X4::~snlMatrix_4X4()
-{
-	delete[] _elements;
-	delete[] _scratch;
-}
-
-snlMatrix_4X4::snlMatrix_4X4(snlMatrix_4X4& copyFrom)
-{
-	_elements = new double[16];
-	_scratch = new double[16];
-
-	_elements[0] = copyFrom._elements[0];
-	_elements[1] = copyFrom._elements[1];
-	_elements[2] = copyFrom._elements[2];
-	_elements[3] = copyFrom._elements[3];
-
-	_elements[4] = copyFrom._elements[4];
-	_elements[5] = copyFrom._elements[5];
-	_elements[6] = copyFrom._elements[6];
-	_elements[7] = copyFrom._elements[7];
-
-	_elements[8] = copyFrom._elements[8];
-	_elements[9] = copyFrom._elements[9];
-	_elements[10] = copyFrom._elements[10];
-	_elements[11] = copyFrom._elements[11];
-
-	_elements[12] = copyFrom._elements[12];
-	_elements[13] = copyFrom._elements[13];
-	_elements[14] = copyFrom._elements[14];
-	_elements[15] = copyFrom._elements[15];
-}
-
-snlMatrix_4X4& snlMatrix_4X4::operator = (snlMatrix_4X4& copyFrom)
-{
-	_elements[0] = copyFrom._elements[0];
-	_elements[1] = copyFrom._elements[1];
-	_elements[2] = copyFrom._elements[2];
-	_elements[3] = copyFrom._elements[3];
-
-	_elements[4] = copyFrom._elements[4];
-	_elements[5] = copyFrom._elements[5];
-	_elements[6] = copyFrom._elements[6];
-	_elements[7] = copyFrom._elements[7];
-
-	_elements[8] = copyFrom._elements[8];
-	_elements[9] = copyFrom._elements[9];
-	_elements[10] = copyFrom._elements[10];
-	_elements[11] = copyFrom._elements[11];
-
-	_elements[12] = copyFrom._elements[12];
-	_elements[13] = copyFrom._elements[13];
-	_elements[14] = copyFrom._elements[14];
-	_elements[15] = copyFrom._elements[15];
-
-	return *this;
+		_elements[index] = initialElements[index];
+	}
 }
 
 void snlMatrix_4X4::preMultiply(snlMatrix_4X4& multMatrix)
@@ -100,6 +46,8 @@ void snlMatrix_4X4::preMultiply(snlMatrix_4X4& multMatrix)
 		bVal3 = matrixB[bIndex++];
 
 		// Calculate an entire column of the result. Store in B.
+		// Note: The column major ordering makes this quite simple because the result can be immediately stored directly
+		//       in this matrix.
 		matrixB[resultIndex++] = matrixA[0] * bVal0 + matrixA[4] * bVal1 + matrixA[8] * bVal2 + matrixA[12] * bVal3;
 		matrixB[resultIndex++] = matrixA[1] * bVal0 + matrixA[5] * bVal1 + matrixA[9] * bVal2 + matrixA[13] * bVal3;
 		matrixB[resultIndex++] = matrixA[2] * bVal0 + matrixA[6] * bVal1 + matrixA[10] * bVal2 + matrixA[14] * bVal3;
@@ -107,14 +55,59 @@ void snlMatrix_4X4::preMultiply(snlMatrix_4X4& multMatrix)
 	}
 }
 
-void snlMatrix_4X4::multiply(snlVector*, unsigned numVectors)
+void snlMatrix_4X4::multiply(snlVector& vector)
 {
-	for(let index = 0; index < numVectors; index++)
-	{
+	// Simply converts to array version.
+	multiply(&vector, 1);
+}
 
+void snlMatrix_4X4::multiply(snlVector* vectors, unsigned numVectors)
+{
+	// Cache of vector elements
+	double vElem0;
+	double vElem1;
+	double vElem2;
+	double vElem3;
+
+	// Matrix element index.
+	unsigned mElemIndex;
+
+	// Current vector elements
+	double* vElems;
+
+	for(unsigned vecIndex = 0; vecIndex < numVectors; vecIndex++)
+	{
+		vElems = vectors[vecIndex].elements;
+
+		// Vector elements are progressively written over so cache them ahead of time.
+		vElem0 = vElems[0];
+		vElem1 = vElems[1];
+		vElem2 = vElems[2];
+		vElem3 = vElems[3];
+
+		// Start at the beginning of the first matrix column.
+		mElemIndex = 0;
+
+		vElems[0] = _elements[mElemIndex++] * vElem0;
+		vElems[1] = _elements[mElemIndex++] * vElem0;
+		vElems[2] = _elements[mElemIndex++] * vElem0;
+		vElems[3] = _elements[mElemIndex++] * vElem0;
+
+		vElems[0] += _elements[mElemIndex++] * vElem1;
+		vElems[1] += _elements[mElemIndex++] * vElem1;
+		vElems[2] += _elements[mElemIndex++] * vElem1;
+		vElems[3] += _elements[mElemIndex++] * vElem1;
+
+		vElems[0] += _elements[mElemIndex++] * vElem2;
+		vElems[1] += _elements[mElemIndex++] * vElem2;
+		vElems[2] += _elements[mElemIndex++] * vElem2;
+		vElems[3] += _elements[mElemIndex++] * vElem2;
+
+		vElems[0] += _elements[mElemIndex++] * vElem3;
+		vElems[1] += _elements[mElemIndex++] * vElem3;
+		vElems[2] += _elements[mElemIndex++] * vElem3;
+		vElems[3] += _elements[mElemIndex++] * vElem3;
 	}
-	// TODO
-	blah;
 }
 
 void snlMatrix_4X4::print()

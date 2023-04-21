@@ -33,6 +33,12 @@ class snlPoint : public snlVector
 		 * Essentially moves point to origin in R³.
 		 */
 		void zeroInR3();
+
+		/** Return new Point that is this Point plus a Vector. */
+		snlPoint operator + (snlVector& vect);
+
+		/** Return new Point that is this Point minus a Vector. */
+		snlPoint operator - (snlVector& vect);
 };
 
 inline void snlPoint::multiplyWeight(double multiplier)
