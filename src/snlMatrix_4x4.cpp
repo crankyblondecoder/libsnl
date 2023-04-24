@@ -15,8 +15,6 @@ snlMatrix_4X4::snlMatrix_4X4(double initialElements[16])
 
 void snlMatrix_4X4::preMultiply(snlMatrix_4X4& multMatrix)
 {
-	double cVal;
-
 	double* matrixA;
 	double* matrixB;
 

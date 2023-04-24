@@ -10,14 +10,14 @@ snlPoint::snlPoint(double x, double y, double z, double w)
 {
 }
 
-snlPoint snlPoint::operator + (snlVector& vect)
+snlPoint snlPoint::operator + (const snlVector& vect) const
 {
 	snlPoint newPoint(*this);
 	newPoint += vect;
 	return newPoint;
 }
 
-snlPoint snlPoint::operator - (snlVector& vect)
+snlPoint snlPoint::operator - (const snlVector& vect) const
 {
 	snlPoint newPoint(*this);
 	newPoint -= vect;

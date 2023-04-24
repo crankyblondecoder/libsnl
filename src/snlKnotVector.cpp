@@ -1,20 +1,3 @@
-// libSNL - Simple Nurbs Library
-// Copyright 2003 Scott A.E. Lanham, Australia.
-// --------------------------------------------
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU Library General Public License for more details.
-//
-//  You should have received a copy of the GNU Library General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-
 #include "snlKnotVector.h"
 
 snlKnotVector::~snlKnotVector ()
@@ -48,7 +31,7 @@ snlKnotVector::snlKnotVector ( knot* knotArrayToUse, unsigned size, int degree, 
         knots = knotArrayToUse;
 
     vectorSize = size;
-    
+
     deg = degree;
 
     kvType = snlKnotVectorType;
@@ -56,7 +39,7 @@ snlKnotVector::snlKnotVector ( knot* knotArrayToUse, unsigned size, int degree, 
 
 snlKnotVector::snlKnotVector ( knot startVal, knot endVal, unsigned numKnots, int degree )
 {
-    
+
     //  Generate a new Knot Vector
     //  --------------------------
     //
@@ -67,12 +50,12 @@ snlKnotVector::snlKnotVector ( knot startVal, knot endVal, unsigned numKnots, in
     //
     //  Returns:    Constructor
     //
-    //  Notes:      Assumes clamped (open) vector.     
+    //  Notes:      Assumes clamped (open) vector.
 
     unsigned    index;
-    
+
     kvType = open;
-    
+
     deg = degree;
 
     // Calculate Spacing between knots.
@@ -114,25 +97,25 @@ snlKnotVector::snlKnotVector ( int size, int degree, knot* params )
     vectorSize = size + degree + 1;
 
     knots = new knot [ vectorSize ];
-    
+
     int index;
-    
+
     // Start clamp.
     for ( index = 0; index <= degree; index ++ )
         knots [ index ] = 0.0;
-    
+
     // End clamp.
     for ( index = size; index < (int) vectorSize; index ++ )
         knots [ index ] = 1.0;
-    
+
     // Internal knots.
     for ( index = 1; index < size - degree; index ++ )
     {
         knot sum = 0.0;
-        
+
         for ( int paramIndex = index; paramIndex < index + degree; paramIndex ++ )
-            sum += params [ paramIndex ];        
-        
+            sum += params [ paramIndex ];
+
         knots [ index + degree ] = sum / (double) degree;
     }
 }
@@ -178,13 +161,13 @@ snlKnotVector& snlKnotVector::operator= ( const snlKnotVector& knotVectToCopy )
 void snlKnotVector::copyFrom ( const snlKnotVector& vector )
 {
     vectorSize = vector.vectorSize;
-    
+
     knots = new knot [ vectorSize ];
-    
+
     deg = vector.deg;
 
     for ( unsigned index = 0; index < vectorSize; index ++ )
-        knots [ index ] = vector.knots [ index ];   
+        knots [ index ] = vector.knots [ index ];
 
     kvType = vector.type();
 }
@@ -255,19 +238,19 @@ void snlKnotVector::degree ( int val )
 {
     // Set degree of knot vector.
     // --------------------------
-    
+
     deg = val;
 }
 
 bool snlKnotVector::equals ( const snlKnotVector& knotVect ) const
 {
     if ( deg != knotVect.deg ) return false;
-    
+
     if ( vectorSize != knotVect.vectorSize ) return false;
-    
+
     for ( unsigned index = 0; index < vectorSize; index ++ )
         if ( knots [ index ] != knotVect.knots [ index ] ) return false;
-    
+
     return true;
 }
 
@@ -334,16 +317,16 @@ void snlKnotVector::grow ( unsigned bySize )
     // Increase size of knot vector array.
     // -----------------------------------
     // bySize:    Size to increase knot vector by.
-    
+
     knot* newKnots = new knot [ vectorSize + bySize ];
-    
+
     for ( unsigned index = 0; index < vectorSize; index ++ )
         newKnots [ index ] = knots [ index ];
-    
+
     delete[] knots;
-    
+
     knots = newKnots;
-    
+
     vectorSize += bySize;
 }
 
@@ -353,11 +336,11 @@ void snlKnotVector::increaseMultiplicity ( unsigned spanIndex, int numKnotsToAdd
     // ---------------------------------------
     // spanIndex:        Index of knot span to process.
     // numKnotsToAdd:    Number of knots to add at spanIndex.
-    
+
     unsigned        index;
 
     if ( ! knots ) return;
-    
+
     knot param = knots [ spanIndex ];
 
     knot* newKnots = new knot [ vectorSize + numKnotsToAdd ];
@@ -367,7 +350,7 @@ void snlKnotVector::increaseMultiplicity ( unsigned spanIndex, int numKnotsToAdd
         newKnots [ index ] = knots [ index ];
 
     // Add in new knots.
-    for ( index = spanIndex + 1; index <= spanIndex + numKnotsToAdd; index ++ )    
+    for ( index = spanIndex + 1; index <= spanIndex + numKnotsToAdd; index ++ )
         newKnots [ index ] = param;
 
     // Copy rest of old knots to new vector.
@@ -419,7 +402,7 @@ unsigned snlKnotVector::getNumSpans() const
 {
     // Return number of non-zero length spans
     // --------------------------------------
-    
+
     unsigned numSpans = 0;
 
     for ( unsigned index = 0; index < ( vectorSize - 1 ); index ++ )
@@ -462,7 +445,7 @@ unsigned snlKnotVector::getPreviousSpan ( unsigned spanIndex ) const
     // Get previous non-zero length span given current spanIndex.
     // ----------------------------------------------------------
     // Returns:     Previous non-zero length span index.
-    
+
     for ( unsigned index = spanIndex - 1; index >= 0; index -- )
     {
         if ( knots [ index + 1 ] > knots [ index ] ) return index;
@@ -509,18 +492,18 @@ int snlKnotVector::findMultiplicity ( knot param ) const
     // param:       Parameter to evaluate.
     //
     // Returns:     Number of knots found.
-    
+
     // Find span parameter belongs to.
     unsigned span = findSpan ( param );
-    
+
     // Find value of knot associated with span.
     knot spanKnotVal = val ( span );
-    
+
     // Return multiplicity.
-    if ( param == spanKnotVal )    
+    if ( param == spanKnotVal )
         return findMultiplicity ( span );
-    
-    return 0;        
+
+    return 0;
 }
 
 void snlKnotVector::truncate ( knot param, bool keepLast )
@@ -532,49 +515,49 @@ void snlKnotVector::truncate ( knot param, bool keepLast )
     //
     // Notes:    Truncates at last of knots valued at param.
     //           Assumes degree knots are present at param.
-    
-    unsigned start, end;    
-    
+
+    unsigned start, end;
+
     if ( keepLast )
     {
         start = findSpan ( param );
         start = getPreviousSpan ( start ) + 1;  // Go to start of knots if more than one at param.
-        end = vectorSize - 1;        
+        end = vectorSize - 1;
     }
     else
     {
         start = 0;
-        end = findSpan ( param );        
+        end = findSpan ( param );
     }
-    
+
     // Generate new knot vector and populate.
-    
+
     unsigned newSize = end - start + 2;  // Add one point for correct clamping.
-    
+
     knot* newKnots = new knot [ newSize ];
-    
+
     unsigned copyFrom = start;
-    
+
     if ( keepLast )
     {
         for ( unsigned index = 1; index < newSize; index ++, copyFrom ++ )
             newKnots [ index ] = knots [ copyFrom ];
-            
+
         newKnots [ 0 ] = param;
     }
     else
     {
         for ( unsigned index = 0; index < newSize - 1; index ++, copyFrom ++ )
             newKnots [ index ] = knots [ copyFrom ];
-        
+
         newKnots [ newSize - 1 ] = param;
-    }    
-        
+    }
+
     delete[] knots;
-    
+
     knots = newKnots;
-    
-    vectorSize = newSize;    
+
+    vectorSize = newSize;
 }
 
 void snlKnotVector::reparameterise ( knot startKnot, knot endKnot )
@@ -583,12 +566,12 @@ void snlKnotVector::reparameterise ( knot startKnot, knot endKnot )
     // -------------------------------------------------------------
     // startKnot:    Knot vectors new starting value.
     // endKnot:      Knot vectors new ending value.
-    
+
     double oldLength = knots [ vectorSize - 1 ] - knots [ 0 ];
     double newLength = endKnot - startKnot;
-    
+
     double oldStartKnot = knots [ 0 ];
-    
+
     for ( unsigned index = 0; index < vectorSize; index ++ )
         knots [ index ] = ( ( knots [ index ] - oldStartKnot ) / oldLength ) * newLength + startKnot;
 }
@@ -619,23 +602,23 @@ void snlKnotVector::join ( snlKnotVector* knotVector )
     // Notes:         Assumes end clamp of this and start clamp values of other knot vector
     //                are the same. This is _not_ just a join of arrays, it results in a properly
     //                formed knot vector.
-    
+
     if ( knotVector -> deg != deg ) return;
-    
+
     unsigned newSize = vectorSize + ( knotVector -> vectorSize ) - deg - 2;
-    
+
     unsigned oldSize = vectorSize;
-    
+
     grow ( newSize - vectorSize );
-    
-    // Copy new points into knot array.    
-    
+
+    // Copy new points into knot array.
+
     unsigned copyFromIndex = deg + 1;  // The appended vector loses deg + 1 knots from the start of it's array.
-    
+
     // This knot vector looses one knot at end of the array
-    
+
     for ( unsigned index = oldSize - 1; index < newSize; index ++ )
-        knots [ index ] = knotVector -> knots [ copyFromIndex ++ ];    
+        knots [ index ] = knotVector -> knots [ copyFromIndex ++ ];
 }
 
 basis* snlKnotVector::evalBasis ( knot param )
@@ -649,7 +632,7 @@ basis* snlKnotVector::evalBasis ( knot param )
     //
     // Notes:       The calling function owns the returned array and is responsible for
     //              deleting it using delete[]. The size of the array is always deg + 1.
-    
+
     basis* bVals = new basis [ deg + 1 ];
 
     if ( param == knots [ 0 ] && kvType == open )
@@ -675,7 +658,7 @@ basis* snlKnotVector::evalBasis ( knot param )
 
         return bVals;
     }
-    
+
     unsigned spanIndex = findSpan ( param );
 
     basis*      right = new basis [ deg + 1 ];
@@ -719,7 +702,7 @@ basis* snlKnotVector::evalBasisDeriv ( knot param, int deriv )
     // Returns:     Two dimensional array of basis and basis derivative values.
     //
     // Notes:       The calling function is responsible for deleting the returned array
-    //              using delete[]. The size of the array is [ deriv + 1 ] [ deg + 1 ].    
+    //              using delete[]. The size of the array is [ deriv + 1 ] [ deg + 1 ].
 
     basis*      right = new basis [ deg + 1 ];
     basis*      left = new basis [ deg + 1 ];
@@ -727,9 +710,9 @@ basis* snlKnotVector::evalBasisDeriv ( knot param, int deriv )
     basis*      derivSaved = new basis [ deriv ];
     unsigned    index, level;
     int         count;
-    
+
     basis* bVals = new basis [ ( deriv + 1 ) * ( deg + 1 ) ];
-    
+
     unsigned spanIndex = findSpan ( param );
 
     unsigned         overFlow;  // Just in case deriv is bigger than degree.
@@ -799,7 +782,7 @@ basis* snlKnotVector::evalBasisDeriv ( knot param, int deriv )
     delete[] left;
     delete[] right;
     delete[] derivSaved;
-    
+
     return bVals;
 }
 
@@ -810,15 +793,15 @@ double* snlKnotVector::calcRemovalAlphas ( unsigned span )
     // span:    Span of knot where removal is taking place.
     //
     // Returns:    Array of alphas. Must be deleted by caller.
-    
+
     // Find multiplicity of knot at index.
     unsigned multi = findMultiplicity ( span );
 
     // Calculate the number of equations.
     unsigned numEqns = deg - multi + 1;
-    
+
     knot rParam = val ( span );
-    
+
     double* alpha = new double [ numEqns ];
 
     unsigned count = 0;
@@ -828,7 +811,7 @@ double* snlKnotVector::calcRemovalAlphas ( unsigned span )
         alpha [ count ++ ]  = ( rParam - ( knots [ index ] ) )
                                 / ( knots [ index + deg + 1 ] - knots [ index ] );
     }
-    
+
     return alpha;
 }
 

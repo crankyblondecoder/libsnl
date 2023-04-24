@@ -22,6 +22,12 @@ class snlPoint : public snlVector
 		/** Multiply this points weight (w coordinate) by a multiplier. */
 		void multiplyWeight(double multiplier);
 
+		/** Calculate the distance squared between this and another point. */
+		double distSqrd(const snlPoint& point);
+
+		/** Calculate the distance between this and another point. */
+		double distance(const snlPoint& point);
+
 		/**
 		 * Project homogeneous point into R³.
 		 * ie Divide all coordinate, including w, by w.
@@ -35,10 +41,10 @@ class snlPoint : public snlVector
 		void zeroInR3();
 
 		/** Return new Point that is this Point plus a Vector. */
-		snlPoint operator + (snlVector& vect);
+		snlPoint operator + (const snlVector& vect) const;
 
 		/** Return new Point that is this Point minus a Vector. */
-		snlPoint operator - (snlVector& vect);
+		snlPoint operator - (const snlVector& vect) const;
 };
 
 inline void snlPoint::multiplyWeight(double multiplier)
@@ -47,6 +53,34 @@ inline void snlPoint::multiplyWeight(double multiplier)
 	elements[1] *= multiplier;
 	elements[2] *= multiplier;
 	elements[3] *= multiplier;
+}
+
+inline double snlPoint::distSqrd(const snlPoint& point)
+{
+	// This is a duplicate of combined vector operations but is necessary for speed.
+
+	double retVal = 0.0;
+	double scratch;
+
+	scratch = point.elements[0] - elements[0];
+	retVal += scratch * scratch;
+
+	scratch = point.elements[1] - elements[1];
+	retVal += scratch * scratch;
+
+	scratch = point.elements[2] - elements[2];
+	retVal += scratch * scratch;
+
+	scratch = point.elements[3] - elements[3];
+	retVal += scratch * scratch;
+
+	return retVal;
+}
+
+inline double snlPoint::distance(const snlPoint& point)
+{
+	double dSqrd = distSqrd(point);
+	return sqrt(dSqrd);
 }
 
 inline void snlPoint::project()

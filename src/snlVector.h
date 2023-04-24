@@ -24,6 +24,11 @@ class snlVector
 		snlVector(double x, double y, double z, double w);
 
 		/**
+		 * Copy the elements from another vector into this.
+		 */
+		void assign(const snlVector& copyFrom);
+
+		/**
 		 * Set the components of this as the vector which if added to the first vector gives the second vector.
 		 * @param vec1 The first vector.
 		 * @param vec2 The second vector.
@@ -104,20 +109,22 @@ class snlVector
 		void projectYZ();
 
 		/** Return new vector that is this vector multiplied by a scalar. */
-		snlVector operator * (double scalar);
+		snlVector operator * (double scalar) const;
 		/** Return new vector that is the cross product of the given vector and this vector. */
-		snlVector operator * (snlVector& vect);
+		snlVector operator * (const snlVector& vect) const;
 		/** Return new vector that is this vector plus another vector. */
-		snlVector operator + (snlVector& vect);
+		snlVector operator + (const snlVector& vect) const;
 		/** Return new vector that is this vector minus another vector. */
-		snlVector operator - (snlVector& vect);
+		snlVector operator - (const snlVector& vect) const;
 
 		/** Add a vector to this vector. */
-		snlVector& operator += (snlVector& vect);
+		snlVector& operator += (const snlVector& vect);
 		/** Subract a vector from this vector. */
-		snlVector& operator -= (snlVector& vect);
+		snlVector& operator -= (const snlVector& vect);
 		/** Multiply this vector by a scalar. */
 		snlVector& operator *= (double);
+		/** Divide this vector by a scalar. */
+		snlVector& operator /= (double);
 
 		bool operator == (snlVector& compare);
 
@@ -155,6 +162,16 @@ class snlVector
 		/** Get whether this vector is the zero vector. */
 		bool isZero();
 
+		/**
+		 * Multply the addend by a scalar, without modifying it, then add to this vector.
+		 */
+		void multAdd(double scalar, const snlVector& addend);
+
+		/**
+		 * Multply the Subtrahend by a scalar, without modifying it, then subtract from this vector.
+		 */
+		void multSub(double scalar, const snlVector& Subtrahend);
+
 		void print();
 
 		double elements[4];
@@ -162,6 +179,14 @@ class snlVector
 
 // Inline Functions
 // ----------------
+
+inline void snlVector::assign(const snlVector& copyFrom)
+{
+	elements[0] = copyFrom.elements[0];
+	elements[1] = copyFrom.elements[1];
+	elements[2] = copyFrom.elements[2];
+	elements[3] = copyFrom.elements[3];
+}
 
 inline void snlVector::diff(const snlVector& v1, const snlVector& v2)
 {
@@ -300,7 +325,7 @@ inline bool snlVector::isZero()
 	);
 }
 
-inline snlVector snlVector::operator * (double scalar)
+inline snlVector snlVector::operator * (double scalar) const
 {
 	return snlVector(
 		elements[0] * scalar,
@@ -309,7 +334,7 @@ inline snlVector snlVector::operator * (double scalar)
 		elements[3] * scalar);
 }
 
-inline snlVector snlVector::operator * (snlVector& vect)
+inline snlVector snlVector::operator * (const snlVector& vect) const
 {
 	// Duplicated from crossProduct function for speed.
 	// [this] cross [vect].
@@ -321,7 +346,7 @@ inline snlVector snlVector::operator * (snlVector& vect)
 		0.0);
 }
 
-inline snlVector snlVector::operator + (snlVector& vect)
+inline snlVector snlVector::operator + (const snlVector& vect) const
 {
 	return	snlVector(
 		elements[0] + vect.elements[0],
@@ -330,7 +355,7 @@ inline snlVector snlVector::operator + (snlVector& vect)
 		elements[3] + vect.elements[3]);
 }
 
-inline snlVector snlVector::operator - (snlVector& vect)
+inline snlVector snlVector::operator - (const snlVector& vect) const
 {
 	return	snlVector(
 		elements[0] - vect.elements[0],
@@ -339,7 +364,7 @@ inline snlVector snlVector::operator - (snlVector& vect)
 		elements[3] - vect.elements[3]);
 }
 
-inline snlVector& snlVector::operator += (snlVector& vect)
+inline snlVector& snlVector::operator += (const snlVector& vect)
 {
 	elements[0] += vect.elements[0];
 	elements[1] += vect.elements[1];
@@ -349,7 +374,7 @@ inline snlVector& snlVector::operator += (snlVector& vect)
 	return *this;
 }
 
-inline snlVector&  snlVector::operator -= (snlVector& vect)
+inline snlVector&  snlVector::operator -= (const snlVector& vect)
 {
 	elements[0] -= vect.elements[0];
 	elements[1] -= vect.elements[1];
@@ -369,6 +394,16 @@ inline snlVector&  snlVector::operator *= (double scalar)
 	return *this;
 }
 
+inline snlVector&  snlVector::operator /= (double scalar)
+{
+	elements[0] /= scalar;
+	elements[1] /= scalar;
+	elements[2] /= scalar;
+	elements[3] /= scalar;
+
+	return *this;
+}
+
 inline bool snlVector::operator == (snlVector& compare)
 {
 	return
@@ -376,6 +411,22 @@ inline bool snlVector::operator == (snlVector& compare)
 		elements[1] == compare.elements[1] &&
 		elements[2] == compare.elements[2] &&
 		elements[3] == compare.elements[3];
+}
+
+inline void snlVector::multAdd(double scalar, const snlVector& addend)
+{
+	elements[0] += scalar * addend.elements[0];
+	elements[1] += scalar * addend.elements[1];
+	elements[2] += scalar * addend.elements[2];
+	elements[3] += scalar * addend.elements[3];
+}
+
+inline void snlVector::multSub(double scalar, const snlVector& Subtrahend)
+{
+	elements[0] -= scalar * Subtrahend.elements[0];
+	elements[1] -= scalar * Subtrahend.elements[1];
+	elements[2] -= scalar * Subtrahend.elements[2];
+	elements[3] -= scalar * Subtrahend.elements[3];
 }
 
 #endif

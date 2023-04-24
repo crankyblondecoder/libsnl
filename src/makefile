@@ -15,7 +15,8 @@ objFiles := snlCircularOffsetCurve.o \
 
 libName = libSNL.so.0.2
 
-export cflags = -Wall -fPIC -g 
+export cflags = -Wall -fPIC
+export debugFlags = -g
 export cname = g++
 
 CXXFLAGS := $(cflags)
@@ -25,7 +26,7 @@ libSNL:     $(objFiles)
 	@       echo
 	@       echo "*** Building Shared Library ***"
 	@       echo
-	        $(cname) $(cflags) -shared -o $(libName) $(objFiles)
+	        $(cname) $(cflags) $(debugFlags) -shared -o $(libName) $(objFiles)
 
 include                 make.dep
 
@@ -48,3 +49,8 @@ clean:
 test:       snlTest.cpp
 	        $(cname) $(cflags) snlTest.cpp -o snlTest $(objFiles)
 
+release:    $(objFiles)
+	@       echo
+	@       echo "*** Building Shared Library - Release ***"
+	@       echo
+	        $(cname) $(cflags) -shared -o $(libName) $(objFiles)

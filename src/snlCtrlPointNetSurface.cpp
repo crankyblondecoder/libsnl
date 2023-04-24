@@ -317,8 +317,7 @@ double snlCtrlPointNetSurface::calcFlatness(int indexU, int indexV, int numPoint
 	snlVector ad = ptD - ptA;
 
 	// Normals to planes.
-	TODO check the maths;
-	snlVector normA = (ac * ab);
+	snlVector normA = ac * ab;
 	normA.normalise();
 	snlVector normB = ba * bd;
 	normB.normalise();
@@ -346,7 +345,7 @@ double snlCtrlPointNetSurface::calcFlatness(int indexU, int indexV, int numPoint
 
 		// Project point to and compare to triangle rooted at A.
 
-		snlVector toProj(ptA, t);
+		snlVector toProj =  t - ptA;
 
 		snlVector projVect = toProj.project(normA);
 

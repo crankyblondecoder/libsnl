@@ -1,15 +1,3 @@
-// Copyright 2005 Scott A.E. Lanham, Australia.
-// --------------------------------------------
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Library General Public License for more details.
-
 // *** Dynamically Allocated Paged Array ***
 
 #ifndef DYNAMICARRAY_H
@@ -48,7 +36,7 @@ template < class T > class dynamicArray
     private:
 
         int     page_size;
-        
+
         T**     array_pages;
 
         int     num_pages;
@@ -136,15 +124,15 @@ template < class T > void dynamicArray<T>::copyFrom ( const dynamicArray<T>& arr
     else
     {
         array_pages = new T* [ num_pages ];
-    
+
         for ( int page = 0; page < num_pages; page ++ )
         {
             T* pageToCopy = arrayToCopy.array_pages [ page ];
-    
+
             T* newPage = new T [ page_size ];
-    
+
             array_pages [ page ] = newPage;
-            
+
             for ( int index = 0; index < page_size; index ++ )
                 newPage [ index ] = pageToCopy [ index ];
         }
@@ -173,7 +161,7 @@ template < class T > T* dynamicArray<T>::copyOfElements()
     for ( int page = 0; page < num_pages; page ++ )
     {
         T* currentPage = array_pages [ page ];
-        
+
         for ( int index = 0; index < page_size; index ++ )
             retArray [ retArrayIndex ++ ] = currentPage [ index ];
     }
@@ -223,7 +211,7 @@ template < class T > void dynamicArray<T>::grow ( int bySize )
 
         delete[] array_pages;
     }
-    
+
     // Populate pages array with new pages.
 
     for ( int pageIndex = 0; pageIndex < growNumPages; pageIndex ++ )
@@ -233,7 +221,7 @@ template < class T > void dynamicArray<T>::grow ( int bySize )
     }
 
     array_pages = newPageArray;
-    
+
     num_pages += growNumPages;
 
     array_size = num_pages * page_size;
