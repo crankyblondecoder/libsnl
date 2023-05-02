@@ -1,25 +1,15 @@
 // *** Test program for libSNL ***
 
-#ifdef SGI_MIPS
+#include <iostream>
+#include <cmath>
 
-	#include <iostream.h>
-	#include <math.h>
+using namespace std;
 
-#else
-
-	#include <iostream>
-	#include <cmath>
-
-	using namespace std;
-
-#endif
-
-#include "snlSquareLinear.h"
-#include "snlCurve.h"
-#include "snlSurface.h"
-#include "snlCtrlPoint.h"
-#include "snlVector.h"
-
+#include "../snlSquareLinear.h"
+#include "../snlCurve.h"
+#include "../snlSurface.h"
+#include "../snlCtrlPoint.h"
+#include "../snlVector.h"
 
 snlCurve* generateCurve()
 {

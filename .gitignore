@@ -1,3 +1,4 @@
 libSNL.so.*
 make.dep
 *.[oa]
+*.dep
