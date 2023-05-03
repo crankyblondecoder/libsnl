@@ -1,55 +1,16 @@
-# libSNL Root Makefile
-# --------------------
+# libSNL Source Directory Debug Makefile
+# -------------------------------------
 
-export objFiles := snlCircularOffsetCurve.o \
-       snlCtrlPoint.o snlCtrlPointNet.o snlCtrlPointNetCurve.o snlCtrlPointNetSurface.o snlCurve.o \
-       snlKnotVector.o \
-       snlMatrix_4x4.o snlMeshable.o \
-       snlNurbsCommon.o \
-       snlPoint.o \
-       snlSquareLinear.o snlSurface.o snlSurface_pointLoop.o \
-       snlSurface_projection.o snlSurfaceOfRevolution.o \
-       snlTransform.o snlTriangleMesh.o \
-       snlUtil.o \
-       snlVector.o snlVertex.o snlVertexNet.o
+# Tell make to search other paths. Separate multiple with ":"
+VPATH = ../../src/
 
-libName = libSNL.so.0.2
+libName = ../libSNL.so.0.2
 
-export cflags = -Wall -fPIC -g
-export cname = g++
+cname = g++
+cflags = -Wall -fPIC -O3
 
 CXX = $(cname)
 CXXFLAGS = $(cflags)
-
-.PHONY : debug
-debug : $(objFiles)
-	@echo
-	@echo "*** Building - Debug ***"
-	@echo
-	$(cname) $(cflags) -shared -o $(libName) $(objFiles)
-
-# GNU Make will automatically update this based on the make.dep target.
-include make.dep
-
-.PHONY : dep
-dep : make.dep
-
-make.dep : $(objFiles:.o=.h) $(extraIncl)
-	@echo
-	@echo "*** Building Dependencies ***"
-	@echo
-	$(cname) -MM $(objFiles:.o=.cpp) > make.dep
-	@echo
-	@echo "*** Dependencies Built Okay ***"
-	@echo
-
-.PHONY : clean
-clean :
-	rm $(objFiles) make.dep $(libName) snlTest
-
-.PHONY : test
-test :
-	$(MAKE) -C test test
 
 .PHONY : release
 release : $(objFiles)
@@ -57,3 +18,15 @@ release : $(objFiles)
 	@echo "*** Building - Release ***"
 	@echo
 	$(cname) $(cflags) -shared -o $(libName) $(objFiles)
+
+# GNU Make will automatically update included files.
+ifneq ($(MAKECMDGOALS),clean)
+    include $(objFiles:.o=.dep)
+endif
+
+%.dep : %.cpp %.h
+	$(cname) -MM $< > $@
+
+.PHONY : clean
+clean :
+	rm *.o *.dep $(libName)

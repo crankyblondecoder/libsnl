@@ -24,7 +24,6 @@ ifneq ($(MAKECMDGOALS),clean)
     include $(objFiles:.o=.dep)
 endif
 
-
 %.dep : %.cpp %.h
 	$(cname) -MM $< > $@
 

@@ -19,9 +19,9 @@ debug :
 
 .PHONY : clean
 clean :
-	$(MAKE) -C debug clean
-	$(MAKE) -C test clean
-	$(MAKE) -C release clean
+	- $(MAKE) -C debug clean
+	- $(MAKE) -C test clean
+	- $(MAKE) -C release clean
 
 .PHONY : test
 test : debug
