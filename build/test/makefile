@@ -1,7 +1,10 @@
 # libSNL Test Directory Makefile
 # ------------------------------
 
-mainObjFiles = $(addprefix ../, $(objFiles))
+VPATH = ../../src/
+
+cname = g++
+cflags = -Wall -fPIC -g
 
 CXX = $(cname)
 CXXFLAGS = $(cflags)
