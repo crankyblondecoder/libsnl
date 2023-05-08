@@ -135,8 +135,9 @@ double snlCtrlPointNet::getMaxTransfZ(snlTransform& trans)
 	// Return maximum value of z element of control points after transformation.
 	// -------------------------------------------------------------------------
 
-	unsigned        index;
-	double          maxZ, transfZ;
+	unsigned index;
+	double maxZ = 0;
+	double transfZ;
 
 	for(index = 0; index < ctrlPtArraySize; index ++)
 	{
@@ -154,8 +155,9 @@ double snlCtrlPointNet::getMinTransfZ(snlTransform& trans)
 	// Return minimum value of z element of control points after transformation.
 	// -------------------------------------------------------------------------
 
-	unsigned        index;
-	double          minZ, transfZ;
+	unsigned index;
+	double minZ = 0;
+	double transfZ;
 
 	for(index = 0; index < ctrlPtArraySize; index ++)
 	{

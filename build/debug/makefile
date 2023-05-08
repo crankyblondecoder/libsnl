@@ -4,8 +4,6 @@
 # Tell make to search other paths. Separate multiple with ":"
 VPATH = ../../src/
 
-libName = ../libSNL_debug.so.0.2
-
 cname = g++
 cflags = -Wall -fPIC -g
 
@@ -17,7 +15,9 @@ debug : $(objFiles)
 	@echo
 	@echo "*** Building - Debug ***"
 	@echo
-	$(cname) $(cflags) -shared -o $(libName) $(objFiles)
+	$(cname) $(cflags) -shared -o ../$(debugLibName) $(objFiles)
+	@echo
+	@echo
 
 # GNU Make will automatically update included files.
 ifneq ($(MAKECMDGOALS),clean)
@@ -29,4 +29,4 @@ endif
 
 .PHONY : clean
 clean :
-	rm *.o *.dep $(libName)
+	rm *.o *.dep

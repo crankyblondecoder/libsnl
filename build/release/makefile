@@ -4,8 +4,6 @@
 # Tell make to search other paths. Separate multiple with ":"
 VPATH = ../../src/
 
-libName = ../libSNL.so.0.2
-
 cname = g++
 cflags = -Wall -fPIC -O3
 
@@ -17,7 +15,9 @@ release : $(objFiles)
 	@echo
 	@echo "*** Building - Release ***"
 	@echo
-	$(cname) $(cflags) -shared -o $(libName) $(objFiles)
+	$(cname) $(cflags) -shared -o ../$(releaseLibName) $(objFiles)
+	@echo
+	@echo
 
 # GNU Make will automatically update included files.
 ifneq ($(MAKECMDGOALS),clean)

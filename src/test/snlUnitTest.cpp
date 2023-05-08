@@ -15,10 +15,11 @@ snlUnitTest::snlUnitTest(const char* unitTestName) : _name{unitTestName}, _resul
 
 bool snlUnitTest::run()
 {
-	cout << _indentTabs << "Running:" << _name << "\n";
+	cout << _indentTabs << "Running: " << _name << "\n";
 
 	// Run main tests first.
 	runTests();
+
 	// Post test run hook.
 	postRunTests();
 

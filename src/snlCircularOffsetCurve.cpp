@@ -88,17 +88,17 @@ snlCircularOffsetCurve::snlCircularOffsetCurve(snlCurve* baseCurve, snlPoint* ax
 	snlCtrlPoint* ctrlPts = chord_offsetCurve -> controlPointNet().getCtrlPtsPtr();
 
 	for(int index = 0; index < arraySize; index ++)
-		ctrlPts [ index ].zeroInR3();
+		ctrlPts[index].zeroInR3();
 
 	ctrlPts = angle_offsetCurve -> controlPointNet().getCtrlPtsPtr();
 
 	for(int index = 0; index < arraySize; index ++)
-		ctrlPts [ index ].zeroInR3();
+		ctrlPts[index].zeroInR3();
 
 	ctrlPts = tangent_offsetCurve -> controlPointNet().getCtrlPtsPtr();
 
 	for(int index = 0; index < arraySize; index ++)
-		ctrlPts [ index ].zeroInR3();
+		ctrlPts[index].zeroInR3();
 }
 
 void snlCircularOffsetCurve::refine(double tolerance)
@@ -116,12 +116,12 @@ void snlCircularOffsetCurve::refine(double tolerance)
 
 	int numTestPts = deg + 1;
 
-	snlPoint* testPoints = new snlPoint [ numTestPts ];
+	snlPoint* testPoints = new snlPoint[numTestPts];
 
-	snlPoint** testPtPtrs = new snlPoint* [ numTestPts ];
+	snlPoint** testPtPtrs = new snlPoint*[numTestPts];
 
 	for(int index = 0; index < numTestPts; index ++)
-		testPtPtrs [ index ] = testPoints + index;
+		testPtPtrs[index] = testPoints + index;
 
 	while(! tolOk)
 	{
@@ -139,11 +139,11 @@ void snlCircularOffsetCurve::refine(double tolerance)
 
 			for(int ptIndex = 0; ptIndex < numTestPts; ptIndex ++)
 			{
-				testPoints [ ptIndex ] = basePts [ index + ptIndex ];
-				applyOffset(testPoints [ ptIndex ],
-							  chordOffsetPts [ index + ptIndex ],
-							  angleOffsetPts [ index + ptIndex ],
-							  tangentOffsetPts [ index + ptIndex ]);
+				testPoints[ptIndex] = basePts[index + ptIndex];
+				applyOffset(testPoints[ptIndex],
+							  chordOffsetPts[index + ptIndex],
+							  angleOffsetPts[index + ptIndex],
+							  tangentOffsetPts[index + ptIndex]);
 			}
 
 			// Test for flatness
@@ -158,7 +158,7 @@ void snlCircularOffsetCurve::refine(double tolerance)
 
 				int insertIndex = index + deg;
 
-				knot insertParam =(( knotVect.val(insertIndex + 1)
+				knot insertParam =((knotVect.val(insertIndex + 1)
 									   - knotVect.val(insertIndex)) / 2)
 									   + knotVect.val(insertIndex);
 
@@ -243,7 +243,7 @@ void snlCircularOffsetCurve::generateOffsets(int type, double startOffset, doubl
 
 	double offsetStep =(endOffset - startOffset) / (double)(arraySize - 1);
 
-	snlCtrlPoint* ctrlPts;
+	snlCtrlPoint* ctrlPts = 0;
 
 	switch(type)
 	{
@@ -260,10 +260,13 @@ void snlCircularOffsetCurve::generateOffsets(int type, double startOffset, doubl
 			break;
 	}
 
-	for(int index = 0; index < arraySize; index ++)
+	if(ctrlPts)
 	{
-		ctrlPts [ index ].x(startOffset + (double) index * offsetStep);
-		ctrlPts [ index ].w(1.0);
+		for(int index = 0; index < arraySize; index ++)
+		{
+			ctrlPts[index].x(startOffset + (double) index * offsetStep);
+			ctrlPts[index].w(1.0);
+		}
 	}
 }
 
@@ -273,22 +276,22 @@ void snlCircularOffsetCurve::offset(int index, int type, double val, double weig
 	{
 		case CHORD:
 
-			( chord_offsetCurve -> controlPointNet().getCtrlPtsPtr()) [ index ].x(val);
-			( chord_offsetCurve -> controlPointNet().getCtrlPtsPtr()) [ index ].weight(weight);
+			(chord_offsetCurve -> controlPointNet().getCtrlPtsPtr())[index].x(val);
+			(chord_offsetCurve -> controlPointNet().getCtrlPtsPtr())[index].weight(weight);
 
 			break;
 
 		case ANGLE:
 
-			( angle_offsetCurve -> controlPointNet().getCtrlPtsPtr()) [ index ].x(val);
-			( angle_offsetCurve -> controlPointNet().getCtrlPtsPtr()) [ index ].weight(weight);
+			(angle_offsetCurve -> controlPointNet().getCtrlPtsPtr())[index].x(val);
+			(angle_offsetCurve -> controlPointNet().getCtrlPtsPtr())[index].weight(weight);
 
 			break;
 
 		case TANGENT:
 
-			( tangent_offsetCurve -> controlPointNet().getCtrlPtsPtr()) [ index ].x(val);
-			( tangent_offsetCurve -> controlPointNet().getCtrlPtsPtr()) [ index ].weight(weight);
+			(tangent_offsetCurve -> controlPointNet().getCtrlPtsPtr())[index].x(val);
+			(tangent_offsetCurve -> controlPointNet().getCtrlPtsPtr())[index].weight(weight);
 
 			break;
 	}
@@ -306,19 +309,19 @@ double snlCircularOffsetCurve::offset(int index, int type)
 		case CHORD:
 
 			ctrlPts =(chord_offsetCurve -> controlPointNet().getCtrlPtsPtr());
-			return ctrlPts [ index ].x() / ctrlPts [ index ].w();
+			return ctrlPts[index].x() / ctrlPts[index].w();
 			break;
 
 		case ANGLE:
 
 			ctrlPts =(angle_offsetCurve -> controlPointNet().getCtrlPtsPtr());
-			return ctrlPts [ index ].x() / ctrlPts [ index ].w();
+			return ctrlPts[index].x() / ctrlPts[index].w();
 			break;
 
 		case TANGENT:
 
 			ctrlPts =(tangent_offsetCurve -> controlPointNet().getCtrlPtsPtr());
-			return ctrlPts [ index ].x() / ctrlPts [ index ].w();
+			return ctrlPts[index].x() / ctrlPts[index].w();
 			break;
 	}
 
@@ -354,7 +357,7 @@ void snlCircularOffsetCurve::vertexNet(snlVertexNet* vNet, double tolerance, boo
 	{
 		tmpCurve = new snlCircularOffsetCurve(*this);
 		tmpCurve -> refine(tolerance);
-		ctrlPtNet = new snlCtrlPointNetCurve(( tmpCurve -> base_curve) -> controlPointNet());
+		ctrlPtNet = new snlCtrlPointNetCurve((tmpCurve -> base_curve) -> controlPointNet());
 		size = ctrlPtNet -> getNumPts();
 
 		chordOffsetPts =(tmpCurve -> chord_offsetCurve) -> controlPointNet().getCtrlPts();
@@ -376,7 +379,7 @@ void snlCircularOffsetCurve::vertexNet(snlVertexNet* vNet, double tolerance, boo
 	// Offset base curve control points.
 
 	for(int index = 0; index < size; index ++)
-		applyOffset(ctrlPts [ index ], chordOffsetPts [ index ], angleOffsetPts [ index ], tangentOffsetPts [ index ]);
+		applyOffset(ctrlPts[index], chordOffsetPts[index], angleOffsetPts[index], tangentOffsetPts[index]);
 
 	// Generate vertex net.
 
@@ -394,7 +397,7 @@ void snlCircularOffsetCurve::vertexNetParam(snlVertexNet* vNet, double tolerance
 	// vNet:         Vertex network to fill with data.
 	// tolerance:    Maximum error to curve.
 
-	int              size;
+	int size = 0;
 
 	snlPoint* pts = 0;
 
@@ -402,7 +405,7 @@ void snlCircularOffsetCurve::vertexNetParam(snlVertexNet* vNet, double tolerance
 	{
 		size = base_curve -> controlPointNet().size();
 
-		pts = new snlPoint [ size ];
+		pts = new snlPoint[size];
 
 		double minParam = base_curve -> minParam();
 
@@ -411,16 +414,16 @@ void snlCircularOffsetCurve::vertexNetParam(snlVertexNet* vNet, double tolerance
 		for(int index = 0; index < size; index ++)
 		{
 			double param = minParam + paramStep * (double) index;
-			pts [ index ] = base_curve -> eval(param);
+			pts[index] = base_curve -> eval(param);
 
-			applyOffset(pts [ index ],
-						  chord_offsetCurve -> eval(param),
-						  angle_offsetCurve -> eval(param),
-						  tangent_offsetCurve -> eval(param));
+			applyOffset(pts[index],
+				chord_offsetCurve -> eval(param),
+				angle_offsetCurve -> eval(param),
+				tangent_offsetCurve -> eval(param));
 		}
 	}
 
-	vNet -> vertexNet(pts, size);
+	if(size > 0) vNet -> vertexNet(pts, size);
 
 	if(pts) delete[] pts;
 }

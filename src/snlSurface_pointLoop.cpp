@@ -210,7 +210,7 @@ void snlSurface::fitPlane(snlPoint* points, int numPoints)
 	// Using first point in array as base find point furtherest from that point.
 
 	double distToEndPoint = 0.0;  // Largest distance found.
-	int baseLineEndIndex;
+	int baseLineEndIndex = 0;
 
 	for(int index = 1; index < numPoints; index ++)
 	{
@@ -441,7 +441,9 @@ void snlSurface::fitCone(snlPoint* points, int numPoints, snlPoint* axisStart, s
 
 	bool intersectsAxis = false;  // Only true if point loop intersects axis.
 
-	double lastAbsAngle, curAbsAngle;  // Absolute angles as based from first given point.
+	// Absolute angles as based from first given point.
+	double lastAbsAngle = 0;
+	double curAbsAngle = 0;
 
 	bool circleSect[16];  // Circle is divided into 16 sections. True if section is used.
 
@@ -586,7 +588,7 @@ void snlSurface::fitCone(snlPoint* points, int numPoints, snlPoint* axisStart, s
 		// Find largest gap.
 
 		int startGap = -1;
-		int endGap;
+		int endGap = 0;
 		double gapAngle = 0.0;
 		double maxGap = 0.0;
 

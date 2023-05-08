@@ -2976,11 +2976,12 @@ snlCurve* snlSurface::extractEdge(int edge)
 	//! Extract surface edge as curve.
 	//  ------------------------------
 	//! @param edge enum surfaceEdges value that indicates which edge to return.
+	//! @returns Curve if could be generated. Null otherwise.
 
 	snlCtrlPoint** ctrlPtPtrs;
 	snlKnotVector* knotVect;
 
-	int size;
+	int size = 0;
 
 	switch(edge)
 	{
@@ -3021,18 +3022,21 @@ snlCurve* snlSurface::extractEdge(int edge)
 			break;
 	};
 
-	// Generate new control point array.
+	if(size > 0)
+	{
+		// Generate new control point array.
+		snlCtrlPoint* ctrlPts = new snlCtrlPoint[size];
 
-	snlCtrlPoint* ctrlPts = new snlCtrlPoint[size];
+		for(int index = 0; index < size; index ++)
+			ctrlPts[index] = * ctrlPtPtrs[index];
 
-	for(int index = 0; index < size; index ++)
-		ctrlPts[index] = * ctrlPtPtrs[index];
+		delete[] ctrlPtPtrs;
 
-	delete[] ctrlPtPtrs;
+		// Generate curve to return.
+		return new snlCurve(size, ctrlPts, knotVect);
+	}
 
-	// Generate curve to return.
-
-	return new snlCurve(size, ctrlPts, knotVect);
+	return 0;
 }
 
 snlSurface* snlSurface::fillet(int edge, snlVector& frontFaceNormal,
@@ -3101,7 +3105,7 @@ cout.precision(16);
 	knot paramU;
 	knot paramV;
 
-	knot constParam;
+	knot constParam = 0;
 
 	bool stepU = false;
 
