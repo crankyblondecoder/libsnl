@@ -13,6 +13,9 @@ export objFiles := snlCircularOffsetCurve.o \
        snlUtil.o \
        snlVector.o snlVertex.o snlVertexNet.o
 
+export debugLibName = libSNL_debug.so.0.2
+export releaseLibName = libSNL.so.0.2
+
 .PHONY : debug
 debug :
 	$(MAKE) -C debug debug
@@ -22,10 +25,16 @@ clean :
 	- $(MAKE) -C debug clean
 	- $(MAKE) -C test clean
 	- $(MAKE) -C release clean
+	- rm $(debugLibName)
+	- rm $(releaseLibName)
 
 .PHONY : test
 test : debug
 	$(MAKE) -C test test
+
+.PHONY : runtest
+runtest :
+	$(MAKE) -C test runtest
 
 .PHONY : release
 release :
