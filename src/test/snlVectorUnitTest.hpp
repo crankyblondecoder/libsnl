@@ -111,7 +111,9 @@ class snlVectorUnitTest : public snlUnitTest
 				snlVector vec1(cos(deg_30), sin(deg_30), 0, 0);
 				snlVector vec2(cos(deg_60), sin(deg_60), 0, 0);
 
-				if(vec1.calcAbsCos(vec2) != deg_30)
+				double absCos = vec1.calcAbsCos(vec2);
+
+				if(absCos < 0.866025403784 || absCos > 0.866025403785)
 				{
 					notifyTestResult("CalcAbsCos", false, "Incorrect result.");
 					allPassed = false;

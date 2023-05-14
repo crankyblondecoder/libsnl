@@ -2,3 +2,4 @@ libSNL.so.*
 make.dep
 *.[oa]
 *.dep
+build/test/snlTest
