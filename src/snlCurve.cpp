@@ -946,10 +946,10 @@ void snlCurve::globalInterp(int type, snlPoint* points, unsigned size, int degre
 	{
 		index = row * 4;
 
-		rhSides[index] = points[row].elements[0];  // x.
-		rhSides[index + 1] = points[row].elements[1];  // y.
-		rhSides[index + 2] = points[row].elements[2];  // z.
-		rhSides[index + 3] = points[row].elements[3];  // w.
+		rhSides[index] = points[row].components[0];  // x.
+		rhSides[index + 1] = points[row].components[1];  // y.
+		rhSides[index + 2] = points[row].components[2];  // z.
+		rhSides[index + 3] = points[row].components[3];  // w.
 	}
 
 	// Pass data to linear solver.
@@ -964,10 +964,10 @@ void snlCurve::globalInterp(int type, snlPoint* points, unsigned size, int degre
 	{
 		index = row * 4;
 
-		ctrlPts[row].elements[0] = rhSides[index];
-		ctrlPts[row].elements[1] = rhSides[index + 1];
-		ctrlPts[row].elements[2] = rhSides[index + 2];
-		ctrlPts[row].elements[3] = rhSides[index + 3];
+		ctrlPts[row].components[0] = rhSides[index];
+		ctrlPts[row].components[1] = rhSides[index + 1];
+		ctrlPts[row].components[2] = rhSides[index + 2];
+		ctrlPts[row].components[3] = rhSides[index + 3];
 	}
 
 	// Create control point net.
@@ -1041,10 +1041,10 @@ snlCtrlPoint* snlCurve::genGlobalInterpPoints(snlPoint* points, unsigned size, k
 	{
 		index = row * 4;
 
-		rhSides[index] = points[row].elements[0];  // x.
-		rhSides[index + 1] = points[row].elements[1];  // y.
-		rhSides[index + 2] = points[row].elements[2];  // z.
-		rhSides[index + 3] = points[row].elements[3];  // w.
+		rhSides[index] = points[row].components[0];  // x.
+		rhSides[index + 1] = points[row].components[1];  // y.
+		rhSides[index + 2] = points[row].components[2];  // z.
+		rhSides[index + 3] = points[row].components[3];  // w.
 	}
 
 	// Pass data to linear solver.
@@ -1059,10 +1059,10 @@ snlCtrlPoint* snlCurve::genGlobalInterpPoints(snlPoint* points, unsigned size, k
 	{
 		index = row * 4;
 
-		ctrlPts[row].elements[0] = rhSides[index];
-		ctrlPts[row].elements[1] = rhSides[index + 1];
-		ctrlPts[row].elements[2] = rhSides[index + 2];
-		ctrlPts[row].elements[3] = rhSides[index + 3];
+		ctrlPts[row].components[0] = rhSides[index];
+		ctrlPts[row].components[1] = rhSides[index + 1];
+		ctrlPts[row].components[2] = rhSides[index + 2];
+		ctrlPts[row].components[3] = rhSides[index + 3];
 	}
 
 	return ctrlPts;

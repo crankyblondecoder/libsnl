@@ -1251,29 +1251,29 @@ void snlSurface::velocities(knot paramU, knot paramV, snlPoint& evalPoint, snlVe
 
 	snlPoint* derivPts = evalDerivsHmg(paramU, paramV, 1, 1, basisU, basisV);
 
-	basis wVal = derivPts[0].elements[3];
+	basis wVal = derivPts[0].components[3];
 
 	derivPts[0].project();
 
 	evalPoint = derivPts[0];
 
-	basis uWVal = derivPts[2].elements[3];
+	basis uWVal = derivPts[2].components[3];
 
-	velocityU.elements[0] =(derivPts[2].elements[0] - uWVal
-							   * derivPts[0].elements[0]) / wVal;
-	velocityU.elements[1] =(derivPts[2].elements[1] - uWVal
-							   * derivPts[0].elements[1]) / wVal;
-	velocityU.elements[2] =(derivPts[2].elements[2] - uWVal
-							   * derivPts[0].elements[2]) / wVal;
+	velocityU.components[0] =(derivPts[2].components[0] - uWVal
+							   * derivPts[0].components[0]) / wVal;
+	velocityU.components[1] =(derivPts[2].components[1] - uWVal
+							   * derivPts[0].components[1]) / wVal;
+	velocityU.components[2] =(derivPts[2].components[2] - uWVal
+							   * derivPts[0].components[2]) / wVal;
 
-	basis vWVal = derivPts[1].elements[3];
+	basis vWVal = derivPts[1].components[3];
 
-	velocityV.elements[0] =(derivPts[1].elements[0] - vWVal
-							   * derivPts[0].elements[0]) / wVal;
-	velocityV.elements[1] =(derivPts[1].elements[1] - vWVal
-							   * derivPts[0].elements[1]) / wVal;
-	velocityV.elements[2] =(derivPts[1].elements[2] - vWVal
-							   * derivPts[0].elements[2]) / wVal;
+	velocityV.components[0] =(derivPts[1].components[0] - vWVal
+							   * derivPts[0].components[0]) / wVal;
+	velocityV.components[1] =(derivPts[1].components[1] - vWVal
+							   * derivPts[0].components[1]) / wVal;
+	velocityV.components[2] =(derivPts[1].components[2] - vWVal
+							   * derivPts[0].components[2]) / wVal;
 
 	// Clean up.
 

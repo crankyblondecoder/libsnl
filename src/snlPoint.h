@@ -49,10 +49,10 @@ class snlPoint : public snlVector
 
 inline void snlPoint::multiplyWeight(double multiplier)
 {
-	elements[0] *= multiplier;
-	elements[1] *= multiplier;
-	elements[2] *= multiplier;
-	elements[3] *= multiplier;
+	components[0] *= multiplier;
+	components[1] *= multiplier;
+	components[2] *= multiplier;
+	components[3] *= multiplier;
 }
 
 inline double snlPoint::distSqrd(const snlPoint& point)
@@ -62,16 +62,16 @@ inline double snlPoint::distSqrd(const snlPoint& point)
 	double retVal = 0.0;
 	double scratch;
 
-	scratch = point.elements[0] - elements[0];
+	scratch = point.components[0] - components[0];
 	retVal += scratch * scratch;
 
-	scratch = point.elements[1] - elements[1];
+	scratch = point.components[1] - components[1];
 	retVal += scratch * scratch;
 
-	scratch = point.elements[2] - elements[2];
+	scratch = point.components[2] - components[2];
 	retVal += scratch * scratch;
 
-	scratch = point.elements[3] - elements[3];
+	scratch = point.components[3] - components[3];
 	retVal += scratch * scratch;
 
 	return retVal;
@@ -85,22 +85,22 @@ inline double snlPoint::distance(const snlPoint& point)
 
 inline void snlPoint::project()
 {
-	if(elements[3] == 0.0) return;  // Stop divide by zero error.
+	if(components[3] == 0.0) return;  // Stop divide by zero error.
 
-	double w = elements[3];
+	double w = components[3];
 
-	elements[0] /= w;
-	elements[1] /= w;
-	elements[2] /= w;
-	elements[3] = 1.0;
+	components[0] /= w;
+	components[1] /= w;
+	components[2] /= w;
+	components[3] = 1.0;
 }
 
 inline void snlPoint::zeroInR3()
 {
-	elements[0] = 0;
-	elements[1] = 0;
-	elements[2] = 0;
-	elements[3] = 1;
+	components[0] = 0;
+	components[1] = 0;
+	components[2] = 0;
+	components[3] = 1;
 }
 
 #endif

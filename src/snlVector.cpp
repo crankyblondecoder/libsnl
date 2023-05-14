@@ -2,18 +2,18 @@
 
 snlVector::snlVector()
 {
-	elements[0] = 0.0;
-	elements[1] = 0.0;
-	elements[2] = 0.0;
-	elements[3] = 0.0;
+	components[0] = 0.0;
+	components[1] = 0.0;
+	components[2] = 0.0;
+	components[3] = 0.0;
 }
 
 snlVector::snlVector(double x, double y, double z, double w)
 {
-	elements[0] = x;
-	elements[1] = y;
-	elements[2] = z;
-	elements[3] = w;
+	components[0] = x;
+	components[1] = y;
+	components[2] = z;
+	components[3] = w;
 }
 
 double snlVector::length()
@@ -25,10 +25,10 @@ void snlVector::length(double len)
 {
 	double multiplier = len / length();
 
-	elements[0] *= multiplier;
-	elements[1] *= multiplier;
-	elements[2] *= multiplier;
-	elements[3] *= multiplier;
+	components[0] *= multiplier;
+	components[1] *= multiplier;
+	components[2] *= multiplier;
+	components[3] *= multiplier;
 }
 
 double snlVector::calcAbsCos(snlVector& vect)
@@ -58,10 +58,10 @@ void snlVector::normalise()
 {
 	double len = length();
 
-	elements[0] /= len;
-	elements[1] /= len;
-	elements[2] /= len;
-	elements[3] /= len;
+	components[0] /= len;
+	components[1] /= len;
+	components[2] /= len;
+	components[3] /= len;
 }
 
 double snlVector::projectDist(snlVector& fromVector)
@@ -87,6 +87,6 @@ void snlVector::print()
 	// Print vector contents to cout.
 	// ------------------------------
 
-	cout << "X: " << elements[0] << " Y: " << elements[1]
-		 << " Z: " << elements[2] << " W: " << elements[3] << "\n";
+	cout << "X: " << components[0] << " Y: " << components[1]
+		 << " Z: " << components[2] << " W: " << components[3] << "\n";
 }

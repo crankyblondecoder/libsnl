@@ -75,7 +75,7 @@ void snlMatrix_4X4::multiply(snlVector* vectors, unsigned numVectors)
 
 	for(unsigned vecIndex = 0; vecIndex < numVectors; vecIndex++)
 	{
-		vElems = vectors[vecIndex].elements;
+		vElems = vectors[vecIndex].components;
 
 		// Vector elements are progressively written over so cache them ahead of time.
 		vElem0 = vElems[0];
