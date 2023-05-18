@@ -113,6 +113,7 @@ class snlVectorUnitTest : public snlUnitTest
 
 				double absCos = vec1.calcAbsCos(vec2);
 
+				// Reduce the precision because of floating point error.
 				if(absCos < 0.866025403784 || absCos > 0.866025403785)
 				{
 					notifyTestResult("CalcAbsCos", false, "Incorrect result.");

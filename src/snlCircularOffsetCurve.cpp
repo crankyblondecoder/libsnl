@@ -158,9 +158,9 @@ void snlCircularOffsetCurve::refine(double tolerance)
 
 				int insertIndex = index + deg;
 
-				knot insertParam =((knotVect.val(insertIndex + 1)
-									   - knotVect.val(insertIndex)) / 2)
-									   + knotVect.val(insertIndex);
+				knot insertParam =((knotVect.getKnotVal(insertIndex + 1)
+									   - knotVect.getKnotVal(insertIndex)) / 2)
+									   + knotVect.getKnotVal(insertIndex);
 
 				base_curve -> insertKnot(insertParam, true);
 				chord_offsetCurve -> insertKnot(insertParam, true);

@@ -79,7 +79,7 @@ snlCurve::snlCurve(unsigned size, snlCtrlPoint* points, snlKnotVector* knotVecto
 	//
 	// Notes:       Does not copy points and knot vector. So don't delete them elsewhere.
 
-	deg = knotVector -> degree();
+	deg = knotVector -> getDegree();
 
 	knotVect = knotVector;
 
@@ -259,16 +259,18 @@ snlPoint snlCurve::evalHmg(knot param) const
 {
 	// Evaluate Non Rational Homogeneous Curve Point.
 	// ----------------------------------------------
-	// param:       Parameter to evaluate.
+	// param: Parameter to evaluate.
 	//
-	// Returns:     Homogeneous point on curve.
+	// Returns: Homogeneous point on curve.
 
 	snlPoint rPoint;  // Return point.
 
 	unsigned span = knotVect -> findSpan(param);
 
 	// Evaluate basis functions.
-	basis* bVals = knotVect -> evalBasis(param);
+	// Just fix the size of the evaluated basis function array to the max it can be.
+	basis bVals[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+	knotVect -> evalBasis(param, bVals);
 
 	unsigned baseIndex = span - (unsigned) deg;
 
@@ -282,8 +284,6 @@ snlPoint snlCurve::evalHmg(knot param) const
 		// This is more efficient than the operator based equivalent becaues there is not construction of temp vectors.
 		rPoint.multAdd(bVals[index], ctrlPts[baseIndex + index]);
 	}
-
-	delete[] bVals;
 
 	return rPoint;
 }
@@ -318,7 +318,9 @@ snlPoint* snlCurve::evalDerivsHmg(knot param, unsigned deriv) const
 	unsigned span = knotVect -> findSpan(param);
 
 	// Evaluate basis functions.
-	basis* bVals = knotVect -> evalBasisDeriv(param, deriv);
+	// Just fix the size of the evaluated basis function array to the max it can be.
+	basis bVals[SNL_KNOT_VECTOR_MAX_DEG * SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+	knotVect -> evalBasisDeriv(param, deriv, bVals);
 
 	unsigned baseIndex = span - (unsigned) deg;
 
@@ -334,8 +336,6 @@ snlPoint* snlCurve::evalDerivsHmg(knot param, unsigned deriv) const
 			retPnts[derivIndex].multAdd(bVals[index + derivIndex *(deg + 1)], ctrlPts[baseIndex + index]);
 		}
 	}
-
-	delete[] bVals;
 
 	return retPnts;
 }
@@ -423,8 +423,8 @@ void snlCurve::insertKnot(knot iParam, bool reallocate)
 	for(count = 0; count < (unsigned) deg; count ++)
 	{
 		index = span - deg + 1 + count;
-		alpha[count]  =(iParam -(knotVect -> val(index)))
-						   /(knotVect -> val(index + deg) - knotVect -> val(index));
+		alpha[count]  =(iParam -(knotVect -> getKnotVal(index)))
+						   /(knotVect -> getKnotVal(index + deg) - knotVect -> getKnotVal(index));
 	}
 
 	// Build temp array to store new array of control points in.
@@ -498,7 +498,7 @@ double snlCurve::removeKnots(int numKnots, unsigned removalIndex, double toleran
 
 	double maxTol = 0.0;
 
-	double param = knotVect -> val(removalIndex);
+	double param = knotVect -> getKnotVal(removalIndex);
 
 	int multi = knotVect -> findMultiplicity(removalIndex);
 
@@ -526,7 +526,7 @@ double snlCurve::removeKnot(unsigned removalIndex, double tolerance)
 	//
 	// Returns:             Tolerance achieved during knot removal whether successful or not.
 
-	knot rParam = knotVect -> val(removalIndex);
+	knot rParam = knotVect -> getKnotVal(removalIndex);
 
 	// Span knot to be removed belongs to. This will always adjust the removal index to
 	// point to a non-zero span. ie Multiplicity check.
@@ -618,9 +618,9 @@ void snlCurve::refine(double tolerance)
 
 				int insertIndex = index + deg;
 
-				knot insertParam =(( knotVect -> val(insertIndex + 1)
-									   - knotVect -> val(insertIndex)) / 2)
-									   + knotVect -> val(insertIndex);
+				knot insertParam =(( knotVect -> getKnotVal(insertIndex + 1)
+									   - knotVect -> getKnotVal(insertIndex)) / 2)
+									   + knotVect -> getKnotVal(insertIndex);
 
 				insertKnot(insertParam, true);
 
@@ -653,7 +653,7 @@ double snlCurve::param(unsigned index) const
 	// Return parameter at specified knot index.
 	// -----------------------------------------
 
-	return knotVect -> val(index);
+	return knotVect -> getKnotVal(index);
 }
 
 int snlCurve::size()
@@ -683,7 +683,7 @@ void snlCurve::truncate(knot param, bool keepLast, bool reparam)
 	if(keepLast)
 		span -= deg;
 	else
-		span = knotVect -> getPreviousSpan(span);
+		span = knotVect -> previousSpan(span);
 
 	ctrlPtNet -> truncate(span, keepLast);
 
@@ -922,9 +922,11 @@ void snlCurve::globalInterp(int type, snlPoint* points, unsigned size, int degre
 
 	// Fill middle rows with basis function values.
 
+	basis basisVals[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+
 	for(unsigned row = 1; row < size - 1; row ++)
 	{
-		basis* basisVals = knotVect -> evalBasis(params[row]);
+		knotVect -> evalBasis(params[row], basisVals);
 
 		unsigned span = knotVect -> findSpan(params[row]);
 
@@ -934,8 +936,6 @@ void snlCurve::globalInterp(int type, snlPoint* points, unsigned size, int degre
 
 		for(unsigned col = span - degree; col <= span; col ++)
 			coeffs[rowStartIndex + col] = basisVals[index ++];
-
-		delete[] basisVals;
 	}
 
 	// Generate right hand sides.
@@ -1015,11 +1015,13 @@ snlCtrlPoint* snlCurve::genGlobalInterpPoints(snlPoint* points, unsigned size, k
 
 	// Fill middle rows with basis function values.
 
-	int deg = knots -> degree();
+	basis basisVals[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+
+	int deg = knots -> getDegree();
 
 	for(unsigned row = 1; row < size - 1; row ++)
 	{
-		basis* basisVals = knots -> evalBasis(params[row]);
+		knots -> evalBasis(params[row], basisVals);
 
 		unsigned span = knots -> findSpan(params[row]);
 
@@ -1029,8 +1031,6 @@ snlCtrlPoint* snlCurve::genGlobalInterpPoints(snlPoint* points, unsigned size, k
 
 		for(unsigned col = span - deg; col <= span; col ++)
 			coeffs[rowStartIndex + col] = basisVals[index ++];
-
-		delete[] basisVals;
 	}
 
 	// Generate right hand sides.
@@ -1098,18 +1098,18 @@ void snlCurve::synchronise(snlCurve& curve)
 
 	if(curve.deg != deg) return;  // Curve to sync to must have same degree.
 
-	unsigned numSpans = curve.knotVect -> getNumSpans();
+	unsigned numSpans = curve.knotVect -> numSpans();
 
 	if(numSpans < 2) return;
 
 	// If the degree is the same then the first span will always have the same multiplicity for both curves.
 
-	unsigned spanIndex = curve.knotVect -> getFirstSpan();
-	spanIndex = curve.knotVect -> getNextSpan(spanIndex);
+	unsigned spanIndex = curve.knotVect -> firstSpan();
+	spanIndex = curve.knotVect -> nextSpan(spanIndex);
 
 	for(unsigned index = 1; index < numSpans; index ++)
 	{
-		knot param = curve.knotVect -> val(spanIndex);
+		knot param = curve.knotVect -> getKnotVal(spanIndex);
 
 		int multi = curve.knotVect -> findMultiplicity(spanIndex);
 
@@ -1117,13 +1117,13 @@ void snlCurve::synchronise(snlCurve& curve)
 
 		// If knot already exists in this curve then reduce the number of knots inserted.
 
-		if(knotVect -> val(insertSpan) == param) multi -= knotVect -> findMultiplicity(insertSpan);
+		if(knotVect -> getKnotVal(insertSpan) == param) multi -= knotVect -> findMultiplicity(insertSpan);
 
 		if(multi > 0) insertKnots(param, multi, true);
 
 		// Get next span.
 
-		spanIndex = curve.knotVect -> getNextSpan(spanIndex);
+		spanIndex = curve.knotVect -> nextSpan(spanIndex);
 	}
 }
 
@@ -1178,10 +1178,10 @@ unsigned snlCurve::createBezierSegments(int** retNumKnotsAdded)
 	// Find number of knots to be inserted and reallocate curve memory in one pass.
 
 	// Find number of non-zero spans.
-	unsigned numSpans = knotVect -> getNumSpans();
+	unsigned numSpans = knotVect -> numSpans();
 
 	// Find first spans knot index.
-	unsigned knotIndex = knotVect -> getFirstSpan();
+	unsigned knotIndex = knotVect -> firstSpan();
 
 	// Resize control points array just once for all knot insertions.
 
@@ -1193,7 +1193,7 @@ unsigned snlCurve::createBezierSegments(int** retNumKnotsAdded)
 	// Find amount to resize by.
 	for(unsigned spanIndex = 1; spanIndex < numSpans; spanIndex ++)
 	{
-		span = knotVect -> getNextSpan(span);
+		span = knotVect -> nextSpan(span);
 
 		addedKnots[spanIndex - 1] = deg -(knotVect -> findMultiplicity(span));
 
@@ -1204,18 +1204,18 @@ unsigned snlCurve::createBezierSegments(int** retNumKnotsAdded)
 	ctrlPtNet -> appendPointSpace(extraKnots);
 
 	// Find knot index of second knot span.
-	span = knotVect -> getNextSpan(knotIndex);
+	span = knotVect -> nextSpan(knotIndex);
 
 	for(unsigned spanIndex = 0; spanIndex < numSpans - 1; spanIndex ++)
 	{
 		// Increase multiplicity of span to degree.
 
-		knot insertParam = knotVect -> val(span);
+		knot insertParam = knotVect -> getKnotVal(span);
 
 		insertKnots(insertParam, addedKnots[spanIndex], false);
 
 		// Re-adjust current span index to account for inserted knots.
-		span = knotVect -> getNextSpan(span + addedKnots[spanIndex]);
+		span = knotVect -> nextSpan(span + addedKnots[spanIndex]);
 	}
 
 	*retNumKnotsAdded = addedKnots;
@@ -1309,11 +1309,11 @@ void snlCurve::elevateDegree(int byDegree)
 
 	deg += byDegree;
 
-	knotVect -> degree(deg);
+	knotVect -> setDegree(deg);
 
 	// Remove number of knots that were added during knot insertion.
 
-	spanIndex = knotVect -> getFirstSpan();
+	spanIndex = knotVect -> firstSpan();
 
 	spanIndex += deg;
 

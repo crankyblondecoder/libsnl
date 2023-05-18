@@ -785,7 +785,7 @@ const knot* snlSurface::knotsU()
 	//! Return pointer to array of knots in U direction.
 	//  ------------------------------------------------
 
-	return knotVectU -> array();
+	return knotVectU -> getKnotArray();
 }
 
 const knot* snlSurface::knotsV()
@@ -793,7 +793,7 @@ const knot* snlSurface::knotsV()
 	//! Return pointer to array of knots in V direction.
 	//  ------------------------------------------------
 
-	return knotVectV -> array();
+	return knotVectV -> getKnotArray();
 }
 
 snlCtrlPointNetSurface& snlSurface::controlPointNet()
@@ -842,19 +842,33 @@ snlPoint snlSurface::evalHmg(knot paramU, knot paramV, basis* basisU, basis* bas
 
 	// Evaluate basis functions.
 
+	// Pre-allocate basis function eval return arrays regardless of whether they are used or not. This is an optimisation.
+	basis preBasisU[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+	basis preBasisV[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+
 	basis* bValsU;
 
 	if(basisU)
+	{
 		bValsU = basisU;
+	}
 	else
-		bValsU = knotVectU -> evalBasis(paramU);
+	{
+		bValsU = preBasisU;
+		knotVectU -> evalBasis(paramU, bValsU);
+	}
 
 	basis* bValsV;
 
 	if(basisV)
+	{
 		bValsV = basisV;
+	}
 	else
-		bValsV = knotVectV -> evalBasis(paramV);
+	{
+		bValsV = preBasisV;
+		knotVectV -> evalBasis(paramV, bValsV);
+	}
 
 	unsigned baseVIndex = spanV - (unsigned) degV;  // Where in the V dimension the processing starts.
 
@@ -876,9 +890,6 @@ snlPoint snlSurface::evalHmg(knot paramU, knot paramV, basis* basisU, basis* bas
 
 		rPoint.multAdd(bValsU[indexU], iPoint);
 	}
-
-	if(! basisU) delete[] bValsU;
-	if(! basisV) delete[] bValsV;
 
 	return rPoint;
 }
@@ -1012,18 +1023,32 @@ snlPoint* snlSurface::evalDerivsHmg(knot paramU, knot paramV, unsigned derivU, u
 
 	// Evaluate basis functions.
 
+	// Pre-allocate basis function eval return arrays regardless of whether they are used or not. This is an optimisation.
+	basis preBasisU[SNL_KNOT_VECTOR_MAX_DEG * SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+	basis preBasisV[SNL_KNOT_VECTOR_MAX_DEG * SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+
 	basis* bValsU;
 	basis* bValsV;
 
 	if(basisU)
+	{
 		bValsU = basisU;
+	}
 	else
-		bValsU = knotVectU -> evalBasisDeriv(paramU, derivU);
+	{
+		bValsU = preBasisU;
+		knotVectU -> evalBasisDeriv(paramU, derivU, bValsU);
+	}
 
 	if(basisV)
+	{
 		bValsV = basisV;
+	}
 	else
-		bValsV = knotVectV -> evalBasisDeriv(paramV, derivV);
+	{
+		bValsV = preBasisV;
+		knotVectV -> evalBasisDeriv(paramV, derivV, bValsV);
+	}
 
 	unsigned baseVIndex = spanV - degV;  // Where in the V dimension the processing starts.
 
@@ -1081,9 +1106,6 @@ snlPoint* snlSurface::evalDerivsHmg(knot paramU, knot paramV, unsigned derivU, u
 	}
 
 	delete[] vPnts;
-
-	if(! basisU) delete[] bValsU;
-	if(! basisV) delete[] bValsV;
 
 	return evalPts;
 }
@@ -1326,8 +1348,8 @@ void snlSurface::insertKnot(knot iParam, int dir, bool reallocate)
 	for(count = 0; count < cDeg; count ++)
 	{
 		index = span - cDeg + 1 + count;
-		alpha[count]  =(iParam -(cKnts -> val(index)))
-						   /(cKnts -> val(index + cDeg) - cKnts -> val(index));
+		alpha[count]  =(iParam -(cKnts -> getKnotVal(index)))
+						   /(cKnts -> getKnotVal(index + cDeg) - cKnts -> getKnotVal(index));
 	}
 
 	// Build temp array to store new array of control points in.
@@ -1337,7 +1359,7 @@ void snlSurface::insertKnot(knot iParam, int dir, bool reallocate)
 	snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPtsPtr();
 
 	// Do for each "line" in direction of insertion.
-	for(lineIndex = 0; lineIndex <(oKnts -> size() - oDeg - 1); lineIndex ++)
+	for(lineIndex = 0; lineIndex <(oKnts -> getSize() - oDeg - 1); lineIndex ++)
 	{
 		// Calculate new control points.
 		for(count = 0; count < cDeg; count ++)
@@ -1472,9 +1494,9 @@ void snlSurface::insertKnot(knot iParam, int dir, int numToInsert, bool realloca
 
 			int alphaIndex = count +(( insertCount - 1) * numAlphas);
 
-			alpha[alphaIndex]  =(iParam -(cKnts -> val(index)))
-									/(cKnts -> val(index + cDeg - insertCount + 1)
-									  - cKnts -> val(index));
+			alpha[alphaIndex]  =(iParam -(cKnts -> getKnotVal(index)))
+									/(cKnts -> getKnotVal(index + cDeg - insertCount + 1)
+									  - cKnts -> getKnotVal(index));
 		}
 	}
 
@@ -1488,7 +1510,7 @@ void snlSurface::insertKnot(knot iParam, int dir, int numToInsert, bool realloca
 	snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPtsPtr();
 
 	// Do for each "line" in direction of insertion.
-	for(lineIndex = 0; lineIndex < (int)( oKnts -> size() - oDeg - 1); lineIndex ++)
+	for(lineIndex = 0; lineIndex < (int)( oKnts -> getSize() - oDeg - 1); lineIndex ++)
 	{
 		// Calculate new control points for first insertion.
 		for(count = 0; count < numAlphas; count ++)
@@ -1631,7 +1653,7 @@ double snlSurface::removeKnots(int numKnots, unsigned removalIndex, int directio
 		knotVect = knotVectV;
 	}
 
-	double param = knotVect -> val(removalIndex);
+	double param = knotVect -> getKnotVal(removalIndex);
 
 	int multi = knotVect -> findMultiplicity(removalIndex);
 
@@ -1681,7 +1703,7 @@ double snlSurface::removeKnot(unsigned rIndex, int dir, double tolerance, bool r
 		oKnts = knotVectV;
 	}
 
-	knot rParam = cKnts -> val(rIndex);
+	knot rParam = cKnts -> getKnotVal(rIndex);
 
 	// Span knot to be removed belongs to. This will always adjust the removal index to
 	// point to a non-zero span. ie Multiplicity check.
@@ -1713,7 +1735,7 @@ double snlSurface::removeKnot(unsigned rIndex, int dir, double tolerance, bool r
 		ctrlPts[index] = ctrlPtsToCopy[index];
 
 	// Do for each "line" in direction of removal.
-	for(lineIndex = 0; lineIndex <(oKnts -> size() - oDeg - 1); lineIndex ++)
+	for(lineIndex = 0; lineIndex <(oKnts -> getSize() - oDeg - 1); lineIndex ++)
 	{
 		// Seed new points array.
 		if(dir == SNL_V_DIR)
@@ -1859,14 +1881,14 @@ unsigned snlSurface::createBezierSegments(int dir, int** numKnotsAdded)
 	}
 
 	// Find number of non-zero spans.
-	unsigned numSpans = cKnts -> getNumSpans();
+	unsigned numSpans = cKnts -> numSpans();
 
 	if(cDeg <= 1) return numSpans;  // 1st degree curve sections are already Bezier segments.
 
 	int* knotsAdded = new int[numSpans];  // Last array element is unused and is left here so that a zero length array doesn't occur.
 
 	// Find first spans knot index.
-	unsigned knotIndex = cKnts -> getFirstSpan();
+	unsigned knotIndex = cKnts -> firstSpan();
 
 	// Resize control points array just once for all knot insertions.
 
@@ -1876,7 +1898,7 @@ unsigned snlSurface::createBezierSegments(int dir, int** numKnotsAdded)
 	// Find amount to resize by.
 	for(unsigned spanIndex = 1; spanIndex < numSpans; spanIndex ++)
 	{
-		nextSpan = cKnts -> getNextSpan(nextSpan);
+		nextSpan = cKnts -> nextSpan(nextSpan);
 
 		extraKnots += cDeg -(cKnts -> findMultiplicity(nextSpan));
 	}
@@ -1887,7 +1909,7 @@ unsigned snlSurface::createBezierSegments(int dir, int** numKnotsAdded)
 	// *** Create Bezier segments ***
 
 	// Find knot index of second knot span.
-	nextSpan = cKnts -> getNextSpan(knotIndex);
+	nextSpan = cKnts -> nextSpan(knotIndex);
 
 	for(unsigned spanIndex = 0; spanIndex < numSpans - 1; spanIndex ++)
 	{
@@ -1897,18 +1919,18 @@ unsigned snlSurface::createBezierSegments(int dir, int** numKnotsAdded)
 
 		if(cDeg - multi > 0)
 		{
-			knot insertParam = cKnts -> val(nextSpan);
+			knot insertParam = cKnts -> getKnotVal(nextSpan);
 
 			insertKnot(insertParam, dir, cDeg - multi, false);
 
 			// Re-adjust current span index to account for inserted knots.
-			nextSpan = cKnts -> getNextSpan(cKnts -> findSpan(insertParam));
+			nextSpan = cKnts -> nextSpan(cKnts -> findSpan(insertParam));
 
 			// Populate number of knots added array elements.
 			knotsAdded[spanIndex] = cDeg - multi;
 		}
 		else
-			nextSpan = cKnts -> getNextSpan(nextSpan);
+			nextSpan = cKnts -> nextSpan(nextSpan);
 	}
 
 	if(numKnotsAdded)
@@ -1980,8 +2002,8 @@ void snlSurface::createConvexBezierSegments(int* numU, int* numV, double sensiti
 
 			if(! convex)
 			{
-				knot startKnot = knotVectU -> val(( segment + 1) * degU);
-				knot endKnot = knotVectU -> val(( segment + 2) * degU);
+				knot startKnot = knotVectU -> getKnotVal(( segment + 1) * degU);
+				knot endKnot = knotVectU -> getKnotVal(( segment + 2) * degU);
 
 				// Insert multiple knots into middle of patch to create two new Bezier segments.
 
@@ -2028,8 +2050,8 @@ void snlSurface::createConvexBezierSegments(int* numU, int* numV, double sensiti
 
 			if(! convex)
 			{
-				knot startKnot = knotVectV -> val(( segment + 1) * degV);
-				knot endKnot = knotVectV -> val(( segment + 2) * degV);
+				knot startKnot = knotVectV -> getKnotVal(( segment + 1) * degV);
+				knot endKnot = knotVectV -> getKnotVal(( segment + 2) * degV);
 
 				// Insert multiple knots into middle of patch to create two new Bezier segments.
 
@@ -2164,7 +2186,7 @@ void snlSurface::elevateDegree(int direction, int byDegree)
 
 	cDeg += byDegree;
 
-	cKnotVect -> degree(cDeg);
+	cKnotVect -> setDegree(cDeg);
 
 	if(direction == SNL_U_DIR)
 		degU = cDeg;
@@ -2176,7 +2198,7 @@ void snlSurface::elevateDegree(int direction, int byDegree)
 
 	if(cDeg - byDegree > 1)
 	{
-		unsigned spanIndex = cKnotVect -> getFirstSpan();
+		unsigned spanIndex = cKnotVect -> firstSpan();
 
 		spanIndex += cDeg;
 
@@ -2325,7 +2347,7 @@ double snlSurface::reduceDegree(int dir, unsigned numDeg, double tolerance)
 		}
 
 		// Reduce end clamp multiplicity.
-		cKnts -> removeKnot(( cKnts -> size()) - 1);
+		cKnts -> removeKnot(( cKnts -> getSize()) - 1);
 
 		// Rearrange array to facilitate removal of redundant control points.
 
@@ -2493,8 +2515,8 @@ void snlSurface::refineHull_UV(double tolerance)
 
 		// Only process non-zero knot vector spans.
 
-		int numSpansU = knotVectU -> getNumSpans();
-		int numSpansV = knotVectV -> getNumSpans();
+		int numSpansU = knotVectU -> numSpans();
+		int numSpansV = knotVectV -> numSpans();
 
 		bool* spanSubU = new bool[numSpansU];  // Span subdivision indicators.
 		bool* spanSubV = new bool[numSpansV];  // If true then subdivide span.
@@ -2510,11 +2532,11 @@ void snlSurface::refineHull_UV(double tolerance)
 
 		int spanU = 0;
 
-		int indexU = knotVectU -> getFirstSpan();
+		int indexU = knotVectU -> firstSpan();
 
 		while(indexU)
 		{
-			int indexV = knotVectV -> getFirstSpan();
+			int indexV = knotVectV -> firstSpan();
 
 			int spanV = 0;
 
@@ -2530,16 +2552,16 @@ void snlSurface::refineHull_UV(double tolerance)
 					{
 						if(! spanSubU[spanU])
 						{
-							spanSubUVal[spanU]  =(( knotVectU -> val(indexU + 1)
-													   - knotVectU -> val(indexU)) / 2)
-													   + knotVectU -> val(indexU);
+							spanSubUVal[spanU]  =(( knotVectU -> getKnotVal(indexU + 1)
+													   - knotVectU -> getKnotVal(indexU)) / 2)
+													   + knotVectU -> getKnotVal(indexU);
 						}
 
 						if(! spanSubV[spanV])
 						{
-							spanSubVVal[spanV] =(( knotVectV -> val(indexV + 1)
-													  - knotVectV -> val(indexV)) / 2)
-													  + knotVectV -> val(indexV);
+							spanSubVVal[spanV] =(( knotVectV -> getKnotVal(indexV + 1)
+													  - knotVectV -> getKnotVal(indexV)) / 2)
+													  + knotVectV -> getKnotVal(indexV);
 						}
 
 						spanSubU[spanU] = true;
@@ -2549,12 +2571,12 @@ void snlSurface::refineHull_UV(double tolerance)
 					}
 				}
 
-				indexV = knotVectV -> getNextSpan(indexV);
+				indexV = knotVectV -> nextSpan(indexV);
 
 				spanV ++;
 			}
 
-			indexU = knotVectU -> getNextSpan(indexU);
+			indexU = knotVectU -> nextSpan(indexU);
 
 			spanU ++;
 		}
@@ -2605,7 +2627,7 @@ bool snlSurface::refineHull_U(double tolerance, bool singlePass)
 
 		// Only process non-zero knot vector spans.
 
-		int numSpans = knotVectU -> getNumSpans();
+		int numSpans = knotVectU -> numSpans();
 
 		bool* spanSub = new bool[numSpans];  // Span subdivision indicators. If true then subdivide span.
 
@@ -2616,7 +2638,7 @@ bool snlSurface::refineHull_U(double tolerance, bool singlePass)
 
 		for(int indexV = 0; (unsigned) indexV <(ctrlPtNet -> getSizeV()); indexV ++)
 		{
-			int indexU = knotVectU -> getFirstSpan();
+			int indexU = knotVectU -> firstSpan();
 
 			int spanNum = 0;
 
@@ -2634,9 +2656,9 @@ bool snlSurface::refineHull_U(double tolerance, bool singlePass)
 
 					int insertIndex = indexU;
 
-					knot insertParam =(( knotVectU -> val(insertIndex + 1)
-										 - knotVectU -> val(insertIndex)) / 2)
-										 + knotVectU -> val(insertIndex);
+					knot insertParam =(( knotVectU -> getKnotVal(insertIndex + 1)
+										 - knotVectU -> getKnotVal(insertIndex)) / 2)
+										 + knotVectU -> getKnotVal(insertIndex);
 
 					spanSubVal[spanNum] = insertParam;
 
@@ -2645,7 +2667,7 @@ bool snlSurface::refineHull_U(double tolerance, bool singlePass)
 					tolOk = false;
 				}
 
-				indexU = knotVectU -> getNextSpan(indexU);
+				indexU = knotVectU -> nextSpan(indexU);
 
 				spanNum ++;
 			}
@@ -2684,7 +2706,7 @@ bool snlSurface::refineHull_V(double tolerance, bool singlePass)
 
 		// Only process non-zero knot vector spans.
 
-		int numSpans = knotVectV -> getNumSpans();
+		int numSpans = knotVectV -> numSpans();
 
 		bool* spanSub = new bool[numSpans];  // Span subdivision indicators. If true then subdivide span.
 
@@ -2695,7 +2717,7 @@ bool snlSurface::refineHull_V(double tolerance, bool singlePass)
 
 		for(int indexU = 0; (unsigned) indexU <(ctrlPtNet -> getSizeU()); indexU ++)
 		{
-			int indexV = knotVectV -> getFirstSpan();
+			int indexV = knotVectV -> firstSpan();
 
 			int spanNum = 0;
 
@@ -2713,9 +2735,9 @@ bool snlSurface::refineHull_V(double tolerance, bool singlePass)
 
 					int insertIndex = indexV;
 
-					knot insertParam =(( knotVectV -> val(insertIndex + 1)
-										 - knotVectV -> val(insertIndex)) / 2)
-										 + knotVectV -> val(insertIndex);
+					knot insertParam =(( knotVectV -> getKnotVal(insertIndex + 1)
+										 - knotVectV -> getKnotVal(insertIndex)) / 2)
+										 + knotVectV -> getKnotVal(insertIndex);
 
 					spanSubVal[spanNum] = insertParam;
 
@@ -2724,7 +2746,7 @@ bool snlSurface::refineHull_V(double tolerance, bool singlePass)
 					tolOk = false;
 				}
 
-				indexV = knotVectV -> getNextSpan(indexV);
+				indexV = knotVectV -> nextSpan(indexV);
 
 				spanNum ++;
 			}
@@ -2768,8 +2790,8 @@ void snlSurface::refineHullBezier(double tolerance)
 	{
 		tolOk = true;
 
-		numUSegments = knotVectU -> getNumSpans();
-		numVSegments = knotVectV -> getNumSpans();
+		numUSegments = knotVectU -> numSpans();
+		numVSegments = knotVectV -> numSpans();
 
 		bool* splitSpanU = new bool[numUSegments];  // Split knot span corresponding to array index if true.
 		bool* splitSpanV = new bool[numVSegments];
@@ -2815,32 +2837,32 @@ cout << "SegU: " << segU << " SegV: " << segV << " Flatness: " << flatness << "\
 		{
 			// Split spans. First find parameters to insert.
 
-			int spanIndex = knotVectU -> getFirstSpan();  // Current span index.
+			int spanIndex = knotVectU -> firstSpan();  // Current span index.
 
 			for(int spanNum = 0; spanNum < numUSegments; spanNum ++)
 			{
 				if(splitSpanU[spanNum])
 				{
-					splitKnotU[spanNum] =(( knotVectU -> val(spanIndex + 1)
-											   - knotVectU -> val(spanIndex)) / 2)
-											   + knotVectU -> val(spanIndex);
+					splitKnotU[spanNum] =(( knotVectU -> getKnotVal(spanIndex + 1)
+											   - knotVectU -> getKnotVal(spanIndex)) / 2)
+											   + knotVectU -> getKnotVal(spanIndex);
 				}
 
-				spanIndex = knotVectU -> getNextSpan(spanIndex);
+				spanIndex = knotVectU -> nextSpan(spanIndex);
 			}
 
-			spanIndex = knotVectV -> getFirstSpan();
+			spanIndex = knotVectV -> firstSpan();
 
 			for(int spanNum = 0; spanNum < numVSegments; spanNum ++)
 			{
 				if(splitSpanV[spanNum])
 				{
-					splitKnotV[spanNum] =(( knotVectV -> val(spanIndex + 1)
-											   - knotVectV -> val(spanIndex)) / 2)
-											   + knotVectV -> val(spanIndex);
+					splitKnotV[spanNum] =(( knotVectV -> getKnotVal(spanIndex + 1)
+											   - knotVectV -> getKnotVal(spanIndex)) / 2)
+											   + knotVectV -> getKnotVal(spanIndex);
 				}
 
-				spanIndex = knotVectV -> getNextSpan(spanIndex);
+				spanIndex = knotVectV -> nextSpan(spanIndex);
 			}
 
 			// Insert knots into each vector.
@@ -3543,13 +3565,13 @@ void snlSurface::synchronise(snlSurface& surface, int direction)
 
 	// Sync knots.
 
-	unsigned numSpans = oKnotVect -> getNumSpans();
+	unsigned numSpans = oKnotVect -> numSpans();
 
-	unsigned spanIndex = oKnotVect -> getFirstSpan();
+	unsigned spanIndex = oKnotVect -> firstSpan();
 
 	for(unsigned index = 0; index < numSpans; index ++)
 	{
-		knot param = oKnotVect -> val(spanIndex);
+		knot param = oKnotVect -> getKnotVal(spanIndex);
 
 		int multi = oKnotVect -> findMultiplicity(spanIndex);
 
@@ -3557,7 +3579,7 @@ void snlSurface::synchronise(snlSurface& surface, int direction)
 
 		// If knot already exists in this surface then reduce multiplicity to add.
 
-		if(tKnotVect -> val(insertSpan) == param)
+		if(tKnotVect -> getKnotVal(insertSpan) == param)
 			multi -= tKnotVect -> findMultiplicity(insertSpan);
 
 		if(multi > 0)
@@ -3565,7 +3587,7 @@ void snlSurface::synchronise(snlSurface& surface, int direction)
 
 		// Get next span.
 
-		spanIndex = oKnotVect -> getNextSpan(spanIndex);
+		spanIndex = oKnotVect -> nextSpan(spanIndex);
 	}
 }
 
@@ -3622,11 +3644,11 @@ void snlSurface::print_cpp()
 
 	cout << "\n";
 
-	cout << "knot knotVectorU[" << knotVectU -> size() << "] = ";
+	cout << "knot knotVectorU[" << knotVectU -> getSize() << "] = ";
 	knotVectU -> print_cpp();
 	cout << "\n\n";
 
-	cout << "knot knotVectorV[" << knotVectV -> size() << "] = ";
+	cout << "knot knotVectorV[" << knotVectV -> getSize() << "] = ";
 	knotVectV -> print_cpp();
 	cout << "\n";
 }

@@ -742,9 +742,7 @@ bool snlSurface::convergeNewton(snlPoint* convergToPts, ptrList <snlSurfLocnGues
 	return converged;
 }
 
-ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation(snlPoint* points, int numPoints,
-														   bool* pointMask, int granU,
-														   int granV)
+ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation(snlPoint* points, int numPoints, bool* pointMask, int granU, int granV)
 {
 	//! Guess parametric location of given points.
 	//  ------------------------------------------
@@ -761,8 +759,8 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation(snlPoint* points, int n
 
 	int     index;
 
-	int numSpansU = knotVectU -> getNumSpans();
-	int numSpansV = knotVectV -> getNumSpans();
+	int numSpansU = knotVectU -> numSpans();
+	int numSpansV = knotVectV -> numSpans();
 
 	int numEvalU = granU * numSpansU + 1;
 	int numEvalV = granV * numSpansV + 1;
@@ -777,16 +775,16 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation(snlPoint* points, int n
 
 	// U direction.
 
-	int cSpan = knotVectU -> getFirstSpan();
+	int cSpan = knotVectU -> firstSpan();
 
-	knot paramStart = knotVectU -> val(cSpan);
+	knot paramStart = knotVectU -> getKnotVal(cSpan);
 
-	cSpan = knotVectU -> getNextSpan(cSpan);
+	cSpan = knotVectU -> nextSpan(cSpan);
 
 	knot paramEnd;
 
 	if(cSpan)
-		paramEnd = knotVectU -> val(cSpan);
+		paramEnd = knotVectU -> getKnotVal(cSpan);
 	else
 		paramEnd = knotVectU -> max();
 
@@ -828,24 +826,24 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation(snlPoint* points, int n
 
 		paramStart = paramEnd;
 
-		cSpan = knotVectU -> getNextSpan(cSpan);
+		cSpan = knotVectU -> nextSpan(cSpan);
 
 		if(cSpan)
-			paramEnd = knotVectU -> val(cSpan);
+			paramEnd = knotVectU -> getKnotVal(cSpan);
 		else
 			paramEnd = knotVectU -> max();
 	}
 
 	// V direction.
 
-	cSpan = knotVectV -> getFirstSpan();
+	cSpan = knotVectV -> firstSpan();
 
-	paramStart = knotVectV -> val(cSpan);
+	paramStart = knotVectV -> getKnotVal(cSpan);
 
-	cSpan = knotVectV -> getNextSpan(cSpan);
+	cSpan = knotVectV -> nextSpan(cSpan);
 
 	if(cSpan)
-		paramEnd = knotVectV -> val(cSpan);
+		paramEnd = knotVectV -> getKnotVal(cSpan);
 	else
 		paramEnd = knotVectV -> max();
 
@@ -880,10 +878,10 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation(snlPoint* points, int n
 
 		paramStart = paramEnd;
 
-		cSpan = knotVectV -> getNextSpan(cSpan);
+		cSpan = knotVectV -> nextSpan(cSpan);
 
 		if(cSpan)
-			paramEnd = knotVectV -> val(cSpan);
+			paramEnd = knotVectV -> getKnotVal(cSpan);
 		else
 			paramEnd = knotVectV -> max();
 	}
@@ -1138,8 +1136,8 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation(snlPoint* points, int 
 
 	int     index;
 
-	int numSpansU = knotVectU -> getNumSpans();
-	int numSpansV = knotVectV -> getNumSpans();
+	int numSpansU = knotVectU -> numSpans();
+	int numSpansV = knotVectV -> numSpans();
 
 	int numEvalU = numSpansU + 1;
 	int numEvalV = numSpansV + 1;
@@ -1152,26 +1150,26 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessProjLocation(snlPoint* points, int 
 
 	// U Direction.
 
-	int cSpan = knotVectU -> getFirstSpan();
+	int cSpan = knotVectU -> firstSpan();
 
 	for(int evalIndex = 0; evalIndex < numEvalU - 1; evalIndex ++)
 	{
-		paramU[evalIndex] = knotVectU -> val(cSpan);
+		paramU[evalIndex] = knotVectU -> getKnotVal(cSpan);
 
-		cSpan = knotVectU -> getNextSpan(cSpan);
+		cSpan = knotVectU -> nextSpan(cSpan);
 	}
 
 	paramU[numEvalU - 1] = knotVectU -> max();
 
 	// V Direction.
 
-	cSpan = knotVectV -> getFirstSpan();
+	cSpan = knotVectV -> firstSpan();
 
 	for(int evalIndex = 0; evalIndex < numEvalV - 1; evalIndex ++)
 	{
-		paramV[evalIndex] = knotVectV -> val(cSpan);
+		paramV[evalIndex] = knotVectV -> getKnotVal(cSpan);
 
-		cSpan = knotVectV -> getNextSpan(cSpan);
+		cSpan = knotVectV -> nextSpan(cSpan);
 	}
 
 	paramV[numEvalV - 1] = knotVectV -> max();
@@ -1566,8 +1564,8 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation(snlPoint* points, 
 
 	int index;
 
-	int numSpansU = knotVectU -> getNumSpans();
-	int numSpansV = knotVectV -> getNumSpans();
+	int numSpansU = knotVectU -> numSpans();
+	int numSpansV = knotVectV -> numSpans();
 
 	int numEvalU = granU * numSpansU + 1;
 	int numEvalV = granV * numSpansV + 1;
@@ -1582,16 +1580,16 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation(snlPoint* points, 
 
 	// U direction.
 
-	int cSpan = knotVectU -> getFirstSpan();
+	int cSpan = knotVectU -> firstSpan();
 
-	knot paramStart = knotVectU -> val(cSpan);
+	knot paramStart = knotVectU -> getKnotVal(cSpan);
 
-	cSpan = knotVectU -> getNextSpan(cSpan);
+	cSpan = knotVectU -> nextSpan(cSpan);
 
 	knot paramEnd;
 
 	if(cSpan)
-		paramEnd = knotVectU -> val(cSpan);
+		paramEnd = knotVectU -> getKnotVal(cSpan);
 	else
 		paramEnd = knotVectU -> max();
 
@@ -1633,24 +1631,24 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation(snlPoint* points, 
 
 		paramStart = paramEnd;
 
-		cSpan = knotVectU -> getNextSpan(cSpan);
+		cSpan = knotVectU -> nextSpan(cSpan);
 
 		if(cSpan)
-			paramEnd = knotVectU -> val(cSpan);
+			paramEnd = knotVectU -> getKnotVal(cSpan);
 		else
 			paramEnd = knotVectU -> max();
 	}
 
 	// V direction.
 
-	cSpan = knotVectV -> getFirstSpan();
+	cSpan = knotVectV -> firstSpan();
 
-	paramStart = knotVectV -> val(cSpan);
+	paramStart = knotVectV -> getKnotVal(cSpan);
 
-	cSpan = knotVectV -> getNextSpan(cSpan);
+	cSpan = knotVectV -> nextSpan(cSpan);
 
 	if(cSpan)
-		paramEnd = knotVectV -> val(cSpan);
+		paramEnd = knotVectV -> getKnotVal(cSpan);
 	else
 		paramEnd = knotVectV -> max();
 
@@ -1685,10 +1683,10 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation(snlPoint* points, 
 
 		paramStart = paramEnd;
 
-		cSpan = knotVectV -> getNextSpan(cSpan);
+		cSpan = knotVectV -> nextSpan(cSpan);
 
 		if(cSpan)
-			paramEnd = knotVectV -> val(cSpan);
+			paramEnd = knotVectV -> getKnotVal(cSpan);
 		else
 			paramEnd = knotVectV -> max();
 	}

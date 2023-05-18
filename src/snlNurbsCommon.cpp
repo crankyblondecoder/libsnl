@@ -196,8 +196,8 @@ ptrList <sLocn>* projPtSurf(snlSurface& surface, snlPoint* toProj, int toProjNum
 	// Calculate bisection step multipliers used to account for surfaces with both
 	// high curvature and high discontinuity(small number of non-zero spans, large number of knots).
 
-	int stepMultiT = (int)(surface.maxCurvatureU() * 2.0) +(surface.sizeU() / kntsT.getNumSpans());
-	int stepMultiU = (int)(surface.maxCurvatureV() * 2.0) +(surface.sizeV() / kntsU.getNumSpans());
+	int stepMultiT = (int)(surface.maxCurvatureU() * 2.0) +(surface.sizeU() / kntsT.numSpans());
+	int stepMultiU = (int)(surface.maxCurvatureV() * 2.0) +(surface.sizeV() / kntsU.numSpans());
 
 	#ifdef PROJ_COMMENT
 		cout << "stepMultiT: " << stepMultiT << "  stepMultiU: " << stepMultiU << "\n";
@@ -222,8 +222,8 @@ ptrList <sLocn>* projPtSurf(snlSurface& surface, snlPoint* toProj, int toProjNum
 		unsigned maxSpanU = kntsU.findSpan(kntsU.max());
 
 		// Seed best point.
-		paramT = kntsT.val(minSpanT);
-		paramU = kntsU.val(minSpanU);
+		paramT = kntsT.getKnotVal(minSpanT);
+		paramU = kntsU.getKnotVal(minSpanU);
 
 		evalPt = surface.eval(paramT, paramU);
 
@@ -247,8 +247,8 @@ ptrList <sLocn>* projPtSurf(snlSurface& surface, snlPoint* toProj, int toProjNum
 
 		for(unsigned spanT = minSpanT; spanT <= maxSpanT; spanT ++)
 		{
-			pTStart = kntsT.val(spanT);
-			pTEnd = kntsT.val(spanT + 1);
+			pTStart = kntsT.getKnotVal(spanT);
+			pTEnd = kntsT.getKnotVal(spanT + 1);
 
 			// Only work with non-zero length knot spans.
 			if(pTStart < pTEnd)
@@ -259,8 +259,8 @@ ptrList <sLocn>* projPtSurf(snlSurface& surface, snlPoint* toProj, int toProjNum
 
 				for(unsigned spanU = minSpanU; spanU <= maxSpanU; spanU ++)
 				{
-					pUStart = kntsU.val(spanU);
-					pUEnd = kntsU.val(spanU + 1);
+					pUStart = kntsU.getKnotVal(spanU);
+					pUEnd = kntsU.getKnotVal(spanU + 1);
 
 					// Only work with non-zero length knot spans.
 					if(pUStart < pUEnd)
