@@ -887,15 +887,25 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessInvLocation(snlPoint* points, int n
 	}
 
 	// Pre-evaluate basis functions.
+	// TODO find a better way of handling memory.
 
 	basis** basisU = new basis*[numEvalU];
 	basis** basisV = new basis*[numEvalV];
 
+	int basisSizeU = knotVectU -> getDegree() + 1;
+	int basisSizeV = knotVectV -> getDegree() + 1;
+
 	for(index = 0; index < numEvalU; index ++)
-		basisU[index] = knotVectU -> evalBasis(paramU[index]);
+	{
+		basisU[index] = new basis[basisSizeU];
+		knotVectU -> evalBasis(paramU[index], basisU[index]);
+	}
 
 	for(index = 0; index < numEvalV; index ++)
-		basisV[index] = knotVectV -> evalBasis(paramV[index]);
+	{
+		basisV[index] = new basis[basisSizeV];
+		knotVectV -> evalBasis(paramV[index], basisV[index]);
+	}
 
 	// Evaluate surface points and vectors.
 
@@ -1692,15 +1702,25 @@ ptrList <snlSurfLocnGuess>* snlSurface::guessFastProjLocation(snlPoint* points, 
 	}
 
 	// Pre-evaluate basis functions.
+	// TODO find a better way of handling memory.
 
 	basis** basisU = new basis*[numEvalU];
 	basis** basisV = new basis*[numEvalV];
 
+	int basisSizeU = knotVectU -> getDegree() + 1;
+	int basisSizeV = knotVectV -> getDegree() + 1;
+
 	for(index = 0; index < numEvalU; index ++)
-		basisU[index] = knotVectU -> evalBasis(paramU[index]);
+	{
+		basisU[index] = new basis[basisSizeU];
+		knotVectU -> evalBasis(paramU[index], basisU[index]);
+	}
 
 	for(index = 0; index < numEvalV; index ++)
-		basisV[index] = knotVectV -> evalBasis(paramV[index]);
+	{
+		basisV[index] = new basis[basisSizeV];
+		knotVectV -> evalBasis(paramV[index], basisV[index]);
+	}
 
 	// Evaluate surface points and vectors.
 

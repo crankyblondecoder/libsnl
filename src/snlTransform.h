@@ -75,7 +75,7 @@ class snlTransform : public snlMatrix_4X4
 	private:
 
 		/** Used for adding operations to the transform. */
-		snlMatrix_4X4 __scratchMatrix;
+		snlMatrix_4X4 _scratchMatrix;
 };
 
 #endif

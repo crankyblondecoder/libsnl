@@ -17,30 +17,30 @@ void snlTransform::translate(double x, double y, double z)
 {
 	if(x == 0.0 && y == 0.0 && z == 0.0) return;
 
-	__scratchMatrix.translateIdent(x, y, z);
+	_scratchMatrix.translateIdent(x, y, z);
 
-	preMultiply(__scratchMatrix);
+	preMultiply(_scratchMatrix);
 }
 
 void snlTransform::rotateX(double angle)
 {
-	__scratchMatrix.rotateXIdent(cos(angle), - sin(angle), sin(angle), cos(angle));
+	_scratchMatrix.rotateXIdent(cos(angle), - sin(angle), sin(angle), cos(angle));
 
-	preMultiply(__scratchMatrix);
+	preMultiply(_scratchMatrix);
 }
 
 void snlTransform::rotateY(double angle)
 {
-	__scratchMatrix.rotateYIdent(cos(angle), sin(angle), - sin(angle), cos(angle));
+	_scratchMatrix.rotateYIdent(cos(angle), sin(angle), - sin(angle), cos(angle));
 
-	preMultiply(__scratchMatrix);
+	preMultiply(_scratchMatrix);
 }
 
 void snlTransform::rotateZ(double angle)
 {
-	__scratchMatrix.rotateZIdent(cos(angle), - sin(angle), sin(angle), cos(angle));
+	_scratchMatrix.rotateZIdent(cos(angle), - sin(angle), sin(angle), cos(angle));
 
-	preMultiply(__scratchMatrix);
+	preMultiply(_scratchMatrix);
 }
 
 void snlTransform::rotate(double angle, snlPoint& axisStart, snlPoint& axisEnd)
@@ -104,26 +104,26 @@ void snlTransform::rotate(double angle, snlPoint& axisStart, snlVector& axisDire
 		double sinRotX = axisDirection.y() / projHyp;
 		double cosRotX = axisDirection.z() / projHyp;
 
-		__scratchMatrix.rotateXIdent(cosRotX, - sinRotX, sinRotX, cosRotX);
-		preMultiply(__scratchMatrix);
+		_scratchMatrix.rotateXIdent(cosRotX, - sinRotX, sinRotX, cosRotX);
+		preMultiply(_scratchMatrix);
 
 		// Rotate about y axis to z axis.
 		double sinRotY = -(axisDirection.x());
 		double cosRotY = projHyp;
 
-		__scratchMatrix.rotateYIdent(cosRotY, sinRotY, - sinRotY, cosRotY);
-		preMultiply(__scratchMatrix);
+		_scratchMatrix.rotateYIdent(cosRotY, sinRotY, - sinRotY, cosRotY);
+		preMultiply(_scratchMatrix);
 
 		// Rotate about z axis.
 		rotateZ(angle);
 
 		// Inverse rotation about y axis. ie Rotate back into yz plane. Negate angle of rotation.
-		__scratchMatrix.rotateYIdent(cosRotY, - sinRotY, sinRotY, cosRotY);
-		preMultiply(__scratchMatrix);
+		_scratchMatrix.rotateYIdent(cosRotY, - sinRotY, sinRotY, cosRotY);
+		preMultiply(_scratchMatrix);
 
 		// Inverse rotation about x axis.
-		__scratchMatrix.rotateXIdent(cosRotX, sinRotX, - sinRotX, cosRotX);
-		preMultiply(__scratchMatrix);
+		_scratchMatrix.rotateXIdent(cosRotX, sinRotX, - sinRotX, cosRotX);
+		preMultiply(_scratchMatrix);
 	}
 
 	// Inverse translation.
@@ -132,9 +132,9 @@ void snlTransform::rotate(double angle, snlPoint& axisStart, snlVector& axisDire
 
 void snlTransform::scale(double x, double y, double z)
 {
-	__scratchMatrix.scaleIdent(x, y , z);
+	_scratchMatrix.scaleIdent(x, y , z);
 
-	preMultiply(__scratchMatrix);
+	preMultiply(_scratchMatrix);
 }
 
 void snlTransform::align(snlVector& vector1, snlVector& vector2)

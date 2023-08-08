@@ -2,7 +2,7 @@
 
 snlKnotVector::~snlKnotVector ()
 {
-	if(__knots) delete[] __knots;
+	if(_knots) delete[] _knots;
 }
 
 snlKnotVector::snlKnotVector(const snlKnotVector& vector)
@@ -17,97 +17,97 @@ snlKnotVector::snlKnotVector(knot* knotArrayToUse, unsigned size, int degree, in
 	if(copy)
 	{
 		// Create new knot vector array from supplied data of "size".
-		__knots = new knot[size];
+		_knots = new knot[size];
 
 		// Copy supplied data into array.
 		if(knotArrayToUse)
 			for(index = 0; index < size; index ++)
-				*( __knots + index) = *( knotArrayToUse + index);
+				*( _knots + index) = *( knotArrayToUse + index);
 	}
 	else
-		__knots = knotArrayToUse;
+		_knots = knotArrayToUse;
 
-	__vectorSize = size;
+	_vectorSize = size;
 
 	if(degree < SNL_KNOT_VECTOR_MAX_DEG)
 	{
-		__deg = degree;
+		_deg = degree;
 	}
 	else
 	{
-		__deg = SNL_KNOT_VECTOR_MAX_DEG;
+		_deg = SNL_KNOT_VECTOR_MAX_DEG;
 	}
 
-	__kvType = snlKnotVectorType;
+	_kvType = snlKnotVectorType;
 }
 
 snlKnotVector::snlKnotVector(knot startVal, knot endVal, unsigned numKnots, int degree)
 {
 	unsigned index;
 
-	__kvType = open;
+	_kvType = open;
 
 	if(degree < SNL_KNOT_VECTOR_MAX_DEG)
 	{
-		__deg = degree;
+		_deg = degree;
 	}
 	else
 	{
-		__deg = SNL_KNOT_VECTOR_MAX_DEG;
+		_deg = SNL_KNOT_VECTOR_MAX_DEG;
 	}
 
 	// Calculate Spacing between knots.
 	knot step = (endVal - startVal) / (knot)(numKnots - (2 * degree) - 1);
 
 	// Create new array.
-	__knots = new knot[numKnots];
+	_knots = new knot[numKnots];
 
 	// Fill knot vector with data.
 	for(index = 0; index < numKnots; index ++)
 	{
 		if(index < (unsigned) degree)
 		{
-			__knots[index] = startVal;
+			_knots[index] = startVal;
 		}
 		else if(index >(numKnots - 1 - degree))
 		{
-			__knots[index] = endVal;
+			_knots[index] = endVal;
 		}
 		else
 		{
-			__knots[index] = startVal +(step * ((knot)(index - degree)));
+			_knots[index] = startVal +(step * ((knot)(index - degree)));
 		}
 	}
 
-	__vectorSize = numKnots;
+	_vectorSize = numKnots;
 }
 
 snlKnotVector::snlKnotVector(int size, int degree, knot* params)
 {
 	if(degree < SNL_KNOT_VECTOR_MAX_DEG)
 	{
-		__deg = degree;
+		_deg = degree;
 	}
 	else
 	{
-		__deg = SNL_KNOT_VECTOR_MAX_DEG;
+		_deg = SNL_KNOT_VECTOR_MAX_DEG;
 	}
 
-	__kvType = open;
+	_kvType = open;
 
-	__vectorSize = size + degree + 1;
+	_vectorSize = size + degree + 1;
 
-	__knots = new knot[__vectorSize];
+	_knots = new knot[_vectorSize];
 
 	int index;
 
 	// Start clamp.
 	for(index = 0; index <= degree; index ++)
-		__knots[index] = 0.0;
+		_knots[index] = 0.0;
 
 	// End clamp.
-	for(index = size; index < (int) __vectorSize; index ++)
-		__knots[index] = 1.0;
+	for(index = size; index < (int) _vectorSize; index ++)
+		_knots[index] = 1.0;
 
 	// Internal knots.
 	for(index = 1; index < size - degree; index ++)
@@ -117,33 +117,33 @@ snlKnotVector::snlKnotVector(int size, int degree, knot* params)
 		for(int paramIndex = index; paramIndex < index + degree; paramIndex ++)
 			sum += params[paramIndex];
 
-		__knots[index + degree] = sum / (double) degree;
+		_knots[index + degree] = sum / (double) degree;
 	}
 }
 
 snlKnotVector::snlKnotVector(int degree)
 {
-	__kvType = open;
+	_kvType = open;
 
 	if(degree < SNL_KNOT_VECTOR_MAX_DEG)
 	{
-		__deg = degree;
+		_deg = degree;
 	}
 	else
 	{
-		__deg = SNL_KNOT_VECTOR_MAX_DEG;
+		_deg = SNL_KNOT_VECTOR_MAX_DEG;
 	}
 
-	__vectorSize =(degree + 1) * 2;
+	_vectorSize =(degree + 1) * 2;
 
-	__knots = new knot[__vectorSize];
+	_knots = new knot[_vectorSize];
 
 	int upperIndex = degree + 1;
 
 	for(int index = 0; index <= degree; index ++)
 	{
-		__knots[index] = 0.0;
-		__knots[upperIndex ++] = 1.0;
+		_knots[index] = 0.0;
+		_knots[upperIndex ++] = 1.0;
 	}
 }
 
@@ -151,7 +151,7 @@ snlKnotVector& snlKnotVector::operator=(const snlKnotVector& knotVectToCopy)
 {
 	if(this != &knotVectToCopy)
 	{
-		if(__knots) delete[] __knots;
+		if(_knots) delete[] _knots;
 
 		__copyFrom(knotVectToCopy);
 	}
@@ -161,16 +161,16 @@ snlKnotVector& snlKnotVector::operator=(const snlKnotVector& knotVectToCopy)
 
 void snlKnotVector::__copyFrom(const snlKnotVector& vector)
 {
-	__vectorSize = vector.__vectorSize;
+	_vectorSize = vector._vectorSize;
 
-	__knots = new knot[__vectorSize];
+	_knots = new knot[_vectorSize];
 
-	__deg = vector.__deg;
+	_deg = vector._deg;
 
-	for(unsigned index = 0; index < __vectorSize; index ++)
-		__knots[index] = vector.__knots[index];
+	for(unsigned index = 0; index < _vectorSize; index ++)
+		_knots[index] = vector._knots[index];
 
-	__kvType = vector.getType();
+	_kvType = vector.getType();
 }
 
 unsigned snlKnotVector::findSpan(knot param) const
@@ -178,25 +178,25 @@ unsigned snlKnotVector::findSpan(knot param) const
 	unsigned count;
 	unsigned span = 0;
 
-	if(param > __knots[__vectorSize - 1]) param = __knots[__vectorSize - 1];
+	if(param > _knots[_vectorSize - 1]) param = _knots[_vectorSize - 1];
 
-	if(param == __knots[__vectorSize - 1])
+	if(param == _knots[_vectorSize - 1])
 	{
 		// Allow clamped end value to be a valid parameter.
 		// Not strictly correct but works better in practice.
 
 		// Step backwards through knot array until first non-zero length span found.
-		for( count =(__vectorSize - 1); count > 0 ; count --)
+		for( count =(_vectorSize - 1); count > 0 ; count --)
 		{
-			if(param <= __knots[count] && param > __knots[count - 1])
+			if(param <= _knots[count] && param > _knots[count - 1])
 				span = count - 1;
 		}
 	}
 	else
 	{
-		for( count = 0; count <(__vectorSize - 1); count ++)
+		for( count = 0; count <(_vectorSize - 1); count ++)
 		{
-			if(param >= __knots[count] && param < __knots[count + 1])
+			if(param >= _knots[count] && param < _knots[count + 1])
 				span = count;
 		}
 	}
@@ -206,44 +206,44 @@ unsigned snlKnotVector::findSpan(knot param) const
 
 knot snlKnotVector::getKnotVal(unsigned index) const
 {
-	return __knots[index];
+	return _knots[index];
 }
 
 const knot* snlKnotVector::getKnotPtr(unsigned index)
 {
-	return __knots + index;
+	return _knots + index;
 }
 
 unsigned snlKnotVector::getSize() const
 {
-	return __vectorSize;
+	return _vectorSize;
 }
 
 int snlKnotVector::getDegree()
 {
-	return __deg;
+	return _deg;
 }
 
 void snlKnotVector::setDegree(int degree)
 {
 	if(degree < SNL_KNOT_VECTOR_MAX_DEG)
 	{
-		__deg = degree;
+		_deg = degree;
 	}
 	else
 	{
-		__deg = SNL_KNOT_VECTOR_MAX_DEG;
+		_deg = SNL_KNOT_VECTOR_MAX_DEG;
 	}
 }
 
 bool snlKnotVector::equals(const snlKnotVector& knotVect) const
 {
-	if(__deg != knotVect.__deg) return false;
+	if(_deg != knotVect._deg) return false;
 
-	if(__vectorSize != knotVect.__vectorSize) return false;
+	if(_vectorSize != knotVect._vectorSize) return false;
 
-	for(unsigned index = 0; index < __vectorSize; index ++)
-		if(__knots[index] != knotVect.__knots[index]) return false;
+	for(unsigned index = 0; index < _vectorSize; index ++)
+		if(_knots[index] != knotVect._knots[index]) return false;
 
 	return true;
 }
@@ -252,122 +252,122 @@ void snlKnotVector::insertKnot(knot param, int numTimes)
 {
 	unsigned        index;
 
-	if(! __knots) return;
+	if(! _knots) return;
 
 	unsigned span = findSpan(param);
 
-	knot* newKnots = new knot[__vectorSize + numTimes];
+	knot* newKnots = new knot[_vectorSize + numTimes];
 
 	// Copy up to insertion point.
 	for(index = 0; index <= span; index ++)
-		newKnots[index] = __knots[index];
+		newKnots[index] = _knots[index];
 
 	// Add in new knot.
 	for(int count = 0; count < numTimes; count ++)
 		newKnots[span + count + 1] = param;
 
 	// Copy rest of old knots to new vector.
-	for(index = span + numTimes + 1; index < __vectorSize + numTimes; index ++)
-		newKnots[index] = __knots[index - numTimes];
+	for(index = span + numTimes + 1; index < _vectorSize + numTimes; index ++)
+		newKnots[index] = _knots[index - numTimes];
 
-	delete[] __knots;
+	delete[] _knots;
 
-	__knots = newKnots;
+	_knots = newKnots;
 
-	__vectorSize += numTimes;
+	_vectorSize += numTimes;
 }
 
 void snlKnotVector::removeKnot(unsigned spanIndex)
 {
 	unsigned index;
 
-	knot * newKnots = new knot[__vectorSize - 1];
+	knot * newKnots = new knot[_vectorSize - 1];
 
 	// Copy up to removal point.
 	for(index = 0; index < spanIndex; index ++)
-		newKnots[index] = __knots[index];
+		newKnots[index] = _knots[index];
 
 	// Copy remainder of knots. Skip knot to be removed.
-	for(index = spanIndex; index < __vectorSize - 1; index ++)
-		newKnots[index] = __knots[index + 1];
+	for(index = spanIndex; index < _vectorSize - 1; index ++)
+		newKnots[index] = _knots[index + 1];
 
-	delete[] __knots;
+	delete[] _knots;
 
-	__knots = newKnots;
+	_knots = newKnots;
 
-	__vectorSize --;
+	_vectorSize --;
 }
 
 void snlKnotVector::grow(unsigned bySize)
 {
-	knot* newKnots = new knot[__vectorSize + bySize];
+	knot* newKnots = new knot[_vectorSize + bySize];
 
-	for(unsigned index = 0; index < __vectorSize; index ++)
-		newKnots[index] = __knots[index];
+	for(unsigned index = 0; index < _vectorSize; index ++)
+		newKnots[index] = _knots[index];
 
-	delete[] __knots;
+	delete[] _knots;
 
-	__knots = newKnots;
+	_knots = newKnots;
 
-	__vectorSize += bySize;
+	_vectorSize += bySize;
 }
 
 void snlKnotVector::increaseMultiplicity(unsigned spanIndex, int numKnotsToAdd)
 {
 	unsigned index;
 
-	if(!__knots) return;
+	if(!_knots) return;
 
-	knot param = __knots[spanIndex];
+	knot param = _knots[spanIndex];
 
-	knot* newKnots = new knot[__vectorSize + numKnotsToAdd];
+	knot* newKnots = new knot[_vectorSize + numKnotsToAdd];
 
 	// Copy up to insertion point.
 	for(index = 0; index <= spanIndex; index ++)
-		newKnots[index] = __knots[index];
+		newKnots[index] = _knots[index];
 
 	// Add in new knots.
 	for(index = spanIndex + 1; index <= spanIndex + numKnotsToAdd; index ++)
 		newKnots[index] = param;
 
 	// Copy rest of old knots to new vector.
-	for(index = spanIndex + numKnotsToAdd + 1; index < __vectorSize + numKnotsToAdd; index ++)
-		newKnots[index] = __knots[index - numKnotsToAdd];
+	for(index = spanIndex + numKnotsToAdd + 1; index < _vectorSize + numKnotsToAdd; index ++)
+		newKnots[index] = _knots[index - numKnotsToAdd];
 
-	delete[] __knots;
+	delete[] _knots;
 
-	__knots = newKnots;
+	_knots = newKnots;
 
-	__vectorSize += numKnotsToAdd;
+	_vectorSize += numKnotsToAdd;
 }
 
 int snlKnotVector::getType() const
 {
-	return __kvType;
+	return _kvType;
 }
 
 const knot* snlKnotVector::getKnotArray()
 {
-	return __knots;
+	return _knots;
 }
 
 knot snlKnotVector::max() const
 {
-	return __knots[__vectorSize - 1];
+	return _knots[_vectorSize - 1];
 }
 
 knot snlKnotVector::min() const
 {
-	return __knots[0];
+	return _knots[0];
 }
 
 unsigned snlKnotVector::numSpans() const
 {
 	unsigned numSpans = 0;
 
-	for(unsigned index = 0; index <(__vectorSize - 1); index ++)
+	for(unsigned index = 0; index <(_vectorSize - 1); index ++)
 	{
-		if(__knots[index + 1] > __knots[index]) numSpans++;
+		if(_knots[index + 1] > _knots[index]) numSpans++;
 	}
 
 	return numSpans;
@@ -375,9 +375,9 @@ unsigned snlKnotVector::numSpans() const
 
 unsigned snlKnotVector::firstSpan() const
 {
-	for(unsigned index = 0; index <(__vectorSize - 1); index ++)
+	for(unsigned index = 0; index <(_vectorSize - 1); index ++)
 	{
-		if(__knots[index + 1] > __knots[index]) return index;
+		if(_knots[index + 1] > _knots[index]) return index;
 	}
 
 	return 0;
@@ -385,9 +385,9 @@ unsigned snlKnotVector::firstSpan() const
 
 unsigned snlKnotVector::nextSpan(unsigned spanIndex) const
 {
-	for(unsigned index = spanIndex + 1; index <(__vectorSize - 1); index ++)
+	for(unsigned index = spanIndex + 1; index <(_vectorSize - 1); index ++)
 	{
-		if(__knots[index + 1] > __knots[index]) return index;
+		if(_knots[index + 1] > _knots[index]) return index;
 	}
 
 	return 0;
@@ -397,7 +397,7 @@ unsigned snlKnotVector::previousSpan(unsigned spanIndex) const
 {
 	for(unsigned index = spanIndex - 1; index >= 0; index --)
 	{
-		if(__knots[index + 1] > __knots[index]) return index;
+		if(_knots[index + 1] > _knots[index]) return index;
 	}
 
 	return 0;
@@ -409,13 +409,13 @@ int snlKnotVector::findMultiplicity(unsigned index) const
 
 	unsigned cIndex = index;
 
-	while(__knots[cIndex] == __knots[cIndex + 1]) cIndex ++;
+	while(_knots[cIndex] == _knots[cIndex + 1]) cIndex ++;
 
 	// Count multiples backwards.
 
 	int multi = 1;
 
-	while(__knots[cIndex] == __knots[cIndex - 1])
+	while(_knots[cIndex] == _knots[cIndex - 1])
 	{
 		multi ++;
 
@@ -451,7 +451,7 @@ void snlKnotVector::truncate(knot param, bool keepLast)
 	{
 		start = findSpan(param);
 		start = previousSpan(start) + 1;  // Go to start of knots if more than one at param.
-		end = __vectorSize - 1;
+		end = _vectorSize - 1;
 	}
 	else
 	{
@@ -470,90 +470,90 @@ void snlKnotVector::truncate(knot param, bool keepLast)
 	if(keepLast)
 	{
 		for(unsigned index = 1; index < newSize; index ++, copyFrom ++)
-			newKnots[index] = __knots[copyFrom];
+			newKnots[index] = _knots[copyFrom];
 
 		newKnots[0] = param;
 	}
 	else
 	{
 		for(unsigned index = 0; index < newSize - 1; index ++, copyFrom ++)
-			newKnots[index] = __knots[copyFrom];
+			newKnots[index] = _knots[copyFrom];
 
 		newKnots[newSize - 1] = param;
 	}
 
-	delete[] __knots;
+	delete[] _knots;
 
-	__knots = newKnots;
+	_knots = newKnots;
 
-	__vectorSize = newSize;
+	_vectorSize = newSize;
 }
 
 void snlKnotVector::reparameterise(knot startKnot, knot endKnot)
 {
-	double oldLength = __knots[__vectorSize - 1] - __knots[0];
+	double oldLength = _knots[_vectorSize - 1] - _knots[0];
 	double newLength = endKnot - startKnot;
 
-	double oldStartKnot = __knots[0];
+	double oldStartKnot = _knots[0];
 
-	for(unsigned index = 0; index < __vectorSize; index ++)
-		__knots[index] =(( __knots[index] - oldStartKnot) / oldLength) * newLength + startKnot;
+	for(unsigned index = 0; index < _vectorSize; index ++)
+		_knots[index] =(( _knots[index] - oldStartKnot) / oldLength) * newLength + startKnot;
 }
 
 void snlKnotVector::reverse()
 {
-	unsigned midPoint = __vectorSize / 2;
+	unsigned midPoint = _vectorSize / 2;
 
-	unsigned swapIndex = __vectorSize - 1;
+	unsigned swapIndex = _vectorSize - 1;
 
 	for(unsigned index = 0; index < midPoint; index ++)
 	{
-		knot trans = __knots[index];  // Transfer value.
-		__knots[index] = __knots[swapIndex];
-		__knots[swapIndex --] = trans;
+		knot trans = _knots[index];  // Transfer value.
+		_knots[index] = _knots[swapIndex];
+		_knots[swapIndex --] = trans;
 	}
 }
 
 void snlKnotVector::join(snlKnotVector* knotVector)
 {
-	if(knotVector -> __deg != __deg) return;
+	if(knotVector -> _deg != _deg) return;
 
-	unsigned newSize = __vectorSize +(knotVector -> __vectorSize) - __deg - 2;
+	unsigned newSize = _vectorSize +(knotVector -> _vectorSize) - _deg - 2;
 
-	unsigned oldSize = __vectorSize;
+	unsigned oldSize = _vectorSize;
 
-	grow(newSize - __vectorSize);
+	grow(newSize - _vectorSize);
 
 	// Copy new points into knot array.
 
-	unsigned copyFromIndex = __deg + 1;  // The appended vector loses deg + 1 knots from the start of it's array.
+	unsigned copyFromIndex = _deg + 1;  // The appended vector loses deg + 1 knots from the start of it's array.
 
 	// This knot vector looses one knot at end of the array
 
 	for(unsigned index = oldSize - 1; index < newSize; index ++)
-		__knots[index] = knotVector -> __knots[copyFromIndex ++];
+		_knots[index] = knotVector -> _knots[copyFromIndex ++];
 }
 
 void snlKnotVector::evalBasis(knot param, basis* retArray)
 {
-	if(param == __knots[0] && __kvType == open)
+	if(param == _knots[0] && _kvType == open)
 	{
 		// First basis function value is 1 the rest are zero.
 
 		retArray[0] = 1.0;
 
-		for(int index = 1; index < __deg + 1; index ++) retArray[index] = 0.0;
+		for(int index = 1; index < _deg + 1; index ++) retArray[index] = 0.0;
 
 		return;
 	}
 
-	if(param == __knots[__vectorSize - 1] && __kvType == open)
+	if(param == _knots[_vectorSize - 1] && _kvType == open)
 	{
 		// Last basis function value is 1 the rest are zero.
 
-		retArray[__deg] = 1.0;
+		retArray[_deg] = 1.0;
 
-		for(int index = 0; index < __deg; index ++) retArray[index] = 0.0;
+		for(int index = 0; index < _deg; index ++) retArray[index] = 0.0;
 
 		return;
 	}
@@ -562,24 +562,24 @@ void snlKnotVector::evalBasis(knot param, basis* retArray)
 
 	// Using the maximum size allowed saves on memory allocation overhead.
 	// Keeping them local in the stack is thread safe as well.
-	basis right[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
-	basis left[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+	basis right[SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
+	basis left[SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
 
 	basis saved, temp;
 	unsigned index, level;
 
 	retArray[0] = 1.0;
 
-	for(level = 1; level <= (unsigned) __deg; level ++)
+	for(level = 1; level <= (unsigned) _deg; level ++)
 	{
-		left[level] = param - __knots[spanIndex + 1 - level];
-		right[level] = __knots[spanIndex + level] - param;
+		left[level] = param - _knots[spanIndex + 1 - level];
+		right[level] = _knots[spanIndex + level] - param;
 
 		saved = 0.0;
 
 		for(index = 0; index < level; index ++)
 		{
-			temp = retArray[index] /(right[index + 1] + left[level - index]);
+			temp = retArray[index] / (right[index + 1] + left[level - index]);
 			retArray[index] = saved + right[index + 1] * temp;
 			saved = left[level - index] * temp;
 		}
@@ -594,8 +594,8 @@ void snlKnotVector::evalBasisDeriv(knot param, int deriv, basis* retArray)
 
 	// Using the maximum size allowed saves on memory allocation overhead.
 	// Keeping them local in the stack is thread safe as well.
-	basis right[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
-	basis left[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+	basis right[SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
+	basis left[SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
 	basis derivSaved[SNL_KNOT_VECTOR_MAX_DEG];
 
 	basis saved, temp;
@@ -607,10 +607,10 @@ void snlKnotVector::evalBasisDeriv(knot param, int deriv, basis* retArray)
 
 	unsigned overFlow;  // Just in case deriv is bigger than degree.
 
-	if(deriv > __deg)
+	if(deriv > _deg)
 	{
-		overFlow = deriv - __deg;
-		deriv = __deg;
+		overFlow = deriv - _deg;
+		deriv = _deg;
 	}
 	else
 	{
@@ -619,10 +619,10 @@ void snlKnotVector::evalBasisDeriv(knot param, int deriv, basis* retArray)
 
 	retArray[0] = 1.0;
 
-	for(level = 1; level <= (unsigned) __deg; level ++)
+	for(level = 1; level <= (unsigned) _deg; level ++)
 	{
-		left[level] = param - __knots[spanIndex + 1 - level];
-		right[level] = __knots[spanIndex + level] - param;
+		left[level] = param - _knots[spanIndex + 1 - level];
+		right[level] = _knots[spanIndex + level] - param;
 
 		saved = 0.0;
 
@@ -638,18 +638,18 @@ void snlKnotVector::evalBasisDeriv(knot param, int deriv, basis* retArray)
 			saved = left[level - index] * temp;
 
 			// Process first order derivatives as needed.
-			if(level > (unsigned)(__deg - deriv))
+			if(level > (unsigned)(_deg - deriv))
 			{
-				retArray[index +(( __deg - level + 1) * (__deg + 1))] = level * (derivSaved[0] - temp);
+				retArray[index +(( _deg - level + 1) * (_deg + 1))] = level * (derivSaved[0] - temp);
 				derivSaved[0] = temp;
 			}
 
 			// Process other order derivatives.
-			for(count = __deg - level + 2; count <= deriv; count ++)
+			for(count = _deg - level + 2; count <= deriv; count ++)
 			{
-				temp = retArray[index + (count *(__deg + 1))] / (right[index + 1] + left[level - index]);
+				temp = retArray[index + (count *(_deg + 1))] / (right[index + 1] + left[level - index]);
 
-				retArray[index +(count * (__deg + 1))] = level * (derivSaved[count - 1] - temp);
+				retArray[index +(count * (_deg + 1))] = level * (derivSaved[count - 1] - temp);
 
 				derivSaved[count - 1] = temp;
 			}
@@ -658,21 +658,21 @@ void snlKnotVector::evalBasisDeriv(knot param, int deriv, basis* retArray)
 		retArray[level] = saved;
 
 		// Add last first order derivative at this level.
-		if(level > (unsigned)(__deg - deriv))
+		if(level > (unsigned)(_deg - deriv))
 		{
-			retArray[level + (( __deg - level + 1) * (__deg + 1))] = level * derivSaved[0];
+			retArray[level + (( _deg - level + 1) * (_deg + 1))] = level * derivSaved[0];
 		}
 
 		// Add last other order derivatives at this level.
-		for(count = __deg - level + 2; count <= deriv; count ++)
+		for(count = _deg - level + 2; count <= deriv; count ++)
 		{
-			retArray[index +(count * (__deg + 1))] = level * derivSaved[count - 1];
+			retArray[index +(count * (_deg + 1))] = level * derivSaved[count - 1];
 		}
 	}
 
 	if(overFlow)
 	{
-		for(index =(deriv + 1) * (__deg + 1); index <(deriv + overFlow + 1) * (__deg + 1); index ++)
+		for(index =(deriv + 1) * (_deg + 1); index <(deriv + overFlow + 1) * (_deg + 1); index ++)
 		{
 			retArray[index] = 0.0;
 		}
@@ -685,7 +685,7 @@ double* snlKnotVector::calcRemovalAlphas(unsigned span)
 	unsigned multi = findMultiplicity(span);
 
 	// Calculate the number of equations.
-	unsigned numEqns = __deg - multi + 1;
+	unsigned numEqns = _deg - multi + 1;
 
 	knot rParam = getKnotVal(span);
 
@@ -693,9 +693,9 @@ double* snlKnotVector::calcRemovalAlphas(unsigned span)
 
 	unsigned count = 0;
 
-	for(unsigned index = span - __deg; index <=(span - multi); index ++)
+	for(unsigned index = span - _deg; index <=(span - multi); index ++)
 	{
-		alpha[count ++]  =(rParam - (__knots[index])) /(__knots[index + __deg + 1] - __knots[index]);
+		alpha[count ++]  =(rParam - (_knots[index])) /(_knots[index + _deg + 1] - _knots[index]);
 	}
 
 	return alpha;
@@ -703,10 +703,10 @@ double* snlKnotVector::calcRemovalAlphas(unsigned span)
 
 void snlKnotVector::print()
 {
-	cout << "degree: " << __deg << " Knots: ";
+	cout << "degree: " << _deg << " Knots: ";
 
-	for(unsigned index = 0; index < __vectorSize; index ++)
-		cout << __knots[index] << "  ";
+	for(unsigned index = 0; index < _vectorSize; index ++)
+		cout << _knots[index] << "  ";
 
 	cout << "\n";
 }
@@ -715,11 +715,11 @@ void snlKnotVector::print_cpp()
 {
 	cout << "{ ";
 
-	for(unsigned index = 0; index < __vectorSize; index ++)
+	for(unsigned index = 0; index < _vectorSize; index ++)
 	{
-		cout << __knots[index];
+		cout << _knots[index];
 
-		if(index < __vectorSize - 1)
+		if(index < _vectorSize - 1)
 			cout << ", ";
 	}
 

@@ -6,101 +6,78 @@
 
 snlCurve::~snlCurve()
 {
-	if(ctrlPtNet) delete ctrlPtNet;
-	if(knotVect) delete knotVect;
+	if(_ctrlPtNet) delete _ctrlPtNet;
+	if(_knotVect) delete _knotVect;
 }
 
 snlCurve::snlCurve()
 {
-	deg = 0;
+	_deg = 0;
 
-	ctrlPtNet = 0;
-	knotVect = 0;
+	_ctrlPtNet = 0;
+	_knotVect = 0;
 }
 
 snlCurve::snlCurve(const snlCurve& copyFrom)
 {
-	// Copy constructor.
-	// -----------------
+	_ctrlPtNet = new snlCtrlPointNetCurve(*(copyFrom._ctrlPtNet));
 
-	ctrlPtNet = new snlCtrlPointNetCurve(*(copyFrom.ctrlPtNet));
+	_knotVect = new snlKnotVector(*(copyFrom._knotVect));
 
-	knotVect = new snlKnotVector(*(copyFrom.knotVect));
+	_deg = copyFrom._deg;
+}
 
-	deg = copyFrom.deg;
+snlCurve& snlCurve::operator=(const snlCurve& curveToCopy)
+{
+	if(this != &curveToCopy)
+	{
+		if(_ctrlPtNet) delete _ctrlPtNet;
+		if(_knotVect) delete _knotVect;
+
+		_ctrlPtNet = new snlCtrlPointNetCurve(*(curveToCopy._ctrlPtNet));
+
+		_knotVect = new snlKnotVector(*(curveToCopy._knotVect));
+
+		_deg = curveToCopy._deg;
+	}
+
+	return *this;
 }
 
 snlCurve::snlCurve(int degree, unsigned size, snlPoint& start, snlPoint& end)
 {
-	// Generate new curve.
-	// -------------------
-	// deg:    Degree of curve.
-	// size:   Number of control points curve has.
-	// start:  Starting point of curve.
-	// end:    Ending point of curve.
-	//
-	// Notes:  Draws a straight line.
+	_deg = degree;
 
-	deg = degree;
+	_ctrlPtNet = new snlCtrlPointNetCurve(size, start, end);
 
-	ctrlPtNet = new snlCtrlPointNetCurve(size, start, end);
-
-	knotVect = new snlKnotVector(0.0, 1.0, size + degree + 1, degree);
+	_knotVect = new snlKnotVector(0.0, 1.0, size + degree + 1, degree);
 }
 
 snlCurve::snlCurve(int degree, unsigned size, snlCtrlPoint* points, knot* knots)
 {
-	// Generate new curve.
-	// -------------------
-	// deg:        Degree of curve.
-	// size:       Number of control points curve has.
-	// points:     Points to use.
-	// knots:      Knots to use.
-	//
-	// Notes:      Does not copy points and knots. So don't delete them elsewhere.
+	_deg = degree;
 
-	deg = degree;
-
-	ctrlPtNet = new snlCtrlPointNetCurve(points, size, false);
+	_ctrlPtNet = new snlCtrlPointNetCurve(points, size, false);
 
 	if(knots)
-		knotVect = new snlKnotVector(knots, size + degree + 1, degree);
+		_knotVect = new snlKnotVector(knots, size + degree + 1, degree);
 	else
-		knotVect = new snlKnotVector(0.0, 1.0, size + degree + 1, degree);
+		_knotVect = new snlKnotVector(0.0, 1.0, size + degree + 1, degree);
 }
 
 snlCurve::snlCurve(unsigned size, snlCtrlPoint* points, snlKnotVector* knotVector)
 {
-	// Generate new curve.
-	// -------------------
-	// size:        Size of control point array.
-	// points:      Control point array.
-	// knotVect:    Knot vector to use.
-	//
-	// Notes:       Does not copy points and knot vector. So don't delete them elsewhere.
+	_deg = knotVector -> getDegree();
 
-	deg = knotVector -> getDegree();
+	_knotVect = knotVector;
 
-	knotVect = knotVector;
-
-	ctrlPtNet = new snlCtrlPointNetCurve(points, size, false);
+	_ctrlPtNet = new snlCtrlPointNetCurve(points, size, false);
 }
 
 snlCurve::snlCurve(snlPoint* points, unsigned size, int fittingType, int degree, bool closedLoop, knot** retParams)
 {
-	// Interpolated / approximated curve.
-	// ----------------------------------
-	// points:      Points to interpolate between.
-	// size:        Number of points.
-	// fittingType: Type of interpolation from SNL_FITTING_TYPES.
-	// degree:      Resultant curve should be this degree.
-	// closedLoop:  The points specify a closed loop that should join smoothly.
-	// retParams:   Pointer to pointer that points to array of parameters that correspond to given points.
-	//
-	// Notes:       Array returned via retParams should be deleted by calling function.
-
-	ctrlPtNet = 0;
-	knotVect = 0;
+	_ctrlPtNet = 0;
+	_knotVect = 0;
 
 	switch(fittingType)
 	{
@@ -126,15 +103,6 @@ snlCurve::snlCurve(snlPoint* points, unsigned size, int fittingType, int degree,
 
 snlCurve::snlCurve(snlPoint& startPoint, snlPoint& endPoint, snlPoint& centrePoint, int numSections)
 {
-	// Create curve as circular arc.
-	// -----------------------------
-	// startPoint:      Starting point of arc.
-	// endPoint:        Ending point of arc.
-	// centrePoint:     Centre point of arc.
-	// numSections:    (optional) specify number of sections arc has.
-	//
-	// Notes:           Can not do an arc bigger than 180 degrees.
-
 	snlVector arcStart = startPoint - centrePoint;
 	snlVector arcEnd = endPoint - centrePoint;
 
@@ -195,7 +163,7 @@ snlCurve::snlCurve(snlPoint& startPoint, snlPoint& endPoint, snlPoint& centrePoi
 
 	// Generate control point net.
 
-	ctrlPtNet = new snlCtrlPointNetCurve(ctrlPts, numCtrlPts);
+	_ctrlPtNet = new snlCtrlPointNetCurve(ctrlPts, numCtrlPts);
 
 	// Generate knot vector. Degree 2.
 
@@ -225,61 +193,35 @@ snlCurve::snlCurve(snlPoint& startPoint, snlPoint& endPoint, snlPoint& centrePoi
 
 	// Generate knot vector.
 
-	knotVect = new snlKnotVector(knots, numKnots, 2);
+	_knotVect = new snlKnotVector(knots, numKnots, 2);
 
-	deg = 2;
-}
-
-snlCurve& snlCurve::operator=(const snlCurve& curveToCopy)
-{
-	if(this != &curveToCopy)
-	{
-		if(ctrlPtNet) delete ctrlPtNet;
-		if(knotVect) delete knotVect;
-
-		ctrlPtNet = new snlCtrlPointNetCurve(*(curveToCopy.ctrlPtNet));
-
-		knotVect = new snlKnotVector(*(curveToCopy.knotVect));
-
-		deg = curveToCopy.deg;
-	}
-
-	return *this;
+	_deg = 2;
 }
 
 snlCtrlPointNetCurve& snlCurve::controlPointNet()
 {
-	// Return reference to control point network object for curve.
-	// -----------------------------------------------------------
-
-	return *ctrlPtNet;
+	return *_ctrlPtNet;
 }
 
 snlPoint snlCurve::evalHmg(knot param) const
 {
-	// Evaluate Non Rational Homogeneous Curve Point.
-	// ----------------------------------------------
-	// param: Parameter to evaluate.
-	//
-	// Returns: Homogeneous point on curve.
-
 	snlPoint rPoint;  // Return point.
 
-	unsigned span = knotVect -> findSpan(param);
+	unsigned span = _knotVect -> findSpan(param);
 
 	// Evaluate basis functions.
 	// Just fix the size of the evaluated basis function array to the max it can be.
-	basis bVals[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
-	knotVect -> evalBasis(param, bVals);
+	basis bVals[SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
+	_knotVect -> evalBasis(param, bVals);
 
-	unsigned baseIndex = span - (unsigned) deg;
+	unsigned baseIndex = span - (unsigned) _deg;
 
 	// Get control point array.
-	const snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPts();
+	const snlCtrlPoint* ctrlPts = _ctrlPtNet -> getCtrlPts();
 
 	rPoint.zero();  // Set everything to zero.
 
-	for(int index = 0; index <= deg; index ++)
+	for(int index = 0; index <= _deg; index ++)
 	{
 		// This is more efficient than the operator based equivalent becaues there is not construction of temp vectors.
 		rPoint.multAdd(bVals[index], ctrlPts[baseIndex + index]);
@@ -290,12 +232,6 @@ snlPoint snlCurve::evalHmg(knot param) const
 
 snlPoint snlCurve::eval(knot param) const
 {
-	// Evaluate rational non-homogeneous curve point.
-	// ----------------------------------------------
-	// param:       Parameter to evaluate.
-	//
-	// Returns:     Non-homogeneous point on curve.
-
 	snlPoint retPoint = evalHmg(param);
 	retPoint.project();
 
@@ -304,36 +240,28 @@ snlPoint snlCurve::eval(knot param) const
 
 snlPoint* snlCurve::evalDerivsHmg(knot param, unsigned deriv) const
 {
-	// Evaluate Non Rational Homogeneous Surface Derivatives.
-	// ------------------------------------------------------
-	// param:       Parameter to evaluate at.
-	// deriv        Derivative order to evaluate.
-	//
-	// Returns:     Array of snlPoint[deriv + 1]. Calling function
-	//              must delete[] this array.
-
 	snlPoint* retPnts = new snlPoint[deriv + 1];
 
 	// Find spans
-	unsigned span = knotVect -> findSpan(param);
+	unsigned span = _knotVect -> findSpan(param);
 
 	// Evaluate basis functions.
 	// Just fix the size of the evaluated basis function array to the max it can be.
-	basis bVals[SNL_KNOT_VECTOR_MAX_DEG * SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
-	knotVect -> evalBasisDeriv(param, deriv, bVals);
+	basis bVals[SNL_KNOT_VECTOR_MAX_DEG * SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
+	_knotVect -> evalBasisDeriv(param, deriv, bVals);
 
-	unsigned baseIndex = span - (unsigned) deg;
+	unsigned baseIndex = span - (unsigned) _deg;
 
 	// Get control point array.
-	const snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPts();
+	const snlCtrlPoint* ctrlPts = _ctrlPtNet -> getCtrlPts();
 
 	for(unsigned derivIndex = 0; derivIndex <= deriv; derivIndex ++)
 	{
 		retPnts[derivIndex].zero();  // Set everything to zero.
 
-		for(int index = 0; index <= deg; index ++)
+		for(int index = 0; index <= _deg; index ++)
 		{
-			retPnts[derivIndex].multAdd(bVals[index + derivIndex *(deg + 1)], ctrlPts[baseIndex + index]);
+			retPnts[derivIndex].multAdd(bVals[index + derivIndex *(_deg + 1)], ctrlPts[baseIndex + index]);
 		}
 	}
 
@@ -342,14 +270,6 @@ snlPoint* snlCurve::evalDerivsHmg(knot param, unsigned deriv) const
 
 snlPoint* snlCurve::evalDerivs(knot param, unsigned deriv) const
 {
-	// Evaluate Rational Non-Homogeneous Surface Derivatives
-	// -----------------------------------------------------
-	// param:       Parameter to evaluate at.
-	// deriv:       Derivative order to evaluate.
-	//
-	// Returns:     Array of snlPoint[deriv + 1]. Calling function must
-	//              delete[] array.
-
 	// Get homogeneous derivatives.
 	snlPoint* derivPts = evalDerivsHmg(param, deriv);
 
@@ -385,10 +305,6 @@ snlPoint* snlCurve::evalDerivs(knot param, unsigned deriv) const
 
 snlVector snlCurve::velocity(knot param)
 {
-	// Velocity(first derivative) of curve.
-	// ---------------------------------------
-	// param:    Parameter to get velocity at.
-
 	snlPoint* derivPoints = evalDerivs(param, 1);
 
 	snlVector retVect(derivPoints[1]);
@@ -400,43 +316,35 @@ snlVector snlCurve::velocity(knot param)
 
 void snlCurve::insertKnot(knot iParam, bool reallocate)
 {
-	// Insert a knot into knot vector and calculate new control points.
-	// ---------------------------------------------------------------
-	// iParam:      Parameter value to insert.
-	// reallocate:  Reallocate memory for control points.
-	//
-	// Notes:       ctrlPts MUST have an additional point space allocated at the end of
-	//              each line in the array for the chosen direction.
-
 	unsigned        count, index;
 	snlCtrlPoint    pt1, pt2;
 
 	if(reallocate)
-		ctrlPtNet -> grow();
+		_ctrlPtNet -> grow();
 
 	// Span new knot belongs to.
-	unsigned span = knotVect -> findSpan(iParam);
+	unsigned span = _knotVect -> findSpan(iParam);
 
 	// Pre calculate alphas.
-	double* alpha = new double[deg];
+	double* alpha = new double[_deg];
 
-	for(count = 0; count < (unsigned) deg; count ++)
+	for(count = 0; count < (unsigned) _deg; count ++)
 	{
-		index = span - deg + 1 + count;
-		alpha[count]  =(iParam -(knotVect -> getKnotVal(index)))
-						   /(knotVect -> getKnotVal(index + deg) - knotVect -> getKnotVal(index));
+		index = span - _deg + 1 + count;
+		alpha[count]  =(iParam -(_knotVect -> getKnotVal(index)))
+						   /(_knotVect -> getKnotVal(index + _deg) - _knotVect -> getKnotVal(index));
 	}
 
 	// Build temp array to store new array of control points in.
-	snlCtrlPoint* tmpPts = new snlCtrlPoint[deg];
+	snlCtrlPoint* tmpPts = new snlCtrlPoint[_deg];
 
 	// Get pointer to control points.
-	snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPtsPtr();
+	snlCtrlPoint* ctrlPts = _ctrlPtNet -> getCtrlPtsPtr();
 
 	// Calculate new control points.
-	for(count = 0; count < (unsigned) deg; count ++)
+	for(count = 0; count < (unsigned) _deg; count ++)
 	{
-		index = span - deg + 1 + count;
+		index = span - _deg + 1 + count;
 
 		// Get first and second ctrl points to process with
 
@@ -452,18 +360,18 @@ void snlCurve::insertKnot(knot iParam, bool reallocate)
 	// Place new points into array.
 
 	// Copy non-altered control points forward one position at the end of the array.
-	for(count =(ctrlPtNet -> size()) - 1; count > span; count --)
+	for(count =(_ctrlPtNet -> size()) - 1; count > span; count --)
 		ctrlPts[count] = ctrlPts[count - 1];
 
 	// Copy new control points into array.
-	for(count = 0; count < (unsigned) deg; count ++)
+	for(count = 0; count < (unsigned) _deg; count ++)
 	{
-		index = span - deg + 1 + count;
+		index = span - _deg + 1 + count;
 		ctrlPts[index] = tmpPts[count];
 	}
 
 	// Insert new knot into knot vector
-	knotVect -> insertKnot(iParam);
+	_knotVect -> insertKnot(iParam);
 
 	delete[] tmpPts;
 	delete[] alpha;
@@ -471,36 +379,19 @@ void snlCurve::insertKnot(knot iParam, bool reallocate)
 
 void snlCurve::insertKnots(knot iParam, int numToInsert, bool reallocate)
 {
-	// Insert multiple knots.
-	// ----------------------
-	// iParam:        Parameter to insert.
-	// numToInsert:   Number of knots to insert.
-	// reallocate:    Reallocate memory for control points.
-
 	for(int index = 0; index < numToInsert; index ++)
 		insertKnot(iParam, reallocate);
 }
 
 double snlCurve::removeKnots(int numKnots, unsigned removalIndex, double tolerance)
 {
-	// Remove multiple knots from index.
-	// ---------------------------------
-	// numKnots:            Number of knots to remove.
-	// removalIndex:        Index to remove knot from.
-	// tolerance:           Maximum error allowed before knot removal aborted.
-	//                      No tolerance if equals 0.
-	//
-	// Returns:             Tolerance achieved during knot removal whether successful or not.
-	//
-	// Notes:               Only removes multiples of the same parameter value initially at removal index.
-
 	if(numKnots < 1) return 0.0;
 
 	double maxTol = 0.0;
 
-	double param = knotVect -> getKnotVal(removalIndex);
+	double param = _knotVect -> getKnotVal(removalIndex);
 
-	int multi = knotVect -> findMultiplicity(removalIndex);
+	int multi = _knotVect -> findMultiplicity(removalIndex);
 
 	int numToRemove = numKnots > multi ? multi : numKnots;
 
@@ -510,7 +401,7 @@ double snlCurve::removeKnots(int numKnots, unsigned removalIndex, double toleran
 
 		if(tol > maxTol) maxTol = tol;
 
-		removalIndex = knotVect -> findSpan(param);
+		removalIndex = _knotVect -> findSpan(param);
 	}
 
 	return maxTol;
@@ -518,28 +409,20 @@ double snlCurve::removeKnots(int numKnots, unsigned removalIndex, double toleran
 
 double snlCurve::removeKnot(unsigned removalIndex, double tolerance)
 {
-	// Remove knot from curve.
-	// -----------------------
-	// removalIndex:        Index to remove knot from.
-	// tolerance:           Maximum error allowed before knot removal aborted.
-	//                      No tolerance if equals 0.
-	//
-	// Returns:             Tolerance achieved during knot removal whether successful or not.
-
-	knot rParam = knotVect -> getKnotVal(removalIndex);
+	knot rParam = _knotVect -> getKnotVal(removalIndex);
 
 	// Span knot to be removed belongs to. This will always adjust the removal index to
 	// point to a non-zero span. ie Multiplicity check.
-	unsigned rSpan = knotVect -> findSpan(rParam);
+	unsigned rSpan = _knotVect -> findSpan(rParam);
 
 	// Find multiplicity of knot at index.
-	unsigned multi = knotVect -> findMultiplicity(rSpan);
+	unsigned multi = _knotVect -> findMultiplicity(rSpan);
 
 	// Calculate the number of equations.
-	unsigned numEqns = deg - multi + 1;
+	unsigned numEqns = _deg - multi + 1;
 
 	// Pre calculate alphas.
-	double* alpha = knotVect -> calcRemovalAlphas(rSpan);
+	double* alpha = _knotVect -> calcRemovalAlphas(rSpan);
 
 	// Build temp array to store new set of control points in.
 	// First and last points are not new.
@@ -547,9 +430,9 @@ double snlCurve::removeKnot(unsigned removalIndex, double tolerance)
 
 	// Get control point array and calculate starting point for processing new points within it.
 
-	const snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPts();
+	const snlCtrlPoint* ctrlPts = _ctrlPtNet -> getCtrlPts();
 
-	unsigned ctrlPtIndex = rSpan - deg - 1;
+	unsigned ctrlPtIndex = rSpan - _deg - 1;
 
 	// Seed temp array.
 
@@ -575,11 +458,11 @@ double snlCurve::removeKnot(unsigned removalIndex, double tolerance)
 
 		// Replace points in control point array.
 
-		ctrlPtNet -> replacePoints(tmpPts + 1, numEqns, rSpan - deg, numEqns + 1);
+		_ctrlPtNet -> replacePoints(tmpPts + 1, numEqns, rSpan - _deg, numEqns + 1);
 
-		ctrlPtNet -> truncatePointSpace(1);
+		_ctrlPtNet -> truncatePointSpace(1);
 
-		knotVect -> removeKnot(rSpan);
+		_knotVect -> removeKnot(rSpan);
 	}
 
 	// Clean up.
@@ -593,10 +476,7 @@ double snlCurve::removeKnot(unsigned removalIndex, double tolerance)
 
 void snlCurve::refine(double tolerance)
 {
-	// Refine control point net until tolerance is achieved.
-	// -----------------------------------------------------
-
-	if(deg <= 1) return;  // Degree 1 curves are straight lines.
+	if(_deg <= 1) return;  // Degree 1 curves are straight lines.
 
 	bool tolOk = false;
 
@@ -604,23 +484,23 @@ void snlCurve::refine(double tolerance)
 	{
 		tolOk = true;
 
-		for(int index = 0; (unsigned) index <(ctrlPtNet -> size()) - deg; index ++)
+		for(int index = 0; (unsigned) index <(_ctrlPtNet -> size()) - _deg; index ++)
 		{
 			// Test for flatness
 
 			double  flatness;
 
-			flatness = ctrlPtNet -> calcFlatness(index, deg + 1);
+			flatness = _ctrlPtNet -> calcFlatness(index, _deg + 1);
 
 			if(flatness > tolerance)
 			{
 				// Insert knot into surface. Half way between existing knots.
 
-				int insertIndex = index + deg;
+				int insertIndex = index + _deg;
 
-				knot insertParam =(( knotVect -> getKnotVal(insertIndex + 1)
-									   - knotVect -> getKnotVal(insertIndex)) / 2)
-									   + knotVect -> getKnotVal(insertIndex);
+				knot insertParam =(( _knotVect -> getKnotVal(insertIndex + 1)
+									   - _knotVect -> getKnotVal(insertIndex)) / 2)
+									   + _knotVect -> getKnotVal(insertIndex);
 
 				insertKnot(insertParam, true);
 
@@ -634,43 +514,28 @@ void snlCurve::refine(double tolerance)
 
 double snlCurve::maxParam() const
 {
-	// Return maximum parameter value for curve.
-	// -----------------------------------------
-
-	return knotVect -> max();
+	return _knotVect -> max();
 }
 
 double snlCurve::minParam() const
 {
-	// Return minimum parameter value for curve.
-	// -----------------------------------------
-
-	return knotVect -> min();
+	return _knotVect -> min();
 }
 
 double snlCurve::param(unsigned index) const
 {
-	// Return parameter at specified knot index.
-	// -----------------------------------------
-
-	return knotVect -> getKnotVal(index);
+	return _knotVect -> getKnotVal(index);
 }
 
 int snlCurve::size()
 {
-	return ctrlPtNet -> size();
+	return _ctrlPtNet -> size();
 }
 
 void snlCurve::truncate(knot param, bool keepLast, bool reparam)
 {
-	// Truncate curve.
-	// ---------------
-	// param:       Parameter to truncate at.
-	// keepLast:    Keep last part of curve instead of first part.
-	// reparam:     Reparameterise curve to original pararemeter boundaries.
-
-	knot paramStart = knotVect -> min();
-	knot paramEnd = knotVect -> max();
+	knot paramStart = _knotVect -> min();
+	knot paramEnd = _knotVect -> max();
 
 	if(param == paramStart || param == paramEnd) return;
 
@@ -678,17 +543,17 @@ void snlCurve::truncate(knot param, bool keepLast, bool reparam)
 
 	// Remove unwanted control points.
 
-	unsigned span = knotVect -> findSpan(param);
+	unsigned span = _knotVect -> findSpan(param);
 
 	if(keepLast)
-		span -= deg;
+		span -= _deg;
 	else
-		span = knotVect -> previousSpan(span);
+		span = _knotVect -> previousSpan(span);
 
-	ctrlPtNet -> truncate(span, keepLast);
+	_ctrlPtNet -> truncate(span, keepLast);
 
 	// Remove unwanted knots.
-	knotVect -> truncate(param, keepLast);
+	_knotVect -> truncate(param, keepLast);
 
 	// Reparameterise if required.
 
@@ -698,14 +563,7 @@ void snlCurve::truncate(knot param, bool keepLast, bool reparam)
 
 void snlCurve::insertPartition(knot param)
 {
-	// Insert partition into curve.
-	// ----------------------------
-	// param:    Parameter to insert partition into.
-	//
-	// Notes:    Function basically makes sure degree knots are present
-	//           at supplied parameter.
-
-	int numToInsert = deg - knotVect -> findMultiplicity(param);
+	int numToInsert = _deg - _knotVect -> findMultiplicity(param);
 
 	for(int index = 0; index < numToInsert; index ++)
 		insertKnot(param, true);
@@ -713,42 +571,22 @@ void snlCurve::insertPartition(knot param)
 
 void snlCurve::reparameterise(knot startKnot, knot endKnot)
 {
-	// Do a linear Reparameterise on curve.
-	// ------------------------------------
-	// startKnot:    New starting knot value of knot vector.
-	// endKnot:      Ending knot value of knot vector.
-	//
-	// Notes:        Linear reparameterisations don't effect control points.
-
-	knotVect -> reparameterise(startKnot, endKnot);
+	_knotVect -> reparameterise(startKnot, endKnot);
 }
 
 void snlCurve::reverseEvalDirection()
 {
-	// Reverse curves parametric evaluation direction.
-	// -----------------------------------------------
-
 	// Reverse knot vector.
 
-	knotVect -> reverse();
+	_knotVect -> reverse();
 
 	// Reverse control points.
 
-	ctrlPtNet -> reverse();
+	_ctrlPtNet -> reverse();
 }
 
 void snlCurve::globalInterpClosedLoop(int type, snlPoint* points, unsigned size, int degree, knot** retParams)
 {
-	// Global interpolation as closed loop.
-	// ------------------------------------
-	// type:      Type of global interpolation from SNL_FITTING_TYPES.
-	// points:    Points to interpolate between.
-	// size:      Number of points.
-	// degree:    Resultant curve should be this degree.
-	// retParams: Pointer to pointer that points to array of parameters that correspond to given points.
-	//
-	// Notes:     Array returned via retParams should be deleted by calling function.
-
 	// Make sure first and last points aren't the same.
 
 	if(points[0] == points[size - 1]) size --;
@@ -784,8 +622,8 @@ void snlCurve::globalInterpClosedLoop(int type, snlPoint* points, unsigned size,
 
 	// Truncate curve.
 
-	knot paramStart = knotVect -> min();
-	knot paramEnd = knotVect -> max();
+	knot paramStart = _knotVect -> min();
+	knot paramEnd = _knotVect -> max();
 
 	knot newParamStart = newRetParams[degree];
 	knot newParamEnd = newRetParams[newSize - degree - 1];
@@ -826,20 +664,10 @@ void snlCurve::globalInterpClosedLoop(int type, snlPoint* points, unsigned size,
 
 void snlCurve::globalInterp(int type, snlPoint* points, unsigned size, int degree, knot** retParams)
 {
-	// Global interpolation.
-	// ---------------------
-	// type:      Type of global interpolation from SNL_FITTING_TYPES.
-	// points:    Points to interpolate between.
-	// size:      Number of points.
-	// degree:    Resultant curve should be this degree.
-	// retParams: Pointer to pointer that points to array of parameters that correspond to given points.
-	//
-	// Notes:     Array returned via retParams should be deleted by calling function.
+	if(_knotVect) delete _knotVect;
+	if(_ctrlPtNet) delete _ctrlPtNet;
 
-	if(knotVect) delete knotVect;
-	if(ctrlPtNet) delete ctrlPtNet;
-
-	deg = degree;
+	_deg = degree;
 
 	// Generate parameters.
 
@@ -900,7 +728,7 @@ void snlCurve::globalInterp(int type, snlPoint* points, unsigned size, int degre
 		knots[index + degree] = sum / degree;
 	}
 
-	knotVect = new snlKnotVector(knots, size + degree + 1, degree);
+	_knotVect = new snlKnotVector(knots, size + degree + 1, degree);
 
 	// Setup and solve linear equations.
 
@@ -922,13 +750,13 @@ void snlCurve::globalInterp(int type, snlPoint* points, unsigned size, int degre
 
 	// Fill middle rows with basis function values.
 
-	basis basisVals[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+	basis basisVals[SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
 
 	for(unsigned row = 1; row < size - 1; row ++)
 	{
-		knotVect -> evalBasis(params[row], basisVals);
+		_knotVect -> evalBasis(params[row], basisVals);
 
-		unsigned span = knotVect -> findSpan(params[row]);
+		unsigned span = _knotVect -> findSpan(params[row]);
 
 		unsigned rowStartIndex = row * size;
 
@@ -972,7 +800,7 @@ void snlCurve::globalInterp(int type, snlPoint* points, unsigned size, int degre
 
 	// Create control point net.
 
-	ctrlPtNet = new snlCtrlPointNetCurve(ctrlPts, size, false);
+	_ctrlPtNet = new snlCtrlPointNetCurve(ctrlPts, size, false);
 
 	// Return parameters of given points if needed.
 
@@ -984,15 +812,6 @@ void snlCurve::globalInterp(int type, snlPoint* points, unsigned size, int degre
 
 snlCtrlPoint* snlCurve::genGlobalInterpPoints(snlPoint* points, unsigned size, knot* params, snlKnotVector* knots)
 {
-	// Generate control points for global interpolation.
-	// -------------------------------------------------
-	// points:      Array of points to interpolate between.
-	// size:        Size of points array.
-	// params:      Parameters that correspond to points array.
-	// knots:       Knot vector to use.
-	//
-	// Returns:     Array of control points the same size as the given "points" array.
-
 	// *** Setup and solve linear equations ***
 
 	// Generate coefficient array.
@@ -1015,7 +834,7 @@ snlCtrlPoint* snlCurve::genGlobalInterpPoints(snlPoint* points, unsigned size, k
 
 	// Fill middle rows with basis function values.
 
-	basis basisVals[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+	basis basisVals[SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
 
 	int deg = knots -> getDegree();
 
@@ -1070,84 +889,64 @@ snlCtrlPoint* snlCurve::genGlobalInterpPoints(snlPoint* points, unsigned size, k
 
 void snlCurve::localInterpQuadratic(snlPoint* points, unsigned size)
 {
-	// Local quadratic interpolation.
-	// ------------------------------
-
-
+	// TODO ...
 }
 
 void snlCurve::localInterpCubic(snlPoint* points, unsigned size)
 {
-	// Local cubic interpolation.
-	// --------------------------
-
-
+	// TODO ...
 }
 
 void snlCurve::synchronise(snlCurve& curve)
 {
-	//! Synchronise this curves knot vector to given curve.
-	//  ---------------------------------------------------
-	//! @param curve Curve to snync to.
-	//!
-	//! @par Notes: Knots are only ever added NOT removed.
-	//!             So if curve has less multiplicity at a particular span index
-	//!             then true synchronisation will not occur and the caller
-	//!             should call the synchronise function on curve with this object
-	//!             as it's argument.
+	if(curve._deg != _deg) return;  // Curve to sync to must have same degree.
 
-	if(curve.deg != deg) return;  // Curve to sync to must have same degree.
-
-	unsigned numSpans = curve.knotVect -> numSpans();
+	unsigned numSpans = curve._knotVect -> numSpans();
 
 	if(numSpans < 2) return;
 
 	// If the degree is the same then the first span will always have the same multiplicity for both curves.
 
-	unsigned spanIndex = curve.knotVect -> firstSpan();
-	spanIndex = curve.knotVect -> nextSpan(spanIndex);
+	unsigned spanIndex = curve._knotVect -> firstSpan();
+	spanIndex = curve._knotVect -> nextSpan(spanIndex);
 
 	for(unsigned index = 1; index < numSpans; index ++)
 	{
-		knot param = curve.knotVect -> getKnotVal(spanIndex);
+		knot param = curve._knotVect -> getKnotVal(spanIndex);
 
-		int multi = curve.knotVect -> findMultiplicity(spanIndex);
+		int multi = curve._knotVect -> findMultiplicity(spanIndex);
 
-		unsigned insertSpan = knotVect -> findSpan(param);  // Where param would be inserted in this object.
+		unsigned insertSpan = _knotVect -> findSpan(param);  // Where param would be inserted in this object.
 
 		// If knot already exists in this curve then reduce the number of knots inserted.
 
-		if(knotVect -> getKnotVal(insertSpan) == param) multi -= knotVect -> findMultiplicity(insertSpan);
+		if(_knotVect -> getKnotVal(insertSpan) == param) multi -= _knotVect -> findMultiplicity(insertSpan);
 
 		if(multi > 0) insertKnots(param, multi, true);
 
 		// Get next span.
 
-		spanIndex = curve.knotVect -> nextSpan(spanIndex);
+		spanIndex = curve._knotVect -> nextSpan(spanIndex);
 	}
 }
 
 void snlCurve::makeCompatible(snlCurve* curve)
 {
-	// Make this curve and given curve compatible.
-	// -------------------------------------------
-	// curve:   Curve to make this curve compatible with.
-
 	// Make sure the degree of each curve is the same.
 
-	if(deg > curve -> deg)
-		curve -> elevateDegree(deg - curve -> deg);
+	if(_deg > curve -> _deg)
+		curve -> elevateDegree(_deg - curve -> _deg);
 
-	if(curve -> deg > deg)
-		elevateDegree(curve -> deg - deg);
+	if(curve -> _deg > _deg)
+		elevateDegree(curve -> _deg - _deg);
 
 	// Make parametric ranges equal.
 
-	knot thisMin = knotVect -> min();
-	knot thisMax = knotVect -> max();
+	knot thisMin = _knotVect -> min();
+	knot thisMax = _knotVect -> max();
 
-	knot compMin =(curve -> knotVect) -> min();  // Given curve.
-	knot compMax =(curve -> knotVect) -> max();
+	knot compMin =(curve -> _knotVect) -> min();  // Given curve.
+	knot compMax =(curve -> _knotVect) -> max();
 
 	if(thisMin != compMin || thisMax != compMax)
 	{
@@ -1168,20 +967,13 @@ void snlCurve::makeCompatible(snlCurve* curve)
 
 unsigned snlCurve::createBezierSegments(int** retNumKnotsAdded)
 {
-	// Create Bezier Segments over entire curve.
-	// -----------------------------------------
-	// retNumKnotsAdded:    Pointer to pointer to return array with number of inserted knots in it.
-	//                      Caller must delete this array. First index in array corresponds to second knot span.
-	//
-	// Returns:             Number of elements in returned array.
-
 	// Find number of knots to be inserted and reallocate curve memory in one pass.
 
 	// Find number of non-zero spans.
-	unsigned numSpans = knotVect -> numSpans();
+	unsigned numSpans = _knotVect -> numSpans();
 
 	// Find first spans knot index.
-	unsigned knotIndex = knotVect -> firstSpan();
+	unsigned knotIndex = _knotVect -> firstSpan();
 
 	// Resize control points array just once for all knot insertions.
 
@@ -1193,29 +985,29 @@ unsigned snlCurve::createBezierSegments(int** retNumKnotsAdded)
 	// Find amount to resize by.
 	for(unsigned spanIndex = 1; spanIndex < numSpans; spanIndex ++)
 	{
-		span = knotVect -> nextSpan(span);
+		span = _knotVect -> nextSpan(span);
 
-		addedKnots[spanIndex - 1] = deg -(knotVect -> findMultiplicity(span));
+		addedKnots[spanIndex - 1] = _deg -(_knotVect -> findMultiplicity(span));
 
 		extraKnots += addedKnots[spanIndex - 1];
 	}
 
 	// Append extra control point space to end of current control points.
-	ctrlPtNet -> appendPointSpace(extraKnots);
+	_ctrlPtNet -> appendPointSpace(extraKnots);
 
 	// Find knot index of second knot span.
-	span = knotVect -> nextSpan(knotIndex);
+	span = _knotVect -> nextSpan(knotIndex);
 
 	for(unsigned spanIndex = 0; spanIndex < numSpans - 1; spanIndex ++)
 	{
 		// Increase multiplicity of span to degree.
 
-		knot insertParam = knotVect -> getKnotVal(span);
+		knot insertParam = _knotVect -> getKnotVal(span);
 
 		insertKnots(insertParam, addedKnots[spanIndex], false);
 
 		// Re-adjust current span index to account for inserted knots.
-		span = knotVect -> nextSpan(span + addedKnots[spanIndex]);
+		span = _knotVect -> nextSpan(span + addedKnots[spanIndex]);
 	}
 
 	*retNumKnotsAdded = addedKnots;
@@ -1224,15 +1016,8 @@ unsigned snlCurve::createBezierSegments(int** retNumKnotsAdded)
 }
 
 void snlCurve::elevateBezierSegmentPointsDegree(int origDegree, int byDegree, const snlCtrlPoint* origPoints,
-												  snlCtrlPoint* newPoints)
+	snlCtrlPoint* newPoints)
 {
-	// Calculate new control points for Bezier segment that is being degree elevated.
-	// ------------------------------------------------------------------------------
-	// origDegree:  Original degree of segment.
-	// byDegree:    Number of degrees segment is being elevated by.
-	// origPoints:  Original points of non-elevated segment. Expected size is origDegree + 1.
-	// newPoints:   Array to store new points in. Must be size origDegree + byDegree + 1.
-
 	int numNewPts = origDegree + byDegree;
 
 	for(int index = 0; index <= numNewPts; index ++)
@@ -1256,10 +1041,6 @@ void snlCurve::elevateBezierSegmentPointsDegree(int origDegree, int byDegree, co
 
 void snlCurve::elevateDegree(int byDegree)
 {
-	// Elevate degree of curve
-	// -----------------------
-	// byDegree:    Number of degrees to elevate by.
-
 	// Convert curve into Bezier segments.
 
 	int* addedKnots;
@@ -1270,58 +1051,58 @@ void snlCurve::elevateDegree(int byDegree)
 
 	// Grow control point net.
 
-	ctrlPtNet -> appendPointSpace(numSegments * byDegree);
+	_ctrlPtNet -> appendPointSpace(numSegments * byDegree);
 
 	// Elevate degree of Bezier segments.
 
-	int newSegmentSize = deg + byDegree + 1;
+	int newSegmentSize = _deg + byDegree + 1;
 
 	snlCtrlPoint* tmpPts = new snlCtrlPoint[newSegmentSize];
 
-	const snlCtrlPoint* ctrlPts = ctrlPtNet -> getCtrlPts();
+	const snlCtrlPoint* ctrlPts = _ctrlPtNet -> getCtrlPts();
 
 	int ptsIndex = 0;
 
-	unsigned spanIndex = deg * 2;
+	unsigned spanIndex = _deg * 2;
 
 	// Generate new points per segment.
 
 	for(unsigned segment = 0; segment < numSegments; segment ++)
 	{
-		elevateBezierSegmentPointsDegree(deg, byDegree, ctrlPts + ptsIndex, tmpPts);
+		elevateBezierSegmentPointsDegree(_deg, byDegree, ctrlPts + ptsIndex, tmpPts);
 
 		// Replace points in control point array. First and last points are not altered.
-		ctrlPtNet -> replacePoints(tmpPts + 1, newSegmentSize - 2, ptsIndex + 1, deg - 1);
+		_ctrlPtNet -> replacePoints(tmpPts + 1, newSegmentSize - 2, ptsIndex + 1, _deg - 1);
 
-		ptsIndex += deg + byDegree;
+		ptsIndex += _deg + byDegree;
 
 		// Add knots to knot vector.
-		knotVect -> increaseMultiplicity(spanIndex, byDegree);
+		_knotVect -> increaseMultiplicity(spanIndex, byDegree);
 
-		spanIndex += deg + byDegree;
+		spanIndex += _deg + byDegree;
 	}
 
 	// Make sure start clamp is of degree + 1 multiplicity.
 
-	knotVect -> increaseMultiplicity(deg, byDegree);
+	_knotVect -> increaseMultiplicity(_deg, byDegree);
 
 	// Increase degree indicator variables
 
-	deg += byDegree;
+	_deg += byDegree;
 
-	knotVect -> setDegree(deg);
+	_knotVect -> setDegree(_deg);
 
 	// Remove number of knots that were added during knot insertion.
 
-	spanIndex = knotVect -> firstSpan();
+	spanIndex = _knotVect -> firstSpan();
 
-	spanIndex += deg;
+	spanIndex += _deg;
 
 	for(unsigned segment = 0; segment < numSegments - 1; segment ++)
 	{
 		removeKnots(addedKnots[segment], spanIndex, 0.0);
 
-		spanIndex += deg - addedKnots[segment];
+		spanIndex += _deg - addedKnots[segment];
 	}
 
 	// Clean up.
@@ -1332,14 +1113,6 @@ void snlCurve::elevateDegree(int byDegree)
 
 void snlCurve::appendCurve(snlCurve* curveToAppend, bool copy)
 {
-	// Append a curve to this curve.
-	// -----------------------------
-	// curveToAppend:    Curve to append to this curve.
-	// copy:             Copy curveToAppend and don't modify it in any way.
-	//
-	// Notes:            This curve may have it's degree elevated to accomodate new curve.
-
-
 	// Copy curve if required.
 
 	snlCurve* curve;
@@ -1351,23 +1124,23 @@ void snlCurve::appendCurve(snlCurve* curveToAppend, bool copy)
 
 	// Elevate degree if needed.
 
-	if(deg > curve -> degree())
-		curve -> elevateDegree(deg - curve -> degree());
-	else if(deg < curve -> degree())
-		elevateDegree(curve -> degree() - deg);
+	if(_deg > curve -> degree())
+		curve -> elevateDegree(_deg - curve -> degree());
+	else if(_deg < curve -> degree())
+		elevateDegree(curve -> degree() - _deg);
 
 	// Re-parameterise curve to append so that it's starting knot val is the same as this curves knot end val.
 
-	double min = knotVect -> min();
-	double max = knotVect -> max();
+	double min = _knotVect -> min();
+	double max = _knotVect -> max();
 
 	curve -> reparameterise(max, max + 1.0);
 
 	// Join control points and knot vectors together.
 
-	ctrlPtNet -> appendPoints(( curve -> ctrlPtNet) -> getCtrlPts() + 1,(curve -> ctrlPtNet) -> getNumPts() - 1);
+	_ctrlPtNet -> appendPoints(( curve -> _ctrlPtNet) -> getCtrlPts() + 1,(curve -> _ctrlPtNet) -> getNumPts() - 1);
 
-	knotVect -> join(curve -> knotVect);
+	_knotVect -> join(curve -> _knotVect);
 
 	reparameterise(min, max);
 
@@ -1378,24 +1151,15 @@ void snlCurve::appendCurve(snlCurve* curveToAppend, bool copy)
 
 void snlCurve::print()
 {
-	// Print curve to standard out.
-	// ----------------------------
-
-	ctrlPtNet -> print();
-	knotVect -> print();
+	_ctrlPtNet -> print();
+	_knotVect -> print();
 }
 
 void snlCurve::vertexNet(snlVertexNet* vNet, double tolerance, bool parametric)
 {
-	// Return approximation to curve.
-	// --------------------------------
-	// tolerance:    Tolerance to approximate to.
-	// parametric:   Do a parametric analysis as opposed to knot refinement.
-	// vNet:         Vertex net to fill with data.
-
 	if(parametric)
 	{
-		vertexNetParam(vNet, tolerance);
+		_vertexNetParam(vNet, tolerance);
 		return;
 	}
 
@@ -1408,13 +1172,13 @@ void snlCurve::vertexNet(snlVertexNet* vNet, double tolerance, bool parametric)
 	{
 		tmpCurve = new snlCurve(*this);
 		tmpCurve -> refine(tolerance);
-		ctrlPts =(tmpCurve -> ctrlPtNet) -> getCtrlPts();
-		size =(tmpCurve -> ctrlPtNet) -> size();
+		ctrlPts =(tmpCurve -> _ctrlPtNet) -> getCtrlPts();
+		size =(tmpCurve -> _ctrlPtNet) -> size();
 	}
 	else
 	{
-		ctrlPts = ctrlPtNet -> getCtrlPts();
-		size = ctrlPtNet -> size();
+		ctrlPts = _ctrlPtNet -> getCtrlPts();
+		size = _ctrlPtNet -> size();
 	}
 
 	vNet -> vertexNet(ctrlPts, size);
@@ -1422,20 +1186,15 @@ void snlCurve::vertexNet(snlVertexNet* vNet, double tolerance, bool parametric)
 	if(tmpCurve) delete tmpCurve;
 }
 
-void snlCurve::vertexNetParam(snlVertexNet* vNet, double tolerance)
+void snlCurve::_vertexNetParam(snlVertexNet* vNet, double tolerance)
 {
-	// Generate vertex net based on evaluation of curve.
-	// -------------------------------------------------
-	// vNet:        Vertex network to load with points.
-	// tolerance:   Tolerance to actual surface.
-
-	int              size;
+	int size;
 
 	snlPoint* pts = 0;
 
 	if(tolerance <= 0.0)
 	{
-		size = ctrlPtNet -> size();
+		size = _ctrlPtNet -> size();
 
 		pts = new snlPoint[size];
 
@@ -1461,11 +1220,11 @@ void snlCurve::vertexNetParam(snlVertexNet* vNet, double tolerance)
 
 const snlKnotVector& snlCurve::knotVector()
 {
-	return *knotVect;
+	return *_knotVect;
 }
 
 int snlCurve::degree()
 {
-	return deg;
+	return _deg;
 }
 

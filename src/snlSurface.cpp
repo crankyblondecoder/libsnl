@@ -843,8 +843,8 @@ snlPoint snlSurface::evalHmg(knot paramU, knot paramV, basis* basisU, basis* bas
 	// Evaluate basis functions.
 
 	// Pre-allocate basis function eval return arrays regardless of whether they are used or not. This is an optimisation.
-	basis preBasisU[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
-	basis preBasisV[SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+	basis preBasisU[SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
+	basis preBasisV[SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
 
 	basis* bValsU;
 
@@ -1024,8 +1024,8 @@ snlPoint* snlSurface::evalDerivsHmg(knot paramU, knot paramV, unsigned derivU, u
 	// Evaluate basis functions.
 
 	// Pre-allocate basis function eval return arrays regardless of whether they are used or not. This is an optimisation.
-	basis preBasisU[SNL_KNOT_VECTOR_MAX_DEG * SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
-	basis preBasisV[SNL_KNOT_VECTOR_MAX_DEG * SNL_KNOT_VECTOR_MAX_DEG_PLUS_1];
+	basis preBasisU[SNL_KNOT_VECTOR_MAX_DEG * SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
+	basis preBasisV[SNL_KNOT_VECTOR_MAX_DEG * SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS];
 
 	basis* bValsU;
 	basis* bValsV;

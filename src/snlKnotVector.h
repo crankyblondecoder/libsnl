@@ -7,13 +7,8 @@
 using namespace std;
 
 // Limiting the size of the degree allows memory optimisations.
-#ifndef SNL_KNOT_VECTOR_MAX_DEG
 #define SNL_KNOT_VECTOR_MAX_DEG 7
-#endif
-
-#ifndef SNL_KNOT_VECTOR_MAX_DEG_PLUS_1
-#define SNL_KNOT_VECTOR_MAX_DEG_PLUS_1 8
-#endif
+#define SNL_KNOT_VECTOR_MAX_NUM_BASIS_VALS 8
 
 typedef double knot;
 typedef double basis;
@@ -222,13 +217,13 @@ class snlKnotVector
 
 		void __copyFrom(const snlKnotVector& vector);
 
-		knot* __knots;
-		unsigned __vectorSize;
+		knot* _knots;
+		unsigned _vectorSize;
 
-		int __deg; // Degree associated with vector.
+		int _deg; // Degree associated with vector.
 
 		// Type of knot vector
-		int __kvType;
+		int _kvType;
 };
 
 #endif
